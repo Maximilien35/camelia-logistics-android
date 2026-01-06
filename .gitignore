@@ -1,0 +1,89 @@
+gitignore
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.buildlog/
+.history
+.svn/
+
+# IntelliJ / Android Studio
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+
+# Visual Studio Code
+.vscode/
+
+# Flutter / Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+doc/api/
+
+# Android
+android/gradle/
+android/gradlew
+android/gradlew.bat
+android/local.properties
+android/.gradle
+android/captures/
+android/gradlew
+android/gradlew.bat
+android/libs/
+android/app/libs/
+android/app/build/
+android/app/src/main/assets/
+# Keystore files (NE JAMAIS COMMITTER VOS CLÉS DE SIGNATURE)
+*.jks
+*.keystore
+key.properties
+
+# iOS
+ios/Flutter/App.framework
+ios/Flutter/Flutter.framework
+ios/Flutter/Generated.xcconfig
+ios/Flutter/app.flx
+ios/Flutter/app.zip
+ios/Flutter/flutter_assets/
+ios/ServiceDefinitions.json
+ios/Runner/GeneratedPluginRegistrant.*
+ios/.generated/
+ios/Pods/
+ios/Podfile.lock
+ios/DerivedData/
+
+# Windows
+windows/flutter/ephemeral/
+
+# Linux
+linux/flutter/ephemeral/
+
+# MacOS
+macos/flutter/ephemeral/
+
+# Web
+web/icons/ # Seulement si générés automatiquement, sinon gardez-les
+lib/generated_plugin_registrant.dart
+
+# Firebase / Google Services (TRES IMPORTANT)
+# Ces fichiers contiennent des clés API et des identifiants de projet.
+# Pour les projets open-source, il est crucial de les ignorer.
+# Pour les projets privés, certains développeurs choisissent de les committer,
+# mais la bonne pratique est de les ignorer et de les fournir sécurisément via CI/CD.
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
+firebase_options.dart
+
+# Environnement
+.env
+.env.*

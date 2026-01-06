@@ -1,0 +1,404 @@
+import 'package:camelia_logistics/models/order_model.dart';
+import 'package:camelia_logistics/models/services/userProfileService.dart';
+import 'package:camelia_logistics/screens/OrderSummaryScreen.dart';
+import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
+import '../models/services/order_service.dart';
+
+// Définition de l'écran d'historique
+class HistoryScreen extends StatefulWidget {
+  const HistoryScreen({super.key});
+
+  @override
+  _HistoryScreenState createState() => _HistoryScreenState();
+}
+
+class _HistoryScreenState extends State<HistoryScreen> {
+  // Référence à l'UID de l'utilisateur connecté
+  final String userId = FirebaseAuth.instance.currentUser!.uid;
+  final OrderService _orderService = OrderService();
+  final UserProfileService _userService = UserProfileService();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          "Historique",
+          style: GoogleFonts.pacifico(fontWeight: FontWeight.bold),
+        ),
+        centerTitle: true,
+        leading: IconButton(
+          onPressed: () {
+            context.go('/home_custom');
+          },
+          icon: Icon(Icons.arrow_back),
+        ),
+        actions: [
+          IconButton(
+            onPressed: () {
+              // TODO: Implémenter le filtre par statut
+            },
+            icon: const Icon(Icons.history_toggle_off_rounded),
+          ),
+        ],
+      ),
+      // Le SingleChildScrollView englobe toute la page
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            // Section des cartes de statistiques (peut être mise à jour avec un FutureBuilder)
+            FutureBuilder(
+              future: _userService.calculateAndSetClientRank(
+                uid: userId!,
+                stat: 'COMPLETED',
+              ),
+              builder: (context, snapshot) {
+                if (snapshot.data == null) {
+                  Text('0');
+                }
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                return Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: _CardHistory(
+                          icon: Icons.inventory_2,
+                          value: snapshot.data!
+                              .toString(), // VALEUR STATIQUE, à remplacer par une requête réelle
+                          label: 'Colis livrés',
+                        ),
+                      ),
+                      SizedBox(width: 20),
+                      FutureBuilder(
+                        future: _orderService.calculateTotalSpent(userId!),
+                        builder: (context, snapshots) {
+                          if (snapshots.data == null) {
+                            Text('0');
+                          }
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
+
+                          return Expanded(
+                            child: _CardHistory(
+                              icon: Icons.monetization_on,
+                              value: snapshots.data
+                                  .toString(), // VALEUR STATIQUE, à remplacer par une requête réelle
+                              label: 'Total Depense',
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+
+            // --- SECTION DE LA LISTE DES LIVRAISONS EN TEMPS RÉEL ---
+            StreamBuilder(
+              stream: _orderService.streamUserOrders(userId),
+
+              builder: (context, snapshot) {
+                // 1. État de Chargement
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(
+                    child: Padding(
+                      padding: EdgeInsets.only(top: 50.0),
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
+                }
+
+                // 2. État d'Erreur
+                if (snapshot.hasError) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 50.0),
+                      child: Text('Erreur : ${snapshot.error}'),
+                    ),
+                  );
+                }
+
+                // 3. État sans Données
+                final orders = snapshot.data;
+                if (orders == null || orders.isEmpty) {
+                  return const Center(
+                    child: Padding(
+                      padding: EdgeInsets.only(top: 50.0),
+                      child: Text('Aucune commande trouvée.'),
+                    ),
+                  );
+                }
+
+                // 4. État de Succès (Affichage de la liste)
+                return ListView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: orders.length,
+                  itemBuilder: (context, index) {
+                    final order = orders[index];
+
+                    // Utilisation de votre widget _buildCardInventory
+                    return _CardInventory(
+                      type: order
+                          .packageNature, // Utilisation du champ du modèle Order
+                      depart: order.pickupAddress, // Utilisation d'une adresse
+                      destination:
+                          order.dropoffAddress, // Utilisation d'une adresse
+                      date: order.timestamp.toString().substring(0, 10),
+
+                      prix: order.priceQuote?.toInt() ?? 0,
+                      status: order.status,
+                      onTap: () {
+                        if (order.status == "PENDING" ||
+                            order.status == "ASSIGNED") {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  OrderSummaryScreen(orderId: order.id!),
+                            ),
+                          );
+                        }
+
+                        // Navigation vers l'écran de résumé (s'assurer que la route existe)
+                        //context.go();
+                      },
+                    );
+                  },
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _CardHistory extends StatelessWidget {
+  final IconData icon;
+  final String value;
+  final String label;
+
+  const _CardHistory({
+    required this.icon,
+    required this.value,
+    required this.label,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.2),
+            spreadRadius: 2,
+            blurRadius: 5,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, color: Colors.blue, size: 30),
+          const SizedBox(height: 10),
+          Text(
+            value,
+            style: GoogleFonts.ubuntu(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          Text(
+            label,
+            style: GoogleFonts.montserrat(
+              color: Colors.grey[500],
+              fontSize: 12,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// Widget pour les cartes d'inventaire (privé)
+// Remplacé _buildCardInventory par _CardInventory pour suivre les conventions
+class _CardInventory extends StatelessWidget {
+  final String type;
+  final String depart;
+  final String destination;
+  final String date;
+  final int prix;
+  final String status;
+  final VoidCallback onTap; // Ajouté pour gérer le clic
+
+  const _CardInventory({
+    required this.type,
+    required this.depart,
+    required this.destination,
+    required this.date,
+    required this.prix,
+    required this.onTap,
+    required this.status, // Requis
+  });
+  static Color _getStatusColor(String status) {
+    switch (status.toUpperCase()) {
+      case 'PENDING':
+        return Colors.orange.shade700;
+      case 'ACCEPTED': // Correspond à Validée
+        return Colors.green.shade700;
+      case 'ASSIGNED':
+        return Colors.blue.shade700;
+      case 'COMPLETED': // Correspond à Livrée
+        return Colors.indigo.shade700;
+      case 'CANCELLED':
+        return Colors.red.shade700;
+      default:
+        return Colors.grey.shade600;
+    }
+  }
+
+  // Fonction pour obtenir le texte du statut
+  static String _getDisplayStatus(String status) {
+    switch (status.toUpperCase()) {
+      case 'PENDING':
+        return 'En Attente';
+      case 'ACCEPTED':
+        return 'Validée';
+      case 'ASSIGNED':
+        return 'En cours';
+      case 'COMPLETED':
+        return 'Livrée';
+      case 'CANCELLED':
+        return 'Annulée';
+      default:
+        return status;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final statusColor = _getStatusColor(status);
+    final displayStatus = _getDisplayStatus(status);
+    return GestureDetector(
+      onTap: onTap, // Lier le onTap
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        padding: const EdgeInsets.all(15),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(15),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.2),
+              spreadRadius: 2,
+              blurRadius: 5,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  type,
+                  style: GoogleFonts.ubuntu(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: statusColor.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    displayStatus,
+                    style: TextStyle(
+                      color: statusColor,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                const Icon(Icons.my_location, color: Colors.blue, size: 10),
+                const SizedBox(width: 10),
+                Text(
+                  depart,
+                  style: GoogleFonts.montserrat(
+                    fontSize: 14,
+                    color: Colors.grey,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 5),
+            Row(
+              children: [
+                const Icon(Icons.location_on, color: Colors.green, size: 10),
+                const SizedBox(width: 10),
+                Text(
+                  destination,
+                  style: GoogleFonts.montserrat(
+                    fontSize: 14,
+                    color: Colors.grey,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 15),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  date,
+                  style: GoogleFonts.playfair(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black54,
+                  ),
+                ),
+                Text(
+                  '$prix FCFA',
+                  style: GoogleFonts.ubuntu(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.green,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
