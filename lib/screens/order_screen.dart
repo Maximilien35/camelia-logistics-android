@@ -1,323 +1,366 @@
 import 'dart:io';
-import 'package:camelia_logistics/models/services/userProfileService.dart';
-import 'package:camelia_logistics/models/userProfile.dart';
-import 'package:camelia_logistics/screens/history_screen.dart';
+import 'dart:convert';
+import 'package:camelia_logistics/models/services/user_profile_service.dart';
+import 'package:camelia_logistics/models/user_profile.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
 import '../models/order_model.dart';
 import '../models/services/order_service.dart';
 import '../models/order_state_model.dart';
 import '../models/services/storage_service.dart';
-import 'package:geolocator/geolocator.dart'; // Nouvelle dépendance
-import 'package:geocoding/geocoding.dart'; // Nouvelle dépendance
-import 'package:google_maps_flutter/google_maps_flutter.dart'; // Nouvelle dépendance
-import 'dart:async'; // Nécessaire pour les Completer
+import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:http/http.dart' as http;
+import 'dart:async';
 
 class OrderScreen extends StatefulWidget {
   const OrderScreen({super.key});
 
   @override
-  _OrderScreenState createState() => _OrderScreenState();
+  State<OrderScreen> createState() => _OrderScreenState();
 }
 
 class _OrderScreenState extends State<OrderScreen> {
-  // Dans votre classe _PackagePhotoScreenState
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Choisir un vehicule',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        centerTitle: true,
-        leading: IconButton(
-          onPressed: () {
-            context.go('/home_custom');
-          },
-          icon: Icon(Icons.arrow_back),
-        ),
-        actions: [
-          IconButton(
-            onPressed: () {
-              Navigator.of(
-                context,
-              ).push(MaterialPageRoute(builder: (context) => HistoryScreen()));
-            },
-            icon: Icon(Icons.history),
-          ),
-          IconButton(
-            onPressed: () {
-              context.go('/profil');
-            },
-            icon: Icon(Icons.person),
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
-            child: Text(
-              'Sélectionnez votre mode de transport',
-              style: TextStyle(fontSize: 16, color: Colors.grey[600]),
-            ),
-          ),
-          SizedBox(height: 10),
-          Container(
-            margin: EdgeInsets.symmetric(horizontal: 20),
-            padding: EdgeInsets.all(15),
-            decoration: BoxDecoration(
-              color: Colors.blue.shade50,
-              borderRadius: BorderRadius.circular(15),
-            ),
-
-            child: Row(
-              children: [
-                Icon(Icons.location_on, color: Colors.blue.shade800),
-                SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    'Service Bientot disponible à Yaoundé, Bafoussam, Garoua et Kribi',
-                    style: TextStyle(color: Colors.blue.shade800),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          SizedBox(height: 20),
-          Expanded(
-            child: ListView(
-              padding: EdgeInsets.symmetric(horizontal: 20),
-              children: [
-                SelectCar(
-                  icon: Icons.bike_scooter,
-                  iconColor: Colors.lightBlueAccent,
-                  typeCar: 'Camion Bennes',
-                  description: 'rapide et economique',
-                  onTap: () {
-                    // 1. Accès au modèle SANS ÉCOUTER (listen: false)
-                    final orderState = Provider.of<OrderStateModel>(
-                      context,
-                      listen: false,
-                    );
-
-                    // 2. Mise à jour de l'état (appelle setVehicleType)
-                    orderState.setVehicleType(
-                      'Camion Bennes',
-                    ); // ou 'Tricycle', etc.
-
-                    // 3. Navigation vers l'étape suivante (ex: Saisie des Adresses)
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => PackagePhotoScreen(),
-                      ),
-                    );
-                  },
-                ),
-                SizedBox(height: 30),
-                SelectCar(
-                  icon: Icons.fire_truck_outlined,
-                  iconColor: Colors.greenAccent,
-                  typeCar: 'camionnette',
-                  description: 'transport securise',
-                  onTap: () {
-                    final orderState = Provider.of<OrderStateModel>(
-                      context,
-                      listen: false,
-                    );
-                    orderState.setVehicleType(
-                      'Camionnette',
-                    ); // ou 'Tricycle', etc.
-
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => PackagePhotoScreen(),
-                      ),
-                    );
-                  },
-                ),
-                SizedBox(height: 30),
-                SelectCar(
-                  icon: Icons.train_outlined,
-                  iconColor: Colors.purpleAccent,
-                  typeCar: 'Tricycle',
-                  description: 'rapide et economique',
-                  onTap: () {
-                    final orderState = Provider.of<OrderStateModel>(
-                      context,
-                      listen: false,
-                    );
-
-                    orderState.setVehicleType(
-                      'Tricycle',
-                    ); // ou 'Tricycle', etc.
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => PackagePhotoScreen(),
-                      ),
-                    );
-                  },
-                ),
-                SizedBox(height: 30),
-                SelectCar(
-                  icon: Icons.local_shipping_outlined,
-                  iconColor: Colors.indigo,
-                  typeCar: 'Fourgonnette',
-                  description: 'rapide et economique',
-                  onTap: () {
-                    final orderState = Provider.of<OrderStateModel>(
-                      context,
-                      listen: false,
-                    );
-
-                    orderState.setVehicleType('Fourgonnette');
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => PackagePhotoScreen(),
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () {},
-                    icon: Icon(Icons.location_on, color: Colors.blue.shade800),
-                    label: Text('Suivi colis'),
-                    style: OutlinedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(vertical: 15),
-                      foregroundColor: Colors.blue.shade800,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      side: BorderSide(color: Colors.blue.shade800),
-                    ),
-                  ),
-                ),
-                SizedBox(width: 15),
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () {},
-                    icon: Icon(
-                      Icons.chat_bubble,
-                      color: Colors.purple.shade600,
-                    ),
-                    label: Text('Support'),
-                    style: OutlinedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(vertical: 15),
-                      foregroundColor: Colors.purple.shade600,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      side: BorderSide(color: Colors.purple.shade600),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+  void _selectVehicleAndProceed(String vehicleType) {
+    final orderState = Provider.of<OrderStateModel>(context, listen: false);
+    orderState.setVehicleType(vehicleType);
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const PackagePhotoScreen(),
       ),
     );
   }
-}
 
-Widget SelectCar({
-  required IconData icon,
-  required Color iconColor,
-  required String typeCar,
-  required String description,
-  required VoidCallback onTap,
-}) {
-  return GestureDetector(
-    onTap: onTap,
-    child: Container(
-      padding: EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
-            spreadRadius: 2,
-            blurRadius: 5,
-            offset: Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Icon(icon, size: 45, color: iconColor),
-          SizedBox(width: 20),
-
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  typeCar,
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  description,
-                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-                ),
-              ],
+  @override
+  Widget build(BuildContext context) {
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop,result) {
+        if (didPop) return;
+        if (Navigator.of(context).canPop()) {
+          Navigator.of(context).pop();
+        } else {
+          context.go('/home_custom');
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(
+            'Choisir un véhicule',
+            style: TextStyle(
+              fontWeight: FontWeight.w700,
+              color: Colors.grey.shade900,
+              fontSize: 18,
             ),
           ),
-        ],
+          centerTitle: true,
+          leading: IconButton(
+            onPressed: () => context.go('/home_custom'),
+            icon: Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade100,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(
+                Icons.arrow_back_ios_new_rounded,
+                size: 18,
+                color: Colors.grey.shade700,
+              ),
+            ),
+          ),
+          actions: [
+            IconButton(
+              onPressed: () => context.push('/history'),
+              icon: Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  Icons.history_rounded,
+                  size: 20,
+                  color: Colors.grey.shade700,
+                ),
+              ),
+            ),
+            IconButton(
+              onPressed: () => context.go('/profil'),
+              icon: Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  Icons.person_rounded,
+                  size: 20,
+                  color: Colors.grey.shade700,
+                ),
+              ),
+            ),
+          ],
+        ),
+        body: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 24, left: 24, right: 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Sélectionnez votre mode de transport',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey.shade600,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF6C63FF).withValues(alpha:0.08),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: const Color(0xFF6C63FF).withValues(alpha:0.2),
+                      ),
+                    ),
+                    child:const Row(
+                      children: [
+                         Icon(
+                          Icons.location_on_rounded,
+                          color: Color(0xFF6C63FF),
+                          size: 22,
+                        ),
+                         SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            'Service Bientôt disponible à Yaoundé, Bafoussam, Garoua et Kribi',
+                            style: TextStyle(
+                              color:  Color(0xFF6C63FF),
+                              fontWeight: FontWeight.w500,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: ListView(
+                  children: [
+                    _buildVehicleCard(
+                      icon: Icons.fire_truck_rounded,
+                      title: 'Camion Bennes',
+                      subtitle: 'Rapide et économique',
+                      color: const Color(0xFF6C63FF),
+                      onTap: () => _selectVehicleAndProceed('Camion Bennes'),
+                    ),
+                    const SizedBox(height: 16),
+                    _buildVehicleCard(
+                      icon: Icons.local_shipping_rounded,
+                      title: 'Camionnette',
+                      subtitle: 'Transport sécurisé',
+                      color: const Color(0xFF4CAF50),
+                      onTap: () => _selectVehicleAndProceed('Camionnette'),
+                    ),
+                    const SizedBox(height: 16),
+                    _buildVehicleCard(
+                      icon: Icons.moped_rounded,
+                      title: 'Tricycle',
+                      subtitle: 'Rapide et économique',
+                      color: const Color(0xFFFF9800),
+                      onTap: () => _selectVehicleAndProceed('Tricycle'),
+                    ),
+                    const SizedBox(height: 16),
+                    _buildVehicleCard(
+                      icon: Icons.airport_shuttle_rounded,
+                      title: 'Fourgonnette',
+                      subtitle: 'Capacité moyenne',
+                      color: const Color(0xFF9C27B0),
+                      onTap: () => _selectVehicleAndProceed('Fourgonnette'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () {},
+                          icon:const Icon(
+                            Icons.location_on_rounded,
+                            color:  Color(0xFF6C63FF),
+                            size: 20,
+                          ),
+                          label:const  Text(
+                            'Suivi colis',
+                            style: TextStyle(
+                              color:  Color(0xFF6C63FF),
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          style: OutlinedButton.styleFrom(
+                            padding:
+                                const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            side: const BorderSide(color: Color(0xFF6C63FF)),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () {},
+                          icon:const  Icon(
+                            Icons.chat_bubble_outline_rounded,
+                            color: Color(0xFF9C27B0),
+                            size: 20,
+                          ),
+                          label: const Text(
+                            'Support',
+                            style: TextStyle(
+                              color: Color(0xFF9C27B0),
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          style: OutlinedButton.styleFrom(
+                            padding:
+                                const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            side: const BorderSide(color: Color(0xFF9C27B0)),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Vous pouvez suivre vos commandes ou contacter le support à tout moment',
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: Colors.grey.shade500,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
-    ),
-  );
+    );
+  }
+
+  Widget _buildVehicleCard({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.grey.shade100, width: 1),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha:0.1),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Icon(
+                  icon,
+                  size: 28,
+                  color: color,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.chevron_right_rounded,
+                color: Colors.grey.shade400,
+                size: 24,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class PackagePhotoScreen extends StatefulWidget {
   const PackagePhotoScreen({super.key});
 
   @override
-  _PackagePhotoScreenState createState() => _PackagePhotoScreenState();
+  State<PackagePhotoScreen> createState() => _PackagePhotoScreenState();
 }
 
 class _PackagePhotoScreenState extends State<PackagePhotoScreen> {
-  void _pickAndAddPhoto() async {
-    final ImagePicker picker = ImagePicker();
-    // 1. Déclencher le sélecteur d'image (depuis la galerie)
-    final XFile? pickedFile = await picker.pickImage(
-      source: ImageSource.gallery,
-    );
-
-    // 2. Gérer le résultat
-    if (pickedFile != null) {
-      // Le XFile de image_picker est un objet intermédiaire.
-      // Nous avons besoin de le convertir en l'objet File de Dart pour le stocker.
-      final File imageFile = File(pickedFile.path);
-
-      // 3. Envoyer au Provider
-      final orderState = Provider.of<OrderStateModel>(context, listen: false);
-
-      // 4. Utiliser la méthode que nous venons de créer
-      orderState.addPhoto(imageFile);
-    }
-  }
-
   final TextEditingController _descriptionController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    // On écoute les changements dans le champ pour mettre à jour le Provider
     _descriptionController.addListener(_updateDescription);
   }
 
@@ -327,10 +370,22 @@ class _PackagePhotoScreenState extends State<PackagePhotoScreen> {
     super.dispose();
   }
 
-  // Nouvelle méthode utilitaire
   void _updateDescription() {
     final orderState = Provider.of<OrderStateModel>(context, listen: false);
     orderState.setDescription(_descriptionController.text);
+  }
+
+  void _pickAndAddPhoto() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? pickedFile = await picker.pickImage(
+      source: ImageSource.gallery,
+    );
+
+    if (pickedFile != null) {
+      final File imageFile = File(pickedFile.path);
+      final orderState = Provider.of<OrderStateModel>(context, listen: false);
+      orderState.addPhoto(imageFile);
+    }
   }
 
   @override
@@ -339,345 +394,425 @@ class _PackagePhotoScreenState extends State<PackagePhotoScreen> {
       appBar: AppBar(
         title: Text(
           'Nouvelle commande',
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontWeight: FontWeight.w700,
+            color: Colors.grey.shade900,
+            fontSize: 18,
+          ),
         ),
         centerTitle: true,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
+          icon: Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: Colors.grey.shade100,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(
+              Icons.arrow_back_ios_new_rounded,
+              size: 18,
+              color: Colors.grey.shade700,
+            ),
+          ),
+          onPressed: () => Navigator.of(context).pop(),
         ),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment:
-              CrossAxisAlignment.start, // Aligner le texte à gauche
-          children: [
-            // Indicateur d'étape
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 20.0,
-                vertical: 10,
-              ),
-              child: Text(
-                'Étape 2 sur 4',
-                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+      body: CustomScrollView(
+        slivers: [
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF6C63FF).withValues(alpha:0.1),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child:const Text(
+                      'Étape 2 sur 4',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color:  Color(0xFF6C63FF),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Photo du colis',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Prenez une photo pour faciliter la livraison',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey.shade600,
+                    ),
+                  ),
+                ],
               ),
             ),
-            // Titre de la section
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: Text(
-                'Photo du colis',
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 20.0,
-                vertical: 5,
-              ),
-              child: Text(
-                'Prenez une photo pour faciliter la livraison',
-                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-              ),
-            ),
-
-            // Dans la méthode build()
-            Consumer<OrderStateModel>(
-              builder: (context, orderState, child) {
-                // 1. Détermine si on affiche le grand conteneur vide ou les miniatures.
-                final bool hasPhotos = orderState.selectedFiles.isNotEmpty;
-
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                  child: Column(
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Consumer<OrderStateModel>(
+                builder: (context, orderState, child) {
+                  final hasPhotos = orderState.selectedFiles.isNotEmpty;
+                  return Column(
                     children: [
                       if (hasPhotos)
-                        // Affiche la grille si des photos existent
                         _buildPhotoGrid(orderState.selectedFiles)
                       else
-                        // Sinon, affiche le grand conteneur pour ajouter une photo
                         GestureDetector(
                           onTap: _pickAndAddPhoto,
                           child: Container(
                             height: 200,
                             decoration: BoxDecoration(
-                              color: Colors.grey[100],
-                              borderRadius: BorderRadius.circular(20),
+                              color: Colors.grey.shade50,
+                              borderRadius: BorderRadius.circular(16),
                               border: Border.all(
-                                color: Colors.grey.shade300,
-                                width: 2,
+                                color: Colors.grey.shade200,
+                                width: 1.5,
                               ),
                             ),
-                            child: Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Icon(
-                                    Icons.camera_alt,
-                                    size: 60,
-                                    color: Colors.grey,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.camera_alt_rounded,
+                                  size: 64,
+                                  color: Colors.grey.shade400,
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  'Ajouter une photo',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.grey.shade600,
+                                    fontWeight: FontWeight.w500,
                                   ),
-                                  const SizedBox(height: 10),
-                                  Text(
-                                    'Touchez pour ajouter/prendre une photo',
-                                    style: TextStyle(color: Colors.grey[600]),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Touchez pour prendre ou choisir une photo',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey.shade500,
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
-
-                      SizedBox(
-                        height: hasPhotos ? 10 : 20,
-                      ), // Ajuster l'espacement
-                      // Boutons "Prendre une photo" et "Choisir depuis la galerie"
+                      const SizedBox(height: 16),
                       SizedBox(
                         width: double.infinity,
-                        child: ElevatedButton.icon(
-                          onPressed:
-                              _pickAndAddPhoto, // NOTE : Utilisez la même fonction pour simplifier
-                          icon: const Icon(Icons.camera_alt),
-                          label: const Text(
-                            'Prendre une photo / Choisir une photo',
+                        child: OutlinedButton.icon(
+                          onPressed: _pickAndAddPhoto,
+                          icon:const Icon(
+                            Icons.add_a_photo_rounded,
+                            color:  Color(0xFF6C63FF),
+                            size: 20,
                           ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue.shade800,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 15),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15),
+                          label:const Text(
+                            'Prendre ou choisir une photo',
+                            style: TextStyle(
+                              color:  Color(0xFF6C63FF),
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            side: const BorderSide(color: Color(0xFF6C63FF)),
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
-
-            SizedBox(height: 30),
-            // Type de colis
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: Text(
-                'Type de colis',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-            ),
-            SizedBox(height: 15),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: Consumer<OrderStateModel>(
-                builder: (context, orderState, child) {
-                  final currentSelection =
-                      orderState.packageNature; // Lit la sélection actuelle
-                  return Wrap(
-                    spacing: 10,
-                    runSpacing: 10,
-                    children: [
-                      // On passe currentSelection à la fonction utilitaire
-                      buildTypeColisChip(
-                        'Marchandises',
-                        Icons.local_shipping,
-                        currentSelection,
-                      ),
-                      buildTypeColisChip(
-                        'Électronique',
-                        Icons.laptop_mac,
-                        currentSelection,
-                      ),
-                      buildTypeColisChip(
-                        'Meubles',
-                        Icons.chair,
-                        currentSelection,
-                      ),
-                      buildTypeColisChip(
-                        'Nourriture',
-                        Icons.fastfood,
-                        currentSelection,
-                      ),
-                      buildTypeColisChip(
-                        'Fragile',
-                        Icons.warning,
-                        currentSelection,
-                      ),
-                      buildTypeColisChip(
-                        'Autre',
-                        Icons.more_horiz,
-                        currentSelection,
                       ),
                     ],
                   );
                 },
               ),
             ),
-            // ...
-            SizedBox(height: 30),
-
-            // Description (optionnel)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: Text(
-                'Description (optionnel)',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-            ),
-            SizedBox(height: 10),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: TextFormField(
-                controller: _descriptionController,
-                onChanged: (value) {
-                  // Pas besoin de l'onChanged ici car l'écouteur du contrôleur fait le travail
-                },
-                maxLines: 3,
-                decoration: InputDecoration(
-                  hintText: 'Décrivez votre colis...',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                ),
-              ),
-            ),
-
-            // Bouton "Continuer"
-            Consumer<OrderStateModel>(
-              builder: (context, orderState, child) {
-                // 1. Détermine si on affiche le grand conteneur vide ou les miniatures.
-                final bool hasPhotos = orderState.selectedFiles.isNotEmpty;
-                final bool? hasShip = orderState.packageNature?.isNotEmpty;
-                return Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        if (hasPhotos && hasShip != null && hasShip) {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => DeliveryPointsScreen(),
-                            ),
-                          );
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Veuillez terminer la selection.'),
-                            ),
-                          );
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(vertical: 15),
-                        backgroundColor: Color(
-                          0xFF4CAF50,
-                        ), // Une couleur verte par exemple
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                      ),
-                      child: Text('Continuer', style: TextStyle(fontSize: 18)),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Type de colis',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.black87,
                     ),
                   ),
-                );
-              },
+                  const SizedBox(height: 16),
+                  Consumer<OrderStateModel>(
+                    builder: (context, orderState, child) {
+                      final currentSelection = orderState.packageNature;
+                      return Wrap(
+                        spacing: 12,
+                        runSpacing: 12,
+                        children: [
+                          _buildPackageTypeChip(
+                            'Marchandises',
+                            Icons.local_shipping_rounded,
+                            currentSelection,
+                          ),
+                          _buildPackageTypeChip(
+                            'Électronique',
+                            Icons.laptop_mac_rounded,
+                            currentSelection,
+                          ),
+                          _buildPackageTypeChip(
+                            'Meubles',
+                            Icons.chair_rounded,
+                            currentSelection,
+                          ),
+                          _buildPackageTypeChip(
+                            'Nourriture',
+                            Icons.restaurant_rounded,
+                            currentSelection,
+                          ),
+                          _buildPackageTypeChip(
+                            'Fragile',
+                            Icons.warning_rounded,
+                            currentSelection,
+                          ),
+                          _buildPackageTypeChip(
+                            'Autre',
+                            Icons.more_horiz_rounded,
+                            currentSelection,
+                          ),
+                        ],
+                      );
+                    },
+                  ),
+                ],
+              ),
             ),
-          ],
-        ),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Description (optionnel)',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: _descriptionController,
+                    maxLines: 3,
+                    decoration: InputDecoration(
+                      hintText: 'Décrivez votre colis...',
+                      hintStyle: TextStyle(color: Colors.grey.shade400),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.grey.shade300),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(
+                          color: Color(0xFF6C63FF),
+                          width: 2,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Consumer<OrderStateModel>(
+                builder: (context, orderState, child) {
+                  final hasPhotos = orderState.selectedFiles.isNotEmpty;
+                  final hasPackage = orderState.packageNature?.isNotEmpty ?? false;
+                  return SizedBox(
+                    width: double.infinity,
+                    child: Material(
+                      borderRadius: BorderRadius.circular(12),
+                      child: InkWell(
+                        onTap: () {
+                          if (hasPhotos && hasPackage) {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => const DeliveryPointsScreen(),
+                              ),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: const Text('Veuillez terminer la sélection'),
+                                behavior: SnackBarBehavior.floating,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                backgroundColor: Colors.red.shade600,
+                              ),
+                            );
+                          }
+                        },
+                        borderRadius: BorderRadius.circular(12),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFF6C63FF), Color(0xFF8B84FF)],
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child:const Center(
+                            child:Text(
+                              'Continuer',
+                              style:  TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+          const SliverToBoxAdapter(
+            child: SizedBox(height: 32),
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildPhotoGrid(List<File> files) {
     return Wrap(
-      spacing: 10.0, // Espacement horizontal entre les images
-      runSpacing: 10.0, // Espacement vertical entre les lignes
+      spacing: 12,
+      runSpacing: 12,
       children: files.map((file) {
-        // Pour chaque fichier dans la liste, nous construisons un widget :
         return Stack(
           children: [
-            // 1. La Miniature elle-même
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8.0),
-              child: Image.file(
-                file, // Affichage du fichier local !
-                width: 100,
-                height: 100,
-                fit: BoxFit.cover,
+            Container(
+              width: 100,
+              height: 100,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.grey.shade200),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.file(
+                  file,
+                  width: 100,
+                  height: 100,
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
-
-            // 2. Le Bouton de Suppression (pour l'appel à removePhoto)
             Positioned(
-              right: 0,
-              top: 0,
+              right: 4,
+              top: 4,
               child: GestureDetector(
                 onTap: () {
-                  // Pour la suppression, nous avons besoin d'accéder au Provider
                   final orderState = Provider.of<OrderStateModel>(
                     context,
                     listen: false,
                   );
                   orderState.removePhoto(file);
                 },
-                child: const CircleAvatar(
-                  radius: 12,
-                  backgroundColor: Colors.red,
-                  child: Icon(Icons.close, size: 16, color: Colors.white),
+                child: Container(
+                  width: 24,
+                  height: 24,
+                  decoration: BoxDecoration(
+                    color: Colors.red.shade600,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.close_rounded,
+                    size: 16,
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ),
           ],
         );
-      }).toList(), // Convertion en liste widget
+      }).toList(),
     );
   }
 
-  // Fonction utilitaire pour créer une "puce" de type de colis
-  // La méthode doit prendre en entrée la valeur actuelle de la sélection du Provider
-  Widget buildTypeColisChip(
+  Widget _buildPackageTypeChip(
     String label,
     IconData icon,
     String? currentSelection,
   ) {
-    // Détermine si cette puce est la puce sélectionnée
-    final bool isSelected = currentSelection == label;
-    final Color baseColor = isSelected
-        ? Color(0xFF4CAF50)
-        : Colors.grey.shade100;
-    final Color contentColor = isSelected ? Colors.white : Colors.grey.shade700;
-
+    final isSelected = currentSelection == label;
     return GestureDetector(
       onTap: () {
         final orderState = Provider.of<OrderStateModel>(context, listen: false);
-        final String? newValue = isSelected ? null : label;
-
+        final newValue = isSelected ? null : label;
         orderState.setPackageNature(newValue);
       },
       child: Container(
         width: 100,
         height: 100,
         decoration: BoxDecoration(
-          color: baseColor,
-          borderRadius: BorderRadius.circular(15),
+          color: isSelected
+              ? const Color(0xFF6C63FF)
+              : Colors.grey.shade50,
+          borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isSelected ? Color(0xFF4CAF50) : Colors.grey.shade300,
-            width: 2,
+            color: isSelected
+                ? const Color(0xFF6C63FF)
+                : Colors.grey.shade200,
+            width: 1.5,
           ),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 30, color: contentColor),
+            Icon(
+              icon,
+              size: 28,
+              color: isSelected ? Colors.white : Colors.grey.shade700,
+            ),
             const SizedBox(height: 8),
             Text(
               label,
-              style: GoogleFonts.ubuntu(fontSize: 12, color: contentColor),
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: isSelected ? Colors.white : Colors.grey.shade700,
+              ),
               textAlign: TextAlign.center,
             ),
           ],
@@ -686,22 +821,6 @@ class _PackagePhotoScreenState extends State<PackagePhotoScreen> {
     );
   }
 }
-// import 'package:flutter/material.dart';
-// import 'package:google_fonts/google_fonts.dart';
-// import 'package:provider/provider.dart';
-// import 'package:geolocator/geolocator.dart'; // Nouvelle dépendance
-// import 'package:geocoding/geocoding.dart'; // Nouvelle dépendance
-// import 'package:google_maps_flutter/google_maps_flutter.dart'; // Nouvelle dépendance
-// import 'dart:async'; // Nécessaire pour les Completer
-//
-// // --- MOCKUP / PLACEHOLDERS ---
-// // Remplacez par vos imports réels
-// import 'package:your_project_name/models/order_state_model.dart';
-// import 'package:your_project_name/screens/finalisation_order.dart';
-//
-// // Importez votre écran de sélection de carte (voir le widget défini plus bas)
-// import 'package:your_project_name/widgets/map_selector_screen.dart';
-// --- MOCKUP / PLACEHOLDERS ---
 
 class DeliveryPointsScreen extends StatefulWidget {
   const DeliveryPointsScreen({super.key});
@@ -713,10 +832,10 @@ class DeliveryPointsScreenState extends State<DeliveryPointsScreen> {
   final TextEditingController _depart = TextEditingController();
   final TextEditingController _arrive = TextEditingController();
 
-  // Variables d'état pour les coordonnées et la distance
   LatLng? _pickupCoords;
   LatLng? _dropoffCoords;
-  double? _estimatedDistance; // En kilomètres
+  double? _estimatedDistance;
+  List<LatLng> _routePoints = [];
 
   @override
   void initState() {
@@ -734,26 +853,23 @@ class DeliveryPointsScreenState extends State<DeliveryPointsScreen> {
 
   void _updatePointDelivery() {
     final orderState = Provider.of<OrderStateModel>(context, listen: false);
-    // Met à jour le provider avec les adresses textuelles
     orderState.setPointDelivery(_depart.text, _arrive.text);
-
-    // Recalcule la distance à chaque changement d'adresse textuelle
     _calculateDistance();
   }
 
-  // Fonction de géolocalisation pour le point de départ
   Future<void> _useMyLocation() async {
-    // 1. Demander la permission et obtenir la position
     LocationPermission permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.deniedForever) {
-        // Gérer le cas où la permission est refusée de manière permanente
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text(
-                'La localisation est refusée de manière permanente.',
+            SnackBar(
+              content: const Text('Localisation refusée définitivement'),
+              backgroundColor: Colors.red.shade600,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
               ),
             ),
           );
@@ -768,7 +884,6 @@ class DeliveryPointsScreenState extends State<DeliveryPointsScreen> {
       );
       final LatLng coords = LatLng(position.latitude, position.longitude);
 
-      // 2. Convertir les coordonnées en adresse lisible (Reverse Geocoding)
       final placemarks = await placemarkFromCoordinates(
         coords.latitude,
         coords.longitude,
@@ -776,48 +891,53 @@ class DeliveryPointsScreenState extends State<DeliveryPointsScreen> {
 
       if (placemarks.isNotEmpty) {
         final address = placemarks.first;
-        final fullAddress =
-            "${address.street}, ${address.locality}, ${address.country}";
+        final fullAddress = "${address.street}, ${address.locality}";
 
-        setState(() {
-          _depart.text = fullAddress; // Mettre à jour le TextField
-          _pickupCoords = coords; // Mettre à jour les coordonnées
-          _calculateDistance(); // Recalculer la distance
-        });
+        if (mounted) {
+          setState(() {
+            _depart.text = fullAddress;
+            _pickupCoords = coords;
+            _calculateDistance();
+            _fetchRoute();
+          });
+        }
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Impossible d\'obtenir la position: $e')),
+          SnackBar(
+            content: Text('Erreur de localisation: $e'),
+            backgroundColor: Colors.red.shade600,
+          ),
         );
       }
     }
   }
 
-  // Ouvre l'écran de carte pour sélectionner la destination
   Future<void> _selectDestinationOnMap() async {
     final result = await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => MapSelectorScreen(
-          // Passe une position initiale par défaut (ex: Douala) si aucune n'est définie
           initialPosition: _dropoffCoords ?? const LatLng(4.0450, 9.7041),
         ),
       ),
     );
+
+    if (!mounted) return;
 
     if (result != null && result is Map<String, dynamic>) {
       final LatLng coords = result['coords'];
       final String address = result['address'];
 
       setState(() {
-        _arrive.text = address; // Mettre à jour le TextField
-        _dropoffCoords = coords; // Mettre à jour les coordonnées
-        _calculateDistance(); // Recalculer la distance
+        _arrive.text = address;
+        _dropoffCoords = coords;
+        _calculateDistance();
+        _fetchRoute();
       });
     }
   }
 
-  // Calcule la distance entre les deux points (Utilise la distance orthodromique simple pour la démo)
   void _calculateDistance() {
     if (_pickupCoords != null && _dropoffCoords != null) {
       final distanceInMeters = Geolocator.distanceBetween(
@@ -828,10 +948,8 @@ class DeliveryPointsScreenState extends State<DeliveryPointsScreen> {
       );
 
       setState(() {
-        _estimatedDistance = distanceInMeters / 1000; // Convertir en km
+        _estimatedDistance = distanceInMeters / 1000;
       });
-      // Dans une appli réelle, vous utiliseriez ici une API de Google Maps Directions
-      // (Geocoding API ou Distance Matrix API) pour obtenir la distance routière exacte.
     } else {
       setState(() {
         _estimatedDistance = null;
@@ -839,278 +957,472 @@ class DeliveryPointsScreenState extends State<DeliveryPointsScreen> {
     }
   }
 
+  Future<void> _fetchRoute() async {
+    if (_pickupCoords == null || _dropoffCoords == null) return;
+
+    final start = _pickupCoords!;
+    final end = _dropoffCoords!;
+    
+    final url = Uri.parse(
+        'http://router.project-osrm.org/route/v1/driving/${start.longitude},${start.latitude};${end.longitude},${end.latitude}?overview=full&geometries=geojson');
+
+    try {
+      final response = await http.get(url);
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final geometry = data['routes'][0]['geometry']['coordinates'] as List;
+        if (mounted) {
+          setState(() {
+            _routePoints = geometry.map((p) => LatLng(p[1].toDouble(), p[0].toDouble())).toList();
+          });
+        }
+      }
+    } catch (e) {
+      debugPrint("Erreur OSRM: $e");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    // ... (Le code de build est le même, seuls les onPressed changent) ...
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Nouvelle commande',
-          style: GoogleFonts.pacifico(fontWeight: FontWeight.bold),
+          'Points de livraison',
+          style: TextStyle(
+            fontWeight: FontWeight.w700,
+            color: Colors.grey.shade900,
+            fontSize: 18,
+          ),
         ),
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Étape 2 sur 4',
-                style: GoogleFonts.montserrat(color: Colors.grey[600]),
-              ),
-              const SizedBox(height: 5),
-              const Text(
-                'Points de livraison',
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 5),
-              Text(
-                'Définissez le départ et la destination',
-                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-              ),
-              const SizedBox(height: 30),
-
-              _buildDepartureSection(),
-              const SizedBox(height: 20),
-
-              _buildDestinationSection(),
-              const SizedBox(height: 30),
-
-              _buildMapSection(), // Utilise _estimatedDistance
-              const SizedBox(height: 30),
-
-              _buildContinueButton(context),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDepartureSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Point de départ',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-        ),
-        const SizedBox(height: 10),
-        TextFormField(
-          // readOnly: true, // Si vous voulez forcer le choix via la carte/position
-          controller: _depart,
-          decoration: InputDecoration(
-            hintText: 'Akwa, Douala',
-            prefixIcon: Icon(Icons.location_on, color: Colors.blue.shade500),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
-          ),
-        ),
-        TextButton.icon(
-          onPressed:
-              _useMyLocation, // ⭐ Appel de la fonction de géolocalisation
-          icon: Icon(Icons.my_location, color: Colors.blue.shade800),
-          label: Text(
-            'Utiliser ma position',
-            style: TextStyle(color: Colors.blue.shade800),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDestinationSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Destination',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 10),
-        TextFormField(
-          controller: _arrive,
-          decoration: InputDecoration(
-            hintText: 'Adresse de livraison',
-            prefixIcon: Icon(
-              Icons.add_location_alt_sharp,
-              color: Colors.green.shade500,
+          icon: Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: Colors.grey.shade100,
+              borderRadius: BorderRadius.circular(10),
             ),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(15)),
+            child: Icon(
+              Icons.arrow_back_ios_new_rounded,
+              size: 18,
+              color: Colors.grey.shade700,
+            ),
           ),
+          onPressed: () => Navigator.of(context).pop(),
         ),
-        const SizedBox(height: 10),
-        TextButton.icon(
-          onPressed: _selectDestinationOnMap, // ⭐ Appel du sélecteur de carte
-          icon: Icon(Icons.map_outlined, color: Colors.blue.shade800),
-          label: Text(
-            'Choisir sur la carte',
-            style: TextStyle(color: Colors.blue.shade800),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildMapSection() {
-    final distanceText = _estimatedDistance != null
-        ? '${_estimatedDistance!.toStringAsFixed(2)} km' // Afficher la distance
-        : 'Distance estimée...';
-
-    final Map<MarkerId, Marker> markers = {};
-    if (_pickupCoords != null) {
-      markers[const MarkerId('start')] = Marker(
-        markerId: const MarkerId('start'),
-        position: _pickupCoords!,
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
-      );
-    }
-    if (_dropoffCoords != null) {
-      markers[const MarkerId('end')] = Marker(
-        markerId: const MarkerId('end'),
-        position: _dropoffCoords!,
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
-      );
-    }
-
-    return Container(
-      height: 200,
-      decoration: BoxDecoration(
-        color: Colors.grey[200],
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.grey.shade300),
       ),
-      child: markers.isEmpty
-          ? Center(
+      body: CustomScrollView(
+        slivers: [
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.map, size: 60, color: Colors.grey),
-                  const SizedBox(height: 10),
-                  Text(
-                    'Carte interactive',
-                    style: TextStyle(
-                      color: Colors.grey[500],
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF6C63FF).withValues(alpha:0.1),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: const Text(
+                      'Étape 3 sur 4',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF6C63FF),
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 5),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Points de livraison',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
                   Text(
-                    distanceText,
-                    style: TextStyle(fontSize: 13, color: Colors.grey[500]),
+                    'Définissez le départ et la destination',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey.shade600,
+                    ),
                   ),
                 ],
               ),
-            )
-          : ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: GoogleMap(
-                initialCameraPosition: CameraPosition(
-                  target: _pickupCoords ?? const LatLng(4.0450, 9.7041),
-                  zoom: 12,
-                ),
-                markers: markers.values.toSet(),
-                // Vous pouvez ajouter des polylines ici pour l'itinéraire
-                // Polylines: _createPolylines().toSet(),
-                myLocationButtonEnabled: false,
-                zoomControlsEnabled: false,
-                onMapCreated: (controller) {
-                  // Ajuster la caméra pour montrer les deux marqueurs
-                  if (_pickupCoords != null && _dropoffCoords != null) {
-                    controller.animateCamera(
-                      CameraUpdate.newLatLngBounds(
-                        LatLngBounds(
-                          southwest: LatLng(
-                            _pickupCoords!.latitude < _dropoffCoords!.latitude
-                                ? _pickupCoords!.latitude
-                                : _dropoffCoords!.latitude,
-                            _pickupCoords!.longitude < _dropoffCoords!.longitude
-                                ? _pickupCoords!.longitude
-                                : _dropoffCoords!.longitude,
-                          ),
-                          northeast: LatLng(
-                            _pickupCoords!.latitude > _dropoffCoords!.latitude
-                                ? _pickupCoords!.latitude
-                                : _dropoffCoords!.latitude,
-                            _pickupCoords!.longitude > _dropoffCoords!.longitude
-                                ? _pickupCoords!.longitude
-                                : _dropoffCoords!.longitude,
-                          ),
-                        ),
-                        50, // padding
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Point de départ',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: _depart,
+                    decoration: InputDecoration(
+                      hintText: 'Adresse de départ',
+                      hintStyle: TextStyle(color: Colors.grey.shade400),
+                      prefixIcon: const Icon(
+                        Icons.location_on_rounded,
+                        color: Color(0xFF6C63FF),
                       ),
-                    );
-                  }
-                },
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.grey.shade300),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(
+                          color: Color(0xFF6C63FF),
+                          width: 2,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: _useMyLocation,
+                      icon: const Icon(
+                        Icons.my_location_rounded,
+                        color: Color(0xFF6C63FF),
+                        size: 18,
+                      ),
+                      label: const Text(
+                        'Utiliser ma position',
+                        style: TextStyle(
+                          color: Color(0xFF6C63FF),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        side: const BorderSide(color: Color(0xFF6C63FF)),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-    );
-  }
-
-  Widget _buildContinueButton(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton(
-        // Le bouton est activé seulement si les deux coordonnées sont définies
-        onPressed: (_pickupCoords != null && _dropoffCoords != null)
-            ? () {
-                // Mise à jour finale de l'état de la commande avant la navigation
-                final orderState = Provider.of<OrderStateModel>(
-                  context,
-                  listen: false,
-                );
-                orderState.setCoordinates(
-                  _pickupCoords!,
-                  _dropoffCoords!,
-                  _estimatedDistance ?? 0.0,
-                );
-
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => finalisation_Order()),
-                );
-              }
-            : null, // Le bouton est désactivé si les points ne sont pas sélectionnés
-        style: ElevatedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(vertical: 15),
-          backgroundColor: const Color(0xFF4CAF50),
-          foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(15),
           ),
-        ),
-        child: const Text('Continuer', style: TextStyle(fontSize: 18)),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Destination',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: _arrive,
+                    decoration: InputDecoration(
+                      hintText: 'Adresse de livraison',
+                      hintStyle: TextStyle(color: Colors.grey.shade400),
+                      prefixIcon: const Icon(
+                        Icons.flag_rounded,
+                        color: Color(0xFF4CAF50),
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.grey.shade300),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(
+                          color: Color(0xFF4CAF50),
+                          width: 2,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: _selectDestinationOnMap,
+                      icon: const Icon(
+                        Icons.map_rounded,
+                        color: Color(0xFF6C63FF),
+                        size: 18,
+                      ),
+                      label: const Text(
+                        'Choisir sur la carte',
+                        style: TextStyle(
+                          color: Color(0xFF6C63FF),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        side: const BorderSide(color: Color(0xFF6C63FF)),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Carte et distance',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Container(
+                    height: 220,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: Colors.grey.shade100, width: 1),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: _pickupCoords == null && _dropoffCoords == null
+                          ? Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.map_rounded,
+                                    size: 48,
+                                    color: Colors.grey.shade400,
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Text(
+                                    'Carte interactive',
+                                    style: TextStyle(
+                                      color: Colors.grey.shade600,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    _estimatedDistance != null
+                                        ? '${_estimatedDistance!.toStringAsFixed(1)} km'
+                                        : 'Sélectionnez les adresses',
+                                    style: TextStyle(
+                                      color: Colors.grey.shade500,
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )
+                          : FlutterMap(
+                              options: MapOptions(
+                                initialCenter:
+                                    _pickupCoords ?? const LatLng(4.0450, 9.7041),
+                                initialZoom: 13.0,
+                                initialCameraFit: _pickupCoords != null &&
+                                        _dropoffCoords != null
+                                    ? CameraFit.bounds(
+                                        bounds: LatLngBounds(
+                                            _pickupCoords!, _dropoffCoords!),
+                                        padding: const EdgeInsets.all(40),
+                                      )
+                                    : null,
+                              ),
+                              children: [
+                                TileLayer(
+                                  urlTemplate:
+                                      'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                  userAgentPackageName: 'com.camelia.logistics',
+                                ),
+                                if (_routePoints.isNotEmpty)
+                                  PolylineLayer(
+                                    polylines: [
+                                      Polyline(
+                                        points: _routePoints,
+                                        strokeWidth: 4.0,
+                                        color: const Color(0xFF6C63FF),
+                                      ),
+                                    ],
+                                  ),
+                                MarkerLayer(
+                                  markers: [
+                                    if (_pickupCoords != null)
+                                      Marker(
+                                        point: _pickupCoords!,
+                                        child: Container(
+                                          padding: const EdgeInsets.all(8),
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius:
+                                                BorderRadius.circular(20),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.grey
+                                                    .withValues(alpha:0.3),
+                                                blurRadius: 10,
+                                              ),
+                                            ],
+                                          ),
+                                          child: const Icon(
+                                            Icons.location_on_rounded,
+                                            color: Color(0xFF6C63FF),
+                                            size: 24,
+                                          ),
+                                        ),
+                                      ),
+                                    if (_dropoffCoords != null)
+                                      Marker(
+                                        point: _dropoffCoords!,
+                                        child: Container(
+                                          padding: const EdgeInsets.all(8),
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius:
+                                                BorderRadius.circular(20),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.grey
+                                                    .withValues(alpha:0.3),
+                                                blurRadius: 10,
+                                              ),
+                                            ],
+                                          ),
+                                          child: const Icon(
+                                            Icons.flag_rounded,
+                                            color: Color(0xFF4CAF50),
+                                            size: 24,
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: SizedBox(
+                width: double.infinity,
+                child: Material(
+                  borderRadius: BorderRadius.circular(12),
+                  child: InkWell(
+                    onTap: _pickupCoords != null && _dropoffCoords != null
+                        ? () {
+                            final orderState = Provider.of<OrderStateModel>(
+                              context,
+                              listen: false,
+                            );
+                            orderState.setCoordinates(
+                              _pickupCoords!,
+                              _dropoffCoords!,
+                              _estimatedDistance ?? 0.0,
+                            );
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => const FinalisationOrder(),
+                              ),
+                            );
+                          }
+                        : null,
+                    borderRadius: BorderRadius.circular(12),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      decoration: BoxDecoration(
+                        gradient: _pickupCoords != null && _dropoffCoords != null
+                            ? const LinearGradient(
+                                colors: [Color(0xFF6C63FF), Color(0xFF8B84FF)],
+                              )
+                            : LinearGradient(
+                                colors: [
+                                  Colors.grey.shade400,
+                                  Colors.grey.shade400
+                                ],
+                              ),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Center(
+                        child: Text(
+                          'Continuer',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SliverToBoxAdapter(
+            child: SizedBox(height: 32),
+          ),
+        ],
       ),
     );
   }
 }
 
-class finalisation_Order extends StatefulWidget {
-  const finalisation_Order({super.key});
+class FinalisationOrder extends StatefulWidget {
+  const FinalisationOrder({super.key});
 
   @override
-  _finalisation_OrderState createState() => _finalisation_OrderState();
+  State<FinalisationOrder> createState() => _FinalisationOrderState();
 }
 
-class _finalisation_OrderState extends State<finalisation_Order> {
+class _FinalisationOrderState extends State<FinalisationOrder> {
   final UserProfileService _userServices = UserProfileService();
-  Future<String?> get_Phone() async {
-    final UserProfileService service = UserProfileService();
-    final userProfile = await service.getProfile(id!);
-    String? phone = userProfile?.phoneNumber;
-    return phone;
-  }
-
   final id = FirebaseAuth.instance.currentUser?.uid;
-
+  late Future<UserProfile?> _profileFuture;
   bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _profileFuture =
+        (id != null) ? _userServices.getProfile(id!) : Future.value(null);
+  }
 
   void createOrder() async {
     final User? currentUser = FirebaseAuth.instance.currentUser;
@@ -1134,37 +1446,31 @@ class _finalisation_OrderState extends State<finalisation_Order> {
         return StorageService().uploadImage(file, path);
       }).toList();
 
-      // Attendre que TOUS les uploads se terminent et collecter les URLs
       List<String> photoUrls = await Future.wait(uploadTasks);
-      //List<String> photoUrls = [];
-
-      // 3. CONSTRUIRE L'OBJET ORDER FINAL
       final newOrder = Order(
-        userId: currentUser.uid, // Récupéré de Firebase Auth
+        userId: currentUser.uid,
         pickupAddress: orderState.pickupAddress!,
         dropoffAddress: orderState.dropoffAddress!,
-        packageNature:
-            orderState.packageNature ??
-            'Non spécifié', // Utilisation de ?? pour gérer le null
-        photoUrls: photoUrls, // La liste d'URLs obtenue du Storage
+        packageNature: orderState.packageNature ?? 'Non spécifié',
+        photoUrls: photoUrls,
         vehicleType: orderState.vehicleType!,
-        status: 'PENDING', // Statut initial
+        status: 'PENDING',
         timestamp: now,
         priceQuote: orderState.priceQuote,
         description: orderState.description,
       );
 
-      // 4. ENVOYER À FIRESTORE
-
       final String newOrderId = await OrderService().addOrder(newOrder);
-      //renitialisation
-      // Nécessite une nouvelle méthode dans OrderStateModel (voir ci-dessous)
-
       context.go('/waiting/$newOrderId');
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Erreur lors de l\'envoi de la commande.'),
+        SnackBar(
+          content: const Text('Erreur lors de l\'envoi de la commande.'),
+          backgroundColor: Colors.red.shade600,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
         ),
       );
     } finally {
@@ -1176,160 +1482,251 @@ class _finalisation_OrderState extends State<finalisation_Order> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Column(
-          children: [
-            Text(
-              'Nouvelle Commande',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            Text(
-              'etape 4 sur 4',
-              style: TextStyle(color: Colors.grey[500], fontSize: 16),
-            ),
-          ],
+        title: Text(
+          'Résumé de commande',
+          style: TextStyle(
+            fontWeight: FontWeight.w700,
+            color: Colors.grey.shade900,
+            fontSize: 18,
+          ),
         ),
         centerTitle: true,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
+          icon: Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: Colors.grey.shade100,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(
+              Icons.arrow_back_ios_new_rounded,
+              size: 18,
+              color: Colors.grey.shade700,
+            ),
+          ),
+          onPressed: () => Navigator.of(context).pop(),
         ),
       ),
       body: FutureBuilder<UserProfile?>(
-        future: _userServices.getProfile(id!),
+        future: _profileFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(
+              child: CircularProgressIndicator(
+                color: Color(0xFF6C63FF),
+                strokeWidth: 2,
+              ),
+            );
           }
           final profile = snapshot.data!;
-          return Center(
-            child: Padding(
-              padding: EdgeInsets.all(20),
-
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Container(
-                    padding: EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: Colors.blue.shade50,
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Résumé de votre commande',
+          final orderState = Provider.of<OrderStateModel>(context);
+          
+          return CustomScrollView(
+            slivers: [
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF6C63FF).withValues(alpha:0.1),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: const Text(
+                          'Étape 4 sur 4',
                           style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF6C63FF),
                           ),
                         ),
-                        SizedBox(height: 20),
-                        buildSummaryRow(
-                          'Transport:',
-                          Provider.of<OrderStateModel>(
-                            context,
-                          ).vehicleType.toString(),
+                      ),
+                      const SizedBox(height: 24),
+                      const Text(
+                        'Résumé de votre commande',
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.black87,
                         ),
-                        SizedBox(height: 10),
-                        buildSummaryRow('Telephone:', profile.phoneNumber),
-                        SizedBox(height: 10),
-                        buildSummaryRow(
-                          'Depart:',
-                          Provider.of<OrderStateModel>(
-                            context,
-                          ).pickupAddress.toString(),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Vérifiez les détails avant confirmation',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey.shade600,
                         ),
-                        SizedBox(height: 10),
-                        buildSummaryRow(
-                          'Colis:',
-                          Provider.of<OrderStateModel>(
-                            context,
-                          ).packageNature.toString(),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: Colors.grey.shade100, width: 1),
+                    ),
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      children: [
+                        _buildSummaryRow(
+                          label: 'Transport',
+                          value: orderState.vehicleType ?? 'Non spécifié',
+                          icon: Icons.local_shipping_rounded,
+                          color: const Color(0xFF6C63FF),
                         ),
-                        SizedBox(height: 10),
-                        Divider(),
-                        SizedBox(height: 10),
-                        buildSummaryRow(
-                          'Destinaion',
-                          Provider.of<OrderStateModel>(
-                            context,
-                          ).dropoffAddress.toString(),
-                          isBold: true,
-                          isPrice: true,
+                        const SizedBox(height: 16),
+                        _buildSummaryRow(
+                          label: 'Téléphone',
+                          value: profile.phoneNumber,
+                          icon: Icons.phone_rounded,
+                          color: const Color(0xFF4CAF50),
+                        ),
+                        const SizedBox(height: 16),
+                        _buildSummaryRow(
+                          label: 'Départ',
+                          value: _truncateAddress(orderState.pickupAddress),
+                          icon: Icons.location_on_rounded,
+                          color: const Color(0xFFFF9800),
+                        ),
+                        const SizedBox(height: 16),
+                        _buildSummaryRow(
+                          label: 'Type de colis',
+                          value: orderState.packageNature ?? 'Non spécifié',
+                          icon: Icons.inventory_2_rounded,
+                          color: const Color(0xFF9C27B0),
+                        ),
+                        const SizedBox(height: 16),
+                        _buildSummaryRow(
+                          label: 'Destination',
+                          value: _truncateAddress(orderState.dropoffAddress),
+                          icon: Icons.flag_rounded,
+                          color: const Color(0xFF2196F3),
                         ),
                       ],
                     ),
                   ),
-                  SizedBox(height: 30),
-
-                  // Bouton "Confirmer la commande"
-                  SizedBox(
+                ),
+              ),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: SizedBox(
                     width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: _isLoading ? null : createOrder,
-                      style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(vertical: 15),
-                        backgroundColor: Color(0xFF4CAF50),
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15),
+                    child: Material(
+                      borderRadius: BorderRadius.circular(12),
+                      child: InkWell(
+                        onTap: _isLoading ? null : createOrder,
+                        borderRadius: BorderRadius.circular(12),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFF6C63FF), Color(0xFF8B84FF)],
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Center(
+                            child: _isLoading
+                                ? const SizedBox(
+                                    height: 24,
+                                    width: 24,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 2.5,
+                                    ),
+                                  )
+                                : const Text(
+                                    'Confirmer la commande',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                          ),
                         ),
                       ),
-                      child: _isLoading
-                          ? SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                                strokeWidth: 3,
-                              ),
-                            )
-                          : Text(
-                              'Confirmer la commande',
-                              style: TextStyle(fontSize: 18),
-                            ),
                     ),
                   ),
-                ],
+                ),
               ),
-            ),
+              const SliverToBoxAdapter(
+                child: SizedBox(height: 32),
+              ),
+            ],
           );
         },
       ),
     );
   }
-}
 
-Widget buildSummaryRow(
-  String label,
-  String value, {
-  bool isBold = false,
-  bool isPrice = false,
-}) {
-  return Row(
-    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    children: [
-      Text(
-        label,
-        style: TextStyle(
-          fontSize: 16,
-          color: Colors.black,
-          fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+  String _truncateAddress(String? address) {
+    if (address == null) return 'Non spécifié';
+    return address.length > 30 ? '${address.substring(0, 30)}...' : address;
+  }
+
+  Widget _buildSummaryRow({
+    required String label,
+    required String value,
+    required IconData icon,
+    required Color color,
+  }) {
+    return Row(
+      children: [
+        Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: color.withValues(alpha:0.1),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(
+            icon,
+            color: color,
+            size: 22,
+          ),
         ),
-      ),
-      Text(
-        value,
-        style: TextStyle(
-          fontSize: 16,
-          color: isPrice ? Colors.green.shade800 : Colors.black,
-          fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey.shade600,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black87,
+                ),
+              ),
+            ],
+          ),
         ),
-      ),
-    ],
-  );
+      ],
+    );
+  }
 }
 
 class MapSelectorScreen extends StatefulWidget {
@@ -1342,160 +1739,190 @@ class MapSelectorScreen extends StatefulWidget {
 }
 
 class _MapSelectorScreenState extends State<MapSelectorScreen> {
-  LatLng? _selectedPosition;
-  String _selectedAddress = "Déplacez la carte pour choisir l'adresse";
-  final Set<Marker> _markers = {};
-  GoogleMapController? _mapController;
-  bool _isLoading = false;
+  late LatLng _currentCameraPosition;
+  String _selectedAddress = "Recherche de l'adresse...";
+  bool _isGeocoding = false;
+  final MapController _mapController = MapController();
 
   @override
   void initState() {
     super.initState();
-    _selectedPosition = widget.initialPosition;
-    _updateMarker(_selectedPosition!);
+    _currentCameraPosition = widget.initialPosition;
+    _fetchAddress(_currentCameraPosition);
   }
 
-  // Met à jour la position et lance la conversion en adresse
-  void _updateMarker(LatLng position) async {
-    setState(() {
-      _isLoading = true;
-      _selectedPosition = position;
-      _markers.clear();
-      _markers.add(
-        Marker(
-          markerId: const MarkerId('selected_location'),
-          position: position,
-          icon: BitmapDescriptor.defaultMarkerWithHue(
-            BitmapDescriptor.hueGreen,
-          ),
-        ),
-      );
-    });
-
-    // Conversion LatLng -> Adresse
+  Future<void> _fetchAddress(LatLng position) async {
+    if (!mounted) return;
+    setState(() => _isGeocoding = true);
     try {
-      final placemarks = await placemarkFromCoordinates(
+      List<Placemark> placemarks = await placemarkFromCoordinates(
         position.latitude,
         position.longitude,
       );
+      if (!mounted) return;
       if (placemarks.isNotEmpty) {
-        final address = placemarks.first;
-        final fullAddress =
-            "${address.street}, ${address.locality}, ${address.country}";
+        Placemark place = placemarks.first;
         setState(() {
-          _selectedAddress = fullAddress;
+          _selectedAddress = "${place.street ?? ''}, ${place.locality ?? ''}";
         });
       }
     } catch (e) {
-      setState(() {
-        _selectedAddress = "Adresse non trouvée.";
-      });
+      if (mounted) setState(() => _selectedAddress = "Lieu inconnu");
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      if (mounted) setState(() => _isGeocoding = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Choisir la destination')),
+      appBar: AppBar(
+        title: const Text(
+          'Choisir la destination',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+        elevation: 0,
+        leading: IconButton(
+          icon: Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: Colors.grey.shade100,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(
+              Icons.arrow_back_ios_new_rounded,
+              size: 18,
+              color: Colors.grey.shade700,
+            ),
+          ),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ),
       body: Stack(
         children: [
-          GoogleMap(
-            initialCameraPosition: CameraPosition(
-              target: widget.initialPosition,
-              zoom: 15,
+          FlutterMap(
+            mapController: _mapController,
+            options: MapOptions(
+              initialCenter: widget.initialPosition,
+              initialZoom: 16,
+              onPositionChanged: (position, hasGesture) {
+                if (position.center != null) {
+                  _currentCameraPosition = position.center!;
+                  if (hasGesture) _fetchAddress(_currentCameraPosition);
+                }
+              },
             ),
-            onMapCreated: (controller) {
-              _mapController = controller;
-            },
-            onLongPress:
-                _updateMarker, // L'utilisateur peut maintenir appuyé pour choisir
-            markers: _markers,
+            children: [
+              TileLayer(
+                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                userAgentPackageName: 'com.camelia.logistics',
+              ),
+            ],
           ),
-
-          // Barre de confirmation et d'adresse
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 35),
+              child: Icon(
+                Icons.location_on_rounded,
+                size: 50,
+                color: Colors.green.shade700,
+              ),
+            ),
+          ),
           Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
+            bottom: 20,
+            left: 15,
+            right: 15,
             child: Container(
-              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: Colors.white,
-                boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 10)],
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha:0.1),
+                    blurRadius: 20,
+                    spreadRadius: 2,
+                  ),
+                ],
               ),
-              child: SafeArea(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      'Adresse de destination:',
-                      style: TextStyle(fontSize: 14, color: Colors.grey),
-                    ),
-                    const SizedBox(height: 4),
-                    _isLoading
-                        ? const LinearProgressIndicator()
-                        : Text(
-                            _selectedAddress,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                            ),
-                          ),
-                    const SizedBox(height: 16),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: _selectedPosition == null || _isLoading
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.map_rounded,
+                        color: Colors.grey.shade400,
+                        size: 22,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _isGeocoding
+                            ? LinearProgressIndicator(
+                                color: const Color(0xFF6C63FF),
+                                backgroundColor:
+                                    const Color(0xFF6C63FF).withValues(alpha:0.1),
+                              )
+                            : Text(
+                                _selectedAddress,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 15,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    width: double.infinity,
+                    child: Material(
+                      borderRadius: BorderRadius.circular(12),
+                      child: InkWell(
+                        onTap: _isGeocoding
                             ? null
                             : () {
-                                // Retourne les coordonnées et l'adresse à l'écran précédent
                                 Navigator.pop(context, {
-                                  'coords': _selectedPosition,
+                                  'coords': _currentCameraPosition,
                                   'address': _selectedAddress,
                                 });
                               },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 15),
+                        borderRadius: BorderRadius.circular(12),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFF6C63FF), Color(0xFF8B84FF)],
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Center(
+                            child: Text(
+                              'Confirmer ce point',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
                         ),
-                        child: const Text('Confirmer cette adresse'),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class Confirm_Course extends StatelessWidget {
-  const Confirm_Course({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Offre recue',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        centerTitle: true,
-        leading: IconButton(
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-          icon: Icon(Icons.arrow_back),
-        ),
       ),
     );
   }

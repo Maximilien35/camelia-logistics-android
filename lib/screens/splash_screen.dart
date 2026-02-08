@@ -5,16 +5,14 @@ class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  _SplashScreenState createState() => _SplashScreenState();
+  State<SplashScreen> createState() => _SplashScreenState();
 }
 
 class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    // 1. Masquer la barre de statut IMMÉDIATEMENT
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
-    //_navigateToNextScreen(context);
   }
 
   @override
@@ -32,7 +30,6 @@ class _SplashScreenState extends State<SplashScreen> {
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(
-          // Utilisation de const car les valeurs sont fixes
           gradient: LinearGradient(
             colors: [Color(0xFF6B4EE7), Color(0xFF8A62F8)],
             begin: Alignment.topCenter,
@@ -47,18 +44,15 @@ class _SplashScreenState extends State<SplashScreen> {
                 width: 150,
                 height: 150,
                 decoration: const BoxDecoration(
-                  // Utilisation de const
                   color: Colors.white,
                   shape: BoxShape.circle,
                 ),
                 child: ClipOval(
-                  // Assurez-vous que le chemin 'assets/log.jpg' est valide
                   child: Image.asset("assets/log.webp", fit: BoxFit.cover),
                 ),
               ),
               const SizedBox(height: 20), // Utilisation de const
               const CircularProgressIndicator(
-                // Un indicateur de chargement subtil.
                 valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
               ),
             ],
@@ -67,10 +61,4 @@ class _SplashScreenState extends State<SplashScreen> {
       ),
     );
   }
-
-  // void _navigateToNextScreen(BuildContext context) async {
-  //   // 3. Délai pour afficher le Splash Screen
-  //   await Future.delayed(const Duration(milliseconds: 1500));
-  //   context.go('/welcome');
-  // }
 }

@@ -35,13 +35,12 @@ class UserProfile {
     };
   }
 
-  // Méthode statique pour convertir un Document Firestore en objet Dart
   static UserProfile fromJson(Map<String, dynamic> json) {
     return UserProfile(
       uid: json['uid'] as String,
       name: json['name'] as String,
       phoneNumber: json['phoneNumber'] as String,
-      email: json['email'] as String ?? '',
+      email: json['email'] as String,
       fcmToken: json['fcmToken'] as String? ?? '',
       role: json['role'] as String? ?? 'client',
       vehicle: json['vehicle'] as String? ?? 'Non spécifié',

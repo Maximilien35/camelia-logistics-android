@@ -1,7 +1,10 @@
+
+// ignore_for_file: file_names
+
 import 'package:camelia_logistics/models/order_model.dart';
-import 'package:camelia_logistics/models/services/AdminService.dart';
+import 'package:camelia_logistics/models/services/admin_service.dart';
 import 'package:camelia_logistics/models/services/order_service.dart';
-import 'package:camelia_logistics/models/userProfile.dart';
+import 'package:camelia_logistics/models/user_profile.dart';
 import 'package:camelia_logistics/screens/history_screen.dart';
 import 'package:camelia_logistics/screens/order_screen.dart';
 import 'package:camelia_logistics/screens/profil.dart';
@@ -10,58 +13,25 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:go_router/go_router.dart';
-import 'package:camelia_logistics/models/services/userProfileService.dart';
+import 'package:camelia_logistics/models/services/user_profile_service.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class HomeCustumerScreen extends StatefulWidget {
   const HomeCustumerScreen({super.key});
 
   @override
-  _HomeCustumer_Sate createState() => _HomeCustumer_Sate();
+  State<HomeCustumerScreen> createState() => HomeCustumerSate();
 }
 
-class _HomeCustumer_Sate extends State<HomeCustumerScreen> {
+class HomeCustumerSate extends State<HomeCustumerScreen> {
   int _selectedIndex = 0;
   final AdminService admin = AdminService();
-  Future<bool> _handlePop(BuildContext context) async {
-    // Si l'utilisateur est sur l'onglet "Accueil" (selectedIndex == 0)
-    if (_selectedIndex == 0) {
-      // 1. Ouvrir une boîte de dialogue de confirmation
-      final shouldPop = await showDialog<bool>(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Confirmer la sortie'),
-          content: const Text('Voulez-vous vraiment quitter l\'application ?'),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () =>
-                  Navigator.of(context).pop(false), // Rester dans l'appli
-              child: const Text('NON'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(true), // Quitter
-              child: const Text('OUI'),
-            ),
-          ],
-        ),
-      );
-      return shouldPop ?? false;
-    }
-    // Si l'utilisateur est sur un autre onglet (Historique ou Profil)
-    else {
-      // 2. Simplement revenir à l'onglet "Accueil" sans quitter l'appli
-      setState(() {
-        _selectedIndex = 0;
-      });
-      return false; // ⭐ Retourne false pour BLOQUER la pop (donc rester dans l'appli)
-    }
-  }
 
   Future<void> handlePopInvoked(bool didPop, BuildContext context) async {
     if (didPop) {
       return;
     }
+    // ignore: unused_local_variable
     bool? exitConfirmed = await showDialog<bool>(
       context: context,
       builder: (context) {
@@ -93,9 +63,9 @@ class _HomeCustumer_Sate extends State<HomeCustumerScreen> {
   }
 
   static final List<Widget> _widgetOptions = <Widget>[
-    _HomeContent(),
-    HistoryScreen(),
-    ProfileScreen(),
+    const _HomeContent(),
+    const HistoryScreen(),
+    const ProfileScreen(),
   ];
 
   void _onItemTapped(int index) {
@@ -105,12 +75,11 @@ class _HomeCustumer_Sate extends State<HomeCustumerScreen> {
   }
 
   void initializeFCMToken() async {
-    // 1. Demander les permissions de notification (obligatoire sur iOS/Android 13+)
+   
     NotificationSettings settings = await FirebaseMessaging.instance
         .requestPermission(alert: true, badge: true, sound: true);
 
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-      // 2. Récupérer le jeton unique de l'appareil
       String? token = await FirebaseMessaging.instance.getToken();
 
       final currentUser = FirebaseAuth.instance.currentUser;
@@ -131,50 +100,69 @@ class _HomeCustumer_Sate extends State<HomeCustumerScreen> {
   @override
   Widget build(BuildContext context) {
     return PopScope(
-      // 1. Bloquer l'action par défaut du retour (GoRouter)
       canPop: false,
 
-      // 2. Intercepter l'action bloquée et effectuer la logique
-      onPopInvoked: (didPop) {
-        handlePopInvoked(didPop, context);
+      onPopInvokedWithResult: (didPop, result) {
+        if (_selectedIndex != 0) {
+          setState(() {
+            _selectedIndex = 0;
+          });
+        } else {
+          handlePopInvoked(didPop, context);
+        }
       },
       child: Scaffold(
         body: _widgetOptions.elementAt(
           _selectedIndex,
-        ), // Affiche l'écran sélectionné
+        ),
         bottomNavigationBar: BottomNavigationBar(
           type: BottomNavigationBarType.fixed,
           selectedItemColor: Colors.blue.shade800,
           unselectedItemColor: Colors.grey,
           items: [
-            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Accueil'),
-            BottomNavigationBarItem(
+            const BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Accueil'),
+            const BottomNavigationBarItem(
               icon: Icon(Icons.history),
               label: 'Historique',
             ),
-            BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profil'),
+            const BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profil'),
           ],
-          currentIndex: _selectedIndex, // Spécifie l'icône active
-          onTap: _onItemTapped, // Utilise la fonction de mise à jour de l'état
+          currentIndex: _selectedIndex,
+          onTap: _onItemTapped, 
         ),
       ),
     );
   }
 }
 
-class _HomeContent extends StatelessWidget {
+class _HomeContent extends StatefulWidget {
+  const _HomeContent();
+
+  @override
+  State<_HomeContent> createState() => _HomeContentState();
+}
+
+class _HomeContentState extends State<_HomeContent> {
   final OrderService _orderService = OrderService();
   final UserProfileService _userProfileService = UserProfileService();
+  late Stream<UserProfile?> _profileStream;
+  final String? idUser = FirebaseAuth.instance.currentUser?.uid;
+
+  @override
+  void initState() {
+    super.initState();
+    _profileStream = idUser != null ? _userProfileService.streamProfile(idUser!) : Stream.value(null);
+  }
   // Fonction pour obtenir la couleur du statut
   static Color _getStatusColor(String status) {
     switch (status.toUpperCase()) {
       case 'PENDING':
         return Colors.orange.shade700;
-      case 'ACCEPTED': // Correspond à Validée
+      case 'ACCEPTED': 
         return Colors.green.shade700;
       case 'ASSIGNED':
         return Colors.blue.shade700;
-      case 'COMPLETED': // Correspond à Livrée
+      case 'COMPLETED': 
         return Colors.indigo.shade700;
       case 'CANCELLED':
         return Colors.red.shade700;
@@ -203,81 +191,32 @@ class _HomeContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final idUser = FirebaseAuth.instance.currentUser?.uid;
-    // if (id_user == null) {
-    //   return const Center(child: CircularProgressIndicator());
-    // }
+    if (idUser == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
     return SingleChildScrollView(
       child: Column(
         children: [
-          // 1. Le Container pour la zone de bienvenue
-          // --- Carte d'Accueil/Profil ---
           StreamBuilder<UserProfile?>(
-            stream: UserProfileService().streamProfile(idUser!),
+            stream: _profileStream,
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
               }
-              if (snapshot.hasError ||
-                  !snapshot.hasData ||
-                  snapshot.data == null) {
-                return Text(
-                  'Erreur de chargement du profil.,${snapshot.error}',
+              
+              if (snapshot.hasError || !snapshot.hasData || snapshot.data == null) {
+                return _buildHeader(
+                  name: "Client", 
+                  subtitle: "Mode hors ligne ou profil introuvable",
+                  isOffline: true
                 );
               }
 
               final prof = snapshot.data!;
-
-              return Container(
-                padding: const EdgeInsets.fromLTRB(20, 50, 20, 20),
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Color(0xFF4C4CE7), Color(0xFF6B4EE7)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(30),
-                    bottomRight: Radius.circular(30),
-                  ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            'Bonjour, ${prof.name.split(' ')[0].toUpperCase()}',
-                            style: GoogleFonts.pacifico(
-                              color: Colors.white,
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                          ),
-                          const SizedBox(height: 5),
-                          Text(
-                            'Que souhaitez-vous aujourd\'hui?',
-                            style: GoogleFonts.montserrat(
-                              color: Colors.white70,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const Icon(
-                      Icons.local_shipping,
-                      color: Colors.white,
-                      size: 40,
-                    ),
-                  ],
-                ),
+              return _buildHeader(
+                name: prof.name.split(' ')[0].toUpperCase(),
+                subtitle: 'Que souhaitez-vous aujourd\'hui?',
+                isOffline: false
               );
             },
           ),
@@ -292,7 +231,7 @@ class _HomeContent extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: () {
                     Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context) => OrderScreen()),
+                      MaterialPageRoute(builder: (context) => const OrderScreen()),
                     );
                   },
                   style: ElevatedButton.styleFrom(
@@ -327,11 +266,11 @@ class _HomeContent extends StatelessWidget {
                 ),
               ),
 
-              SizedBox(height: 35),
+              const SizedBox(height: 35),
 
               FutureBuilder(
                 future: _userProfileService.calculateAndSetClientRank(
-                  uid: idUser,
+                  uid: idUser!,
                   stat: 'COMPLETED',
                 ),
                 builder: (context, snapshot) {
@@ -342,8 +281,13 @@ class _HomeContent extends StatelessWidget {
                       !snapshot.hasData ||
                       snapshot.data == null) {
                     return Text(
-                      'Erreur de chargement du profil.,${snapshot.error}',
-                    );
+                      //'Erreur de chargement du profil.,${snapshot.error}',
+                      'Verifier votre connexion internet et ressayer',
+                        style: GoogleFonts.ubuntu(
+                          color: const Color.fromARGB(255, 244, 54, 92),
+                            fontSize: 18,
+                            fontStyle: FontStyle.italic,
+                          ),);
                   }
                   final orderCount = snapshot.data!;
                   return Padding(
@@ -362,12 +306,12 @@ class _HomeContent extends StatelessWidget {
                         const SizedBox(width: 10),
                         FutureBuilder(
                           future: _userProfileService.calculateAndSetClientRank(
-                            uid: idUser,
+                            uid: idUser!,
                             stat: 'ASSIGNED',
                           ),
                           builder: (context, snapshot) {
                             if (snapshot.data == null) {
-                              Text('0');
+                              const Text('0');
                             }
                             if (snapshot.connectionState ==
                                 ConnectionState.waiting) {
@@ -402,7 +346,6 @@ class _HomeContent extends StatelessWidget {
             ],
           ),
 
-          // 2. Le bouton "Nouveau transport"
           const SizedBox(height: 20),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -420,7 +363,7 @@ class _HomeContent extends StatelessWidget {
                 TextButton(
                   onPressed: () {
                     Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context) => HistoryScreen()),
+                      MaterialPageRoute(builder: (context) => const HistoryScreen()),
                     );
                   },
                   child: Text(
@@ -437,7 +380,7 @@ class _HomeContent extends StatelessWidget {
           const SizedBox(height: 10),
           StreamBuilder<List<Order>>(
             stream:
-                _orderService.streamUserOrders(idUser) as Stream<List<Order>>?,
+              _orderService.streamUserOrders(idUser!, limit: 3) as Stream<List<Order>>?,
 
             builder: (context, snapshot) {
               // 1. État de Chargement
@@ -473,7 +416,7 @@ class _HomeContent extends StatelessWidget {
               return ListView.builder(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
-                itemCount: orders.length > 3 ? 3 : orders.length,
+                itemCount: orders.length,
                 itemBuilder: (context, index) {
                   final order = orders[index];
                   return Column(
@@ -485,12 +428,67 @@ class _HomeContent extends StatelessWidget {
                         status: order.status,
                         iconColor: Colors.green.shade600,
                       ),
-                      SizedBox(height: 15),
+                      const SizedBox(height: 15),
                     ],
                   );
                 },
               );
             },
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Widget extrait pour l'en-tête (Header) pour éviter la duplication
+  Widget _buildHeader({required String name, required String subtitle, required bool isOffline}) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(20, 50, 20, 20),
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color(0xFF4C4CE7), Color(0xFF6B4EE7)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(30),
+          bottomRight: Radius.circular(30),
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Bonjour, $name',
+                  style: GoogleFonts.pacifico(
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                ),
+                const SizedBox(height: 5),
+                Text(
+                  subtitle,
+                  style: GoogleFonts.montserrat(
+                    color: Colors.white70,
+                    fontSize: 16,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Icon(
+            isOffline ? Icons.cloud_off : Icons.local_shipping,
+            color: Colors.white,
+            size: 40,
           ),
         ],
       ),
@@ -515,7 +513,7 @@ class _HomeContent extends StatelessWidget {
         borderRadius: BorderRadius.circular(15),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.1),
+            color: Colors.grey.withValues(alpha:0.1),
             spreadRadius: 2,
             blurRadius: 5,
             offset: const Offset(0, 3),
@@ -527,9 +525,9 @@ class _HomeContent extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: statusColor.withOpacity(
+              color: statusColor.withValues(alpha:
                 0.2,
-              ), // Colors.blueAccent.withOpacity(0.2),
+              ), // Colors.blueAccent.withValues(alpha:0.2),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(Icons.location_on, color: statusColor),
@@ -570,7 +568,7 @@ class _HomeContent extends StatelessWidget {
                   vertical: 5,
                 ),
                 decoration: BoxDecoration(
-                  color: statusColor.withOpacity(0.2),
+                  color: statusColor.withValues(alpha:0.2),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
@@ -612,7 +610,7 @@ class _HomeContent extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
+            color: Colors.grey.withValues(alpha:0.2),
             spreadRadius: 2,
             blurRadius: 5,
             offset: const Offset(0, 3),

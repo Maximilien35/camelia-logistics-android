@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'dart:math';
 
 class CameliaHome extends StatelessWidget {
   const CameliaHome({super.key});
@@ -8,124 +10,219 @@ class CameliaHome extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Color(0xFF4A00E0), // violet profond
-              Color(0xFF8E2DE2), // violet clair/rose
+              const Color(0xFF4A00E0),
+              const Color(0xFF8E2DE2),
+              Colors.purple.shade300,
             ],
+            stops: const [0.0, 0.6, 1.0],
           ),
         ),
         child: SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const SizedBox(height: 40),
+            child: CustomScrollView(
+              slivers: [
+                // Header avec logo animé
+                const SliverToBoxAdapter(child: AnimatedLogoSection()),
+                const SliverToBoxAdapter(child: SizedBox(height: 30)),
 
-                // Logo rond avec icône camion
-                CircleAvatar(
-                  radius: 40,
-                  backgroundColor: Colors.white,
-                  child: Icon(
-                    Icons.local_shipping,
-                    size: 40,
-                    color: Color(0xFF4A00E0),
+                // Titre avec animation
+                SliverToBoxAdapter(
+                  child: Hero(
+                  tag: 'logo',
+                  child: Material(
+                    color: Colors.transparent,
+                    child: Column(
+                      children: [
+                        Text(
+                          "Camelia",
+                          style: GoogleFonts.poppins(
+                            fontSize: 42,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white,
+                            letterSpacing: 1.5,
+                            shadows: [
+                              Shadow(
+                                color: Colors.black.withValues(alpha:0.2),
+                                blurRadius: 10,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Text(
+                          "LOGISTICS",
+                          style: GoogleFonts.poppins(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white.withValues(alpha:0.9),
+                            letterSpacing: 8,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-
-                const SizedBox(height: 20),
-
-                // Nom entreprise
-                const Text(
-                  "Camelia Logistics",
-                  style: TextStyle(
-                    fontSize: 26,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
                 ),
+                const SliverToBoxAdapter(child: SizedBox(height: 10)),
 
-                const SizedBox(height: 8),
-
-                // Slogan
-                const Text(
-                  "Livraison rapide et fiable",
-                  style: TextStyle(fontSize: 16, color: Colors.white70),
-                ),
-
-                const SizedBox(height: 30),
-
-                // Barre de recherche stylisée
-                Container(
+                // Slogan avec effet
+                SliverToBoxAdapter(
+                  child: Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 14,
+                    horizontal: 20,
+                    vertical: 8,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(16),
+                    color: Colors.white.withValues(alpha:0.15),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha:0.3),
+                      width: 1,
+                    ),
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
-                      Icon(Icons.location_on, color: Colors.white),
-                      Expanded(
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 12),
-                          child: Divider(color: Colors.white54, thickness: 2),
-                        ),
+                  child: Text(
+                    "Livraison express au Cameroun",
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white.withValues(alpha:0.9),
+                    ),
+                  ),
+                ),
+                ),
+                const SliverToBoxAdapter(child: SizedBox(height: 40)),
+
+                // Section de présentation
+                SliverList(
+                  delegate: SliverChildListDelegate([
+                    _buildAnimatedCard(
+                        icon: Icons.rocket_launch_rounded,
+                        title: "Livraison ultra-rapide",
+                        description: "Votre colis livré en moins de 24h",
+                        color: Colors.orange.shade400,
+                        delay: 100,
                       ),
-                      Icon(Icons.inventory, color: Colors.white),
+                      const SizedBox(height: 20),
+                      _buildAnimatedCard(
+                        icon: Icons.location_on_rounded,
+                        title: "Couverture nationale",
+                        description: "Service disponible dans toutes les villes",
+                        color: Colors.blue.shade400,
+                        delay: 200,
+                      ),
+                      const SizedBox(height: 20),
+                      _buildAnimatedCard(
+                        icon: Icons.shield_rounded,
+                        title: "Sécurité garantie",
+                        description: "Vos colis assurés jusqu'à destination",
+                        color: Colors.green.shade400,
+                        delay: 300,
+                      ),
+                      const SizedBox(height: 20),
+                      _buildAnimatedCard(
+                        icon: Icons.phone_in_talk_rounded,
+                        title: "Support 24/7",
+                        description: "Notre équipe à votre écoute",
+                        color: Colors.purple.shade400,
+                        delay: 400,
+                      ),
+                  ]),
+                ),
+                const SliverToBoxAdapter(child: SizedBox(height: 30)),
+
+                // Bouton principal avec effet
+                SliverToBoxAdapter(
+                  child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(25),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.white.withValues(alpha:0.4),
+                        blurRadius: 20,
+                        spreadRadius: 5,
+                        offset: const Offset(0, 5),
+                      ),
+                      BoxShadow(
+                        color: const Color(0xFF4A00E0).withValues(alpha:0.5),
+                        blurRadius: 30,
+                        spreadRadius: 5,
+                        offset: const Offset(0, 10),
+                      ),
                     ],
                   ),
-                ),
-
-                const SizedBox(height: 30),
-
-                // Boutons info
-                _InfoCard(
-                  icon: Icons.local_shipping,
-                  text: "Livraison express au Cameroun",
-                ),
-                const SizedBox(height: 15),
-                _InfoCard(
-                  icon: Icons.track_changes,
-                  text: "Suivi en temps réel",
-                ),
-                const SizedBox(height: 15),
-                _InfoCard(icon: Icons.lock, text: "Colis sécurisés"),
-
-                const Spacer(),
-
-                // Bouton principal
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      backgroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
-                      ),
-                    ),
-                    onPressed: () {
-                      context.go('/signup');
-                    },
-                    child: const Text(
-                      "Commencer",
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Color(0xFF4A00E0),
-                        fontWeight: FontWeight.bold,
+                  child: Material(
+                    borderRadius: BorderRadius.circular(25),
+                    child: InkWell(
+                      onTap: () => context.go('/signup'),
+                      borderRadius: BorderRadius.circular(25),
+                      child: Ink(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 18,
+                          horizontal: 30,
+                        ),
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            colors: [Colors.white, Color(0xFFF0F0F0)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(25),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha:0.5),
+                            width: 2,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.arrow_forward_rounded,
+                              color: Color(0xFF4A00E0),
+                              size: 24,
+                            ),
+                            const SizedBox(width: 12),
+                            Text(
+                              "Commencer",
+                              style: GoogleFonts.poppins(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w700,
+                                color: const Color(0xFF4A00E0),
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
-                const SizedBox(height: 20),
+                ),
+                const SliverToBoxAdapter(child: SizedBox(height: 20)),
+
+                // Bouton secondaire
+                SliverToBoxAdapter(
+                  child: TextButton(
+                  onPressed: () => context.go('/login'),
+                  child: Text(
+                    "J'ai déjà un compte",
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white.withValues(alpha:0.9),
+                      decoration: TextDecoration.underline,
+                      decorationColor: Colors.white.withValues(alpha:0.5),
+                    ),
+                  ),
+                ),
+                ),
+                const SliverToBoxAdapter(child: SizedBox(height: 10)),
               ],
             ),
           ),
@@ -133,30 +230,219 @@ class CameliaHome extends StatelessWidget {
       ),
     );
   }
+
+  Widget _buildAnimatedCard({
+    required IconData icon,
+    required String title,
+    required String description,
+    required Color color,
+    required int delay,
+  }) {
+    return TweenAnimationBuilder<double>(
+      duration: Duration(milliseconds: 800 + delay),
+      curve: Curves.easeOutBack,
+      tween: Tween(begin: 0.0, end: 1.0),
+      builder: (context, value, child) {
+        return Transform.translate(
+          offset: Offset(0, 50 * (1 - value)),
+          child: Opacity(
+            opacity: value,
+            child: child,
+          ),
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha:0.15),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: Colors.white.withValues(alpha:0.2),
+            width: 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha:0.1),
+              blurRadius: 15,
+              spreadRadius: 2,
+              offset: const Offset(0, 5),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 60,
+              height: 60,
+              decoration: BoxDecoration(
+                color: color.withValues(alpha:0.2),
+                borderRadius: BorderRadius.circular(15),
+              ),
+              child: Icon(
+                icon,
+                size: 32,
+                color: color,
+              ),
+            ),
+            const SizedBox(width: 20),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: GoogleFonts.poppins(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    description,
+                    style: GoogleFonts.poppins(
+                      fontSize: 13,
+                      color: Colors.white.withValues(alpha:0.8),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.chevron_right_rounded,
+              color: Colors.white.withValues(alpha:0.5),
+              size: 28,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
-// Widget réutilisable pour les cartes
-class _InfoCard extends StatelessWidget {
-  final IconData icon;
-  final String text;
+class AnimatedLogoSection extends StatefulWidget {
+  const AnimatedLogoSection({super.key});
 
-  const _InfoCard({required this.icon, required this.text});
+  @override
+  State<AnimatedLogoSection> createState() => _AnimatedLogoSectionState();
+}
+
+class _AnimatedLogoSectionState extends State<AnimatedLogoSection>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+  late Animation<double> _rotationAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 1500),
+      vsync: this,
+    );
+
+    _scaleAnimation = Tween<double>(begin: 0.5, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Curves.elasticOut,
+      ),
+    );
+
+    _rotationAnimation = Tween<double>(begin: 0.0, end: 2 * pi).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Curves.easeInOut,
+      ),
+    );
+
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.2),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, color: Colors.white),
-          const SizedBox(width: 12),
-          Text(text, style: const TextStyle(fontSize: 16, color: Colors.white)),
-        ],
-      ),
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return Transform.rotate(
+          angle: _rotationAnimation.value,
+          child: Transform.scale(
+            scale: _scaleAnimation.value,
+            child: Container(
+              width: 100,
+              height: 100,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.white.withValues(alpha:0.5),
+                    blurRadius: 30,
+                    spreadRadius: 10,
+                  ),
+                  BoxShadow(
+                    color: Colors.purple.shade300.withValues(alpha:0.3),
+                    blurRadius: 40,
+                    spreadRadius: 20,
+                  ),
+                ],
+              ),
+              child: Stack(
+                children: [
+                  // Cercle intérieur
+                  Center(
+                    child: Container(
+                      width: 80,
+                      height: 80,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF4A00E0), Color(0xFF8E2DE2)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.purple.shade800.withValues(alpha:0.3),
+                            blurRadius: 20,
+                            spreadRadius: 5,
+                          ),
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.local_shipping_rounded,
+                        size: 42,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                  // Effet de particules
+                  ...List.generate(
+                    8,
+                    (index) => Positioned(
+                      left: 50 + 35 * _scaleAnimation.value * cos(index * 45 * pi / 180),
+                      top: 50 + 35 * _scaleAnimation.value * sin(index * 45 * pi / 180),
+                      child: Container(
+                        width: 6,
+                        height: 6,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha:0.7),
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

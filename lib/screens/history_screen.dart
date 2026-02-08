@@ -1,9 +1,8 @@
-import 'package:camelia_logistics/models/order_model.dart';
-import 'package:camelia_logistics/models/services/userProfileService.dart';
-import 'package:camelia_logistics/screens/OrderSummaryScreen.dart';
+import 'package:camelia_logistics/models/services/user_profile_service.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../models/services/order_service.dart';
 
@@ -12,18 +11,37 @@ class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
 
   @override
-  _HistoryScreenState createState() => _HistoryScreenState();
+  State<HistoryScreen> createState() => _HistoryScreenState();
 }
 
 class _HistoryScreenState extends State<HistoryScreen> {
-  // Référence à l'UID de l'utilisateur connecté
   final String userId = FirebaseAuth.instance.currentUser!.uid;
   final OrderService _orderService = OrderService();
   final UserProfileService _userService = UserProfileService();
 
+  late Future<int?> _deliveredCountFuture;
+  late Future<double> _totalSpentFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _deliveredCountFuture = _userService.calculateAndSetClientRank(uid: userId, stat: 'COMPLETED');
+    _totalSpentFuture = _orderService.calculateTotalSpent(userId);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop,result) {
+        if (didPop) return;
+        if (Navigator.of(context).canPop()) {
+          Navigator.of(context).pop();
+        } else {
+          context.go('/home_custom');
+        }
+      },
+      child: Scaffold(
       appBar: AppBar(
         title: Text(
           "Historique",
@@ -34,53 +52,41 @@ class _HistoryScreenState extends State<HistoryScreen> {
           onPressed: () {
             context.go('/home_custom');
           },
-          icon: Icon(Icons.arrow_back),
+          icon:const Icon(Icons.arrow_back),
         ),
         actions: [
           IconButton(
             onPressed: () {
-              // TODO: Implémenter le filtre par statut
             },
             icon: const Icon(Icons.history_toggle_off_rounded),
           ),
         ],
       ),
-      // Le SingleChildScrollView englobe toute la page
+      
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // Section des cartes de statistiques (peut être mise à jour avec un FutureBuilder)
             FutureBuilder(
-              future: _userService.calculateAndSetClientRank(
-                uid: userId!,
-                stat: 'COMPLETED',
-              ),
+              future: _deliveredCountFuture,
               builder: (context, snapshot) {
-                if (snapshot.data == null) {
-                  Text('0');
-                }
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 }
                 return Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                  padding:const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
                   child: Row(
                     children: [
                       Expanded(
                         child: _CardHistory(
                           icon: Icons.inventory_2,
-                          value: snapshot.data!
-                              .toString(), // VALEUR STATIQUE, à remplacer par une requête réelle
+                          value: (snapshot.data ?? 0).toString(),
                           label: 'Colis livrés',
                         ),
                       ),
-                      SizedBox(width: 20),
+                      const SizedBox(width: 20),
                       FutureBuilder(
-                        future: _orderService.calculateTotalSpent(userId!),
+                        future: _totalSpentFuture,
                         builder: (context, snapshots) {
-                          if (snapshots.data == null) {
-                            Text('0');
-                          }
                           if (snapshot.connectionState ==
                               ConnectionState.waiting) {
                             return const Center(
@@ -91,8 +97,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                           return Expanded(
                             child: _CardHistory(
                               icon: Icons.monetization_on,
-                              value: snapshots.data
-                                  .toString(), // VALEUR STATIQUE, à remplacer par une requête réelle
+                              value: (snapshots.data ?? 0.0).toStringAsFixed(0),
                               label: 'Total Depense',
                             ),
                           );
@@ -104,12 +109,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
               },
             ),
 
-            // --- SECTION DE LA LISTE DES LIVRAISONS EN TEMPS RÉEL ---
             StreamBuilder(
-              stream: _orderService.streamUserOrders(userId),
+              stream: _orderService.streamUserOrders(userId, limit: 50),
 
               builder: (context, snapshot) {
-                // 1. État de Chargement
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(
                     child: Padding(
@@ -119,7 +122,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   );
                 }
 
-                // 2. État d'Erreur
                 if (snapshot.hasError) {
                   return Center(
                     child: Padding(
@@ -148,13 +150,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   itemBuilder: (context, index) {
                     final order = orders[index];
 
-                    // Utilisation de votre widget _buildCardInventory
                     return _CardInventory(
                       type: order
-                          .packageNature, // Utilisation du champ du modèle Order
-                      depart: order.pickupAddress, // Utilisation d'une adresse
+                          .packageNature, 
+                      depart: order.pickupAddress, 
                       destination:
-                          order.dropoffAddress, // Utilisation d'une adresse
+                          order.dropoffAddress, 
                       date: order.timestamp.toString().substring(0, 10),
 
                       prix: order.priceQuote?.toInt() ?? 0,
@@ -162,16 +163,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       onTap: () {
                         if (order.status == "PENDING" ||
                             order.status == "ASSIGNED") {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  OrderSummaryScreen(orderId: order.id!),
-                            ),
-                          );
+                          context.push('/waiting/${order.id!}');
                         }
-
-                        // Navigation vers l'écran de résumé (s'assurer que la route existe)
-                        //context.go();
                       },
                     );
                   },
@@ -180,6 +173,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
             ),
           ],
         ),
+      ),
       ),
     );
   }
@@ -205,7 +199,7 @@ class _CardHistory extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
+            color: Colors.grey.withValues(alpha:0.2),
             spreadRadius: 2,
             blurRadius: 5,
             offset: const Offset(0, 3),
@@ -237,8 +231,7 @@ class _CardHistory extends StatelessWidget {
   }
 }
 
-// Widget pour les cartes d'inventaire (privé)
-// Remplacé _buildCardInventory par _CardInventory pour suivre les conventions
+
 class _CardInventory extends StatelessWidget {
   final String type;
   final String depart;
@@ -274,7 +267,6 @@ class _CardInventory extends StatelessWidget {
     }
   }
 
-  // Fonction pour obtenir le texte du statut
   static String _getDisplayStatus(String status) {
     switch (status.toUpperCase()) {
       case 'PENDING':
@@ -306,7 +298,7 @@ class _CardInventory extends StatelessWidget {
           borderRadius: BorderRadius.circular(15),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withOpacity(0.2),
+              color: Colors.grey.withValues(alpha:0.2),
               spreadRadius: 2,
               blurRadius: 5,
               offset: const Offset(0, 3),
@@ -332,7 +324,7 @@ class _CardInventory extends StatelessWidget {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: statusColor.withOpacity(0.2),
+                    color: statusColor.withValues(alpha:0.2),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -351,13 +343,19 @@ class _CardInventory extends StatelessWidget {
               children: [
                 const Icon(Icons.my_location, color: Colors.blue, size: 10),
                 const SizedBox(width: 10),
-                Text(
-                  depart,
+               
+                AutoSizeText(
+                  depart.substring(0, depart.length > 30 ? depart.length ~/ 2 : depart.length),
                   style: GoogleFonts.montserrat(
                     fontSize: 14,
                     color: Colors.grey,
                   ),
+                  minFontSize: 10,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
+              
+                          
               ],
             ),
             const SizedBox(height: 5),
@@ -365,11 +363,15 @@ class _CardInventory extends StatelessWidget {
               children: [
                 const Icon(Icons.location_on, color: Colors.green, size: 10),
                 const SizedBox(width: 10),
-                Text(
-                  destination,
-                  style: GoogleFonts.montserrat(
-                    fontSize: 14,
-                    color: Colors.grey,
+                Expanded(
+                  child: Text(
+                    destination,
+                    style: GoogleFonts.montserrat(
+                      fontSize: 14,
+                      color: Colors.grey,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
                   ),
                 ),
               ],

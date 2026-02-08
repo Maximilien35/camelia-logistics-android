@@ -1,12 +1,18 @@
-import 'package:camelia_logistics/screens/AdminPanel.dart';
-import 'package:camelia_logistics/screens/HomeCustumer_Screen.dart';
-import 'package:camelia_logistics/screens/OrderSummaryScreen.dart';
-import 'package:camelia_logistics/screens/adminDashboard.dart';
-import 'package:camelia_logistics/screens/adminDeliverers.dart';
+// ignore_for_file: use_build_context_synchronously, deprecated_member_use
+
+import 'package:camelia_logistics/screens/admin_panel.dart';
+import 'package:camelia_logistics/screens/home_custumer_screen.dart';
+import 'package:camelia_logistics/screens/order_summary_screen.dart';
+import 'package:camelia_logistics/screens/admin_dashboard.dart';
+import 'package:camelia_logistics/screens/admin_deliverers.dart';
 import 'package:camelia_logistics/screens/auth_wrapper.dart';
 import 'package:camelia_logistics/screens/change_informations.dart';
 import 'package:camelia_logistics/screens/reset_password.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:camelia_logistics/models/services/user_profile_service.dart';
+import 'package:flutter/foundation.dart'; 
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -14,7 +20,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'models/order_state_model.dart';
 import 'screens/splash_screen.dart';
 import 'screens/login_screen.dart';
-import 'screens/signup_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/order_screen.dart';
 import 'screens/profil.dart';
@@ -23,69 +28,74 @@ import 'package:provider/provider.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
-// =======================================================
-// 1. LOGIQUE DE REDIRECTION (LE PONT ENTRE LE PAYLOAD ET LA ROUTE)
-// =======================================================
-
-/// Interprète la clé 'screen' et navigue vers la route GoRouter correspondante.
 void handleNotificationRedirect(RemoteMessage message, BuildContext context) {
   final data = message.data;
   final String? screenKey = data['screen'];
   final String? orderId = data['orderId'];
 
-  // On s'assure d'avoir l'ID pour la navigation
   if (orderId == null) {
-    print(
-      'Notification reçue sans ID de commande. Redirection vers /home_custom.',
-    );
-    context.go('/home_custom'); // Rediriger vers la page d'accueil par défaut
+    context.go('/home_custom'); 
     return;
   }
 
   switch (screenKey) {
     case 'client_order_waiting':
-      // Route Client : Commande Validée
       context.go('/waiting/$orderId');
       break;
 
     case 'admin_orders_details':
-      // Route Admin : Nouvelle Commande
       context.go('/orderDetailsAdmin/$orderId');
       break;
 
     default:
-      // Fallback si la clé n'est pas reconnue
       context.go('/admin'); // Page admin par défaut
       break;
   }
 }
 
-// =======================================================
-// 2. GESTION DES INTERACTIONS (SETUP)
-// =======================================================
 
-/// Configure les écouteurs de Firebase Messaging pour les 3 états de l'application.
-void setupInteractions(BuildContext context) {
-  // Wrapper pour lier le message au BuildContext nécessaire à GoRouter.
+Future<void> setupInteractions(BuildContext context) async {
+  NotificationSettings settings = await FirebaseMessaging.instance.requestPermission(
+    alert: true,
+    badge: true,
+    sound: true,
+  );
+
+  // Permet d'afficher les notifications (Alert, Badge, Son) même si l'app est au premier plan
+  await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+    alert: true,
+    badge: true,
+    sound: true,
+  );
+
+  if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+    String? token = await FirebaseMessaging.instance.getToken();
+    final user = FirebaseAuth.instance.currentUser;
+    if (token != null && user != null) {
+      await UserProfileService().saveFCMToken(user.uid, token);
+    }
+
+    // 3. Écouter les changements de token
+    FirebaseMessaging.instance.onTokenRefresh.listen((newToken) {
+      if (user != null) {
+        UserProfileService().saveFCMToken(user.uid, newToken);
+      }
+    });
+  }
+
   void redirectWrapper(RemoteMessage message) {
     handleNotificationRedirect(message, context);
   }
 
-  // --- ÉTAT 1 : TERMINATED (Application complètement fermée) ---
   FirebaseMessaging.instance.getInitialMessage().then((RemoteMessage? message) {
     if (message != null) {
       redirectWrapper(message);
     }
   });
 
-  // --- ÉTAT 2 : BACKGROUND (Application en arrière-plan) ---
   FirebaseMessaging.onMessageOpenedApp.listen(redirectWrapper);
 
-  // --- ÉTAT 3 : FOREGROUND (Application ouverte et active) ---
   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-    print('Notification reçue en premier plan: ${message.notification?.title}');
-
-    // Afficher un SnackBar pour alerter et proposer la navigation
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message.notification?.title ?? 'Nouvel événement'),
@@ -93,7 +103,7 @@ void setupInteractions(BuildContext context) {
           label: 'VOIR',
           onPressed: () {
             // L'utilisateur clique sur l'action du SnackBar
-            redirectWrapper(message);
+           // redirectWrapper(message);
           },
         ),
         duration: const Duration(seconds: 5),
@@ -102,15 +112,27 @@ void setupInteractions(BuildContext context) {
   });
 }
 
-// =======================================================
-// 3. MAIN ET INITIALISATION (CORRIGÉS)
-// =======================================================
+// Handler pour les notifications en arrière-plan (Doit être en top-level)
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+  // Vous pouvez ajouter de la logique ici si nécessaire (ex: stockage local)
+  if (kDebugMode) {
+    print("Handling a background message: ${message.messageId}");
+  }
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  // Enregistrement du handler d'arrière-plan
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
-  // NOTE: On NE PEUT PAS appeler setupInteractions ici, car le BuildContext n'existe pas.
+  await FirebaseAppCheck.instance.activate(
+  // Utilise Play Integrity en production, et Debug en développement
+  androidProvider: kReleaseMode ? AndroidProvider.playIntegrity : AndroidProvider.debug,
+  appleProvider: AppleProvider.appAttest,
+);
 
   runApp(const MyApp());
 }
@@ -120,27 +142,22 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // ⭐️ SOLUTION: On utilise le NavigatorKey pour créer le GoRouter
     final GoRouter router = GoRouter(
       initialLocation: '/start',
-      navigatorKey: navigatorKey, // Utilisation du GlobalKey ici
+      navigatorKey: navigatorKey, 
       routes: [
         GoRoute(
           path: '/splash',
           builder: (context, state) => const SplashScreen(),
         ),
         GoRoute(path: '/login', builder: (context, state) => const LoginPage()),
-        GoRoute(
-          path: '/signup',
-          builder: (context, state) => const SignupScreen(),
-        ),
+       
         GoRoute(path: '/home', builder: (context, state) => const HomeScreen()),
         GoRoute(
           path: '/order',
           builder: (context, state) => const OrderScreen(),
         ),
 
-        // Route Client (Devis/Attente)
         GoRoute(
           path: '/waiting/:orderId',
           builder: (context, state) {
@@ -208,8 +225,9 @@ class MyApp extends StatelessWidget {
         routerConfig: router,
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+          useMaterial3: true,
           textTheme: TextTheme(bodyLarge: GoogleFonts.montserrat()),
-          primarySwatch: Colors.blue,
         ),
       ),
     );
@@ -227,10 +245,8 @@ class NotificationInitializer extends StatelessWidget {
       final context = navigatorKey.currentState?.context;
       if (context != null) {
         setupInteractions(context);
-        print("Interactions de notification initialisées.");
       }
     });
-    // Retourne un widget vide ou le widget de votre écran de démarrage
     return AuthWrapper();
   }
 }

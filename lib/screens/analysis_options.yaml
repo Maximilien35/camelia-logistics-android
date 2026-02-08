@@ -1,0 +1,13 @@
+analyzer:
+  errors:
+    use_build_context_synchronously: ignore
+include: package:flutter_lints/flutter.yaml
+
+linter:
+  rules:
+    # Vous pouvez activer, désactiver ou personnaliser des règles ici.
+    # Par exemple, pour éviter les appels à print() dans le code de production.
+    avoid_print: true
+
+    # Pour s'assurer que les constructeurs const sont utilisés dès que possible.
+    prefer_const_constructors: true
