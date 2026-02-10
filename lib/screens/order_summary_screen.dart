@@ -1,5 +1,4 @@
 // Importations nécessaires
-import 'package:camelia_logistics/models/services/admin_service.dart';
 import 'package:camelia_logistics/models/services/order_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
@@ -8,9 +7,15 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import '../models/order_model.dart';
 
-class OrderSummaryScreen extends StatelessWidget {
+class OrderSummaryScreen extends StatefulWidget {
   final String orderId;
-  OrderSummaryScreen({super.key, required this.orderId});
+  const OrderSummaryScreen({super.key, required this.orderId});
+
+  @override
+  State<OrderSummaryScreen> createState() => _OrderSummaryScreenState();
+}
+
+class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
   final OrderService _orderService = OrderService();
 
   void finalizeOrder(String orderId, String statut) async {
@@ -18,13 +23,15 @@ class OrderSummaryScreen extends StatelessWidget {
     await order.updateOrderStatus(orderId: orderId, newStatus: statut);
   }
 
+  bool _hasShownFlashCard = false;
+
   void showManageDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Gérer la commande'),
-          content:const Text(
+          content: const Text(
             'etes vous sure de vouloir annuler la commande ',
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
@@ -33,7 +40,7 @@ class OrderSummaryScreen extends StatelessWidget {
               children: [
                 ElevatedButton(
                   onPressed: () {
-                    finalizeOrder(orderId, 'CANCELLED'); // Statut payé/terminé
+                    finalizeOrder(widget.orderId, 'CANCELLED'); // Statut payé/terminé
                     Navigator.of(context).pop();
                   },
                   style: ElevatedButton.styleFrom(
@@ -64,20 +71,104 @@ class OrderSummaryScreen extends StatelessWidget {
     );
   }
 
-  final AdminService admin = AdminService();
+  void showSuccessFlashCard(BuildContext context) {
+    if (_hasShownFlashCard) return;
+    setState(() {
+      _hasShownFlashCard = true;
+    });
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        backgroundColor: Colors.white,
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF4CAF50).withValues(alpha:0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.check_rounded,
+                  size: 48,
+                  color: Color(0xFF4CAF50),
+                ),
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                'Commande Validée !',
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'Votre commande a été validée et payée avec succès',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 15,
+                  color: Colors.grey.shade600,
+                ),
+              ),
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: Material(
+                  borderRadius: BorderRadius.circular(12),
+                  child: InkWell(
+                    onTap: () => context.go('/home_custom'),
+                    borderRadius: BorderRadius.circular(12),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF6C63FF), Color(0xFF8B84FF)],
+                        ),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Center(
+                        child: Text(
+                          'Retour à l\'accueil',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (kDebugMode) {
-      print('Tentative de chargement de la commande avec ID: $orderId');
+      print('Tentative de chargement de la commande avec ID: ${widget.orderId}');
     }
 
-    if (orderId.isEmpty) {
+    if (widget.orderId.isEmpty) {
       return const Scaffold(
         body: Center(child: Text("Erreur: L'ID de la commande est manquant.")),
       );
     }
     return StreamBuilder<Order?>(
-      stream: _orderService.streamOrder(orderId),
+      stream: _orderService.streamOrder(widget.orderId),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
@@ -91,22 +182,16 @@ class OrderSummaryScreen extends StatelessWidget {
         }
 
         final currentOrder = snapshot.data!;
-        return _buildInterface(context, currentOrder, orderId);
+        return _buildInterface(context, currentOrder, widget.orderId);
       },
     );
   }
 
   Widget _buildInterface(BuildContext context, Order order, String id) {
     if (order.priceQuote == 0.0) {
-      return WaitingScreen(orderId: orderId);
-    }
-    else {
-      return PopScope(
-        canPop: false,
-        onPopInvokedWithResult: (didPop, result) {
-          admin.handlePopInvoked(didPop, context);
-        },
-        child: Scaffold(
+      return WaitingScreen(orderId: widget.orderId);
+    } else {
+      return Scaffold(
           appBar: AppBar(title: const Text('Confirmer votre commande')),
           body: SingleChildScrollView(
             padding: const EdgeInsets.all(20),
@@ -152,8 +237,8 @@ class OrderSummaryScreen extends StatelessWidget {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () {
-                      finalizeOrder(orderId, 'CONFIRMED');
-                      context.go('/home_custom');
+                      finalizeOrder(widget.orderId, 'CONFIRMED');
+                      showSuccessFlashCard(context);
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF4CAF50),
@@ -190,11 +275,9 @@ class OrderSummaryScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                
               ],
             ),
           ),
-        ),
       );
     }
   }

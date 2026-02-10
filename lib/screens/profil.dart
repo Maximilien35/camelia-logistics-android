@@ -20,18 +20,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final OrderService _orderService = OrderService();
   final String? _currentUserId = FirebaseAuth.instance.currentUser?.uid;
   
-  late Future<List<dynamic>> _ordersFuture;
-  late Future<UserProfile?> _profileFuture;
+  late Future<List<dynamic>> _dataFuture;
 
   @override
   void initState() {
     super.initState();
-    _ordersFuture = _currentUserId != null 
-        ? _orderService.getOrdersByUserId(_currentUserId) 
-        : Future.value([]);
-    _profileFuture = _currentUserId != null 
-        ? _userSer.getProfile(_currentUserId) 
-        : Future.value(null);
+    _dataFuture = _loadData();
+  }
+
+  Future<List<dynamic>> _loadData() {
+    if (_currentUserId == null) {
+      return Future.value([null, []]);
+    }
+    return Future.wait(
+        [_userSer.getProfile(_currentUserId), _orderService.getOrdersByUserId(_currentUserId)]);
   }
 
   void _handleLogout() async {
@@ -95,8 +97,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       },
       child: Scaffold(
         backgroundColor: Colors.grey.shade50,
-        body: FutureBuilder<UserProfile?>(
-          future: _profileFuture,
+        body: FutureBuilder<List<dynamic>>(
+          future: _dataFuture,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(
@@ -104,7 +106,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               );
             }
 
-            if (snapshot.hasError || !snapshot.hasData || snapshot.data == null) {
+            if (snapshot.hasError || !snapshot.hasData || snapshot.data == null || snapshot.data![0] == null) {
               return Scaffold(
                 backgroundColor: Colors.grey.shade50,
                 body: Center(
@@ -118,13 +120,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
               );
             }
 
-            final UserProfile profile = snapshot.data!;
+            final UserProfile profile = snapshot.data![0];
+            final List<dynamic> orders = snapshot.data![1];
             
             return CustomScrollView(
               slivers: [
                 // Header avec gradient
                 SliverAppBar(
-                  expandedHeight: 280,
+                  expandedHeight: 400,
                   floating: false,
                   pinned: true,
                   backgroundColor: Colors.white,
@@ -191,15 +194,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 24),
+                            const SizedBox(height: 15),
                             
                             // Photo de profil et nom
                             Center(
-                              child: Column(
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Column(
                                 children: [
                                   Container(
                                     width: 100,
-                                    height: 100,
+                                    height: 90,
                                     decoration: BoxDecoration(
                                       shape: BoxShape.circle,
                                       border: Border.all(
@@ -212,11 +217,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ),
                                     child: const Icon(
                                       Icons.person,
-                                      size: 50,
+                                      size: 40,
                                       color: Colors.white,
                                     ),
                                   ),
-                                  const SizedBox(height: 16),
+                                  const SizedBox(height: 12),
                                   Text(
                                     profile.name,
                                     style: GoogleFonts.poppins(
@@ -226,7 +231,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       letterSpacing: -0.5,
                                     ),
                                   ),
-                                  const SizedBox(height: 8),
+                                  const SizedBox(height: 4),
                                   Text(
                                     'Membre depuis le Cameroun',
                                     style: GoogleFonts.poppins(
@@ -236,6 +241,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   ),
                                 ],
                               ),
+                              ),
                             ),
                             
                             const SizedBox(height: 24),
@@ -244,52 +250,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceAround,
                               children: [
-                                FutureBuilder(
-                                  future: _ordersFuture,
-                                  builder: (context, snapshot) {
-                                    final count = snapshot.data?.length ?? 0;
-                                    return _buildStatColumn(
-                                      count.toString(),
-                                      'Livraisons',
+                                _buildStatColumn(
+                                  orders.length.toString(),
+                                  'Livraisons',
+                                ),
+                                Builder(builder: (context) {
+                                  final int count = orders.length;
+                                  List<Widget> stars = [];
+                                  if (count >= 100) {
+                                    stars = List.generate(
+                                      4,
+                                      (_) => const Icon(Icons.star, color: Colors.amber, size: 20),
                                     );
-                                  },
-                                ),
-                                FutureBuilder(
-                                  future: _ordersFuture,
-                                  builder: (context, snapshot) {
-                                    final int count = snapshot.data?.length ?? 0;
-                                    List<Widget> stars = [];
-                                    if (count >= 100) {
-                                      stars = List.generate(
-                                        4,
-                                        (_) => const Icon(
-                                          Icons.star,
-                                          color: Colors.amber,
-                                          size: 20,
-                                        ),
-                                      );
-                                    } else if (count > 50) {
-                                      stars = List.generate(
-                                        2,
-                                        (_) => const Icon(
-                                          Icons.star,
-                                          color: Colors.amber,
-                                          size: 20,
-                                        ),
-                                      );
-                                    } else {
-                                      stars = List.generate(
-                                        1,
-                                        (_) => const Icon(
-                                          Icons.star,
-                                          color: Colors.amber,
-                                          size: 20,
-                                        ),
-                                      );
-                                    }
-                                    return _buildStatColumnWithStars(stars, 'Niveau');
-                                  },
-                                ),
+                                  } else if (count > 50) {
+                                    stars = List.generate(
+                                      2,
+                                      (_) => const Icon(Icons.star, color: Colors.amber, size: 20),
+                                    );
+                                  } else if (count > 0) {
+                                    stars = List.generate(
+                                      1,
+                                      (_) => const Icon(Icons.star, color: Colors.amber, size: 20),
+                                    );
+                                  }
+                                  return _buildStatColumnWithStars(stars, 'Niveau');
+                                }),
                                 _buildStatColumn('98%', 'Réussite'),
                               ],
                             ),
@@ -353,7 +338,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     _buildDivider(),
                     _buildPerformanceItem(
                       title: 'Total des livraisons',
-                      value: '24',
+                      value: orders.length.toString(),
                       color: Colors.grey.shade800,
                     ),
                   ],

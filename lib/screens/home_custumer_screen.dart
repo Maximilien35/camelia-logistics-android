@@ -255,12 +255,14 @@ class _HomeContentState extends State<_HomeContent> {
                       Expanded(
                         child: Text(
                           'Nouveau transport',
-                          style: GoogleFonts.ubuntu(
+                          style: GoogleFonts.montserrat(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
+                      const SizedBox(width: 10),
+                      const Icon(Icons.arrow_forward_ios_rounded),
                     ],
                   ),
                 ),

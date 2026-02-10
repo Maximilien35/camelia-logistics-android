@@ -74,7 +74,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_pre_commit: ^0.4.0
+  flutter_pre_commit: ^0.2.4
 
 
 
