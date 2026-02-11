@@ -15,7 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:camelia_logistics/models/services/user_profile_service.dart';
 import 'package:google_fonts/google_fonts.dart';
-
+import 'package:camelia_logistics/l10n/app_localizations.dart';
 class HomeCustumerScreen extends StatefulWidget {
   const HomeCustumerScreen({super.key});
 
@@ -28,6 +28,7 @@ class HomeCustumerSate extends State<HomeCustumerScreen> {
   final AdminService admin = AdminService();
 
   Future<void> handlePopInvoked(bool didPop, BuildContext context) async {
+    final l10n = AppLocalizations.of(context)!;
     if (didPop) {
       return;
     }
@@ -36,19 +37,20 @@ class HomeCustumerSate extends State<HomeCustumerScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Confirmer la Déconnexion'),
-          content: const Text('Êtes-vous sûr de vouloir  quitter ?'),
+          title: Text(l10n.confirmLogout),
+          content: Text(l10n.confirmLogoutMessage),
+
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('ANNULER'),
+             child: Text(l10n.cancel.toUpperCase()),
             ),
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(true);
                 SystemNavigator.pop();
               },
-              child: const Text('QUITTER'),
+              child: Text(l10n.quit.toUpperCase()),
             ),
           ],
         );
@@ -99,6 +101,7 @@ class HomeCustumerSate extends State<HomeCustumerScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return PopScope(
       canPop: false,
 
@@ -120,12 +123,12 @@ class HomeCustumerSate extends State<HomeCustumerScreen> {
           selectedItemColor: Colors.blue.shade800,
           unselectedItemColor: Colors.grey,
           items: [
-            const BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Accueil'),
-            const BottomNavigationBarItem(
-              icon: Icon(Icons.history),
-              label: 'Historique',
+            BottomNavigationBarItem(icon: const Icon(Icons.home), label: l10n.home),
+            BottomNavigationBarItem(
+              icon: const Icon(Icons.history),
+              label: l10n.history,
             ),
-            const BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profil'),
+             BottomNavigationBarItem(icon: const Icon(Icons.person), label: l10n.profile),
           ],
           currentIndex: _selectedIndex,
           onTap: _onItemTapped, 
@@ -155,6 +158,7 @@ class _HomeContentState extends State<_HomeContent> {
   }
   // Fonction pour obtenir la couleur du statut
   static Color _getStatusColor(String status) {
+    
     switch (status.toUpperCase()) {
       case 'PENDING':
         return Colors.orange.shade700;
@@ -172,18 +176,18 @@ class _HomeContentState extends State<_HomeContent> {
   }
 
   // Fonction pour obtenir le texte du statut
-  static String _getDisplayStatus(String status) {
+  String _getDisplayStatus(String status, AppLocalizations l10n) {
     switch (status.toUpperCase()) {
       case 'PENDING':
-        return 'En Attente';
+       return l10n.statusPending;
       case 'ACCEPTED':
-        return 'Validée';
+        return l10n.statusAccepted;
       case 'ASSIGNED':
-        return 'En cours';
+        return l10n.statusAssigned;
       case 'COMPLETED':
-        return 'Livrée';
+        return l10n.statusCompleted;
       case 'CANCELLED':
-        return 'Annulée';
+        return l10n.statusCancelled;
       default:
         return status;
     }
@@ -191,6 +195,7 @@ class _HomeContentState extends State<_HomeContent> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     if (idUser == null) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -206,16 +211,16 @@ class _HomeContentState extends State<_HomeContent> {
               
               if (snapshot.hasError || !snapshot.hasData || snapshot.data == null) {
                 return _buildHeader(
-                  name: "Client", 
-                  subtitle: "Mode hors ligne ou profil introuvable",
+                  name: l10n.client,
+                  subtitle: l10n.offlineMode,
                   isOffline: true
                 );
               }
 
               final prof = snapshot.data!;
               return _buildHeader(
-                name: prof.name.split(' ')[0].toUpperCase(),
-                subtitle: 'Que souhaitez-vous aujourd\'hui?',
+               name: l10n.hello(prof.name.split(' ')[0].toUpperCase()),
+                subtitle: l10n.whatToDoToday,
                 isOffline: false
               );
             },
@@ -254,13 +259,16 @@ class _HomeContentState extends State<_HomeContent> {
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
-                          'Nouveau transport',
-                          style: GoogleFonts.ubuntu(
+                          l10n.newTransport,
+                          textAlign: TextAlign.center,
+                          style: GoogleFonts.montserrat(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
+                      const SizedBox(width: 10),
+                      const Icon(Icons.arrow_forward_ios_rounded),
                     ],
                   ),
                 ),
@@ -282,7 +290,7 @@ class _HomeContentState extends State<_HomeContent> {
                       snapshot.data == null) {
                     return Text(
                       //'Erreur de chargement du profil.,${snapshot.error}',
-                      'Verifier votre connexion internet et ressayer',
+                        l10n.checkConnection,
                         style: GoogleFonts.ubuntu(
                           color: const Color.fromARGB(255, 244, 54, 92),
                             fontSize: 18,
@@ -300,7 +308,7 @@ class _HomeContentState extends State<_HomeContent> {
                             icon: Icons.unarchive,
                             iconColor: Colors.blue.shade800,
                             value: orderCount.toString(),
-                            label: 'Colis envoyés',
+                            label: l10n.sentPackages,
                           ),
                         ),
                         const SizedBox(width: 10),
@@ -324,7 +332,7 @@ class _HomeContentState extends State<_HomeContent> {
                                 icon: Icons.local_shipping,
                                 iconColor: Colors.green.shade600,
                                 value: snapshot.data.toString(),
-                                label: 'en cours ',
+                                label: l10n.inProgress,
                               ),
                             );
                           },
@@ -335,7 +343,7 @@ class _HomeContentState extends State<_HomeContent> {
                             icon: Icons.access_time,
                             iconColor: Colors.orange.shade800,
                             value: orderCount.toString(),
-                            label: 'Ce mois',
+                            label: l10n.thisMonth,
                           ),
                         ),
                       ],
@@ -353,7 +361,7 @@ class _HomeContentState extends State<_HomeContent> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Livraisons récentes',
+                  l10n.recentDeliveries,
                   style: GoogleFonts.ubuntu(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -367,7 +375,7 @@ class _HomeContentState extends State<_HomeContent> {
                     );
                   },
                   child: Text(
-                    'Voir tout',
+                    l10n.seeAll,
                     style: GoogleFonts.montserrat(
                       color: Colors.blue.shade800,
                       fontWeight: FontWeight.bold,
@@ -406,10 +414,10 @@ class _HomeContentState extends State<_HomeContent> {
               // 3. État sans Données
               final orders = snapshot.data;
               if (orders == null || orders.isEmpty) {
-                return const Center(
+                return  Center(
                   child: Padding(
-                    padding: EdgeInsets.only(top: 50.0),
-                    child: Text('Aucune commande trouvée.'),
+                    padding: const EdgeInsets.only(top: 50.0),
+                    child: Text(l10n.noOrdersFound),
                   ),
                 );
               }
@@ -427,6 +435,7 @@ class _HomeContentState extends State<_HomeContent> {
 
                         status: order.status,
                         iconColor: Colors.green.shade600,
+                        l10n: l10n,
                       ),
                       const SizedBox(height: 15),
                     ],
@@ -440,7 +449,6 @@ class _HomeContentState extends State<_HomeContent> {
     );
   }
 
-  // Widget extrait pour l'en-tête (Header) pour éviter la duplication
   Widget _buildHeader({required String name, required String subtitle, required bool isOffline}) {
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 50, 20, 20),
@@ -465,7 +473,7 @@ class _HomeContentState extends State<_HomeContent> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Bonjour, $name',
+                  "Bonjour, $name",
                   style: GoogleFonts.pacifico(
                     color: Colors.white,
                     fontSize: 24,
@@ -501,9 +509,10 @@ class _HomeContentState extends State<_HomeContent> {
     required String status,
     // required double rating,
     required Color iconColor,
+    required AppLocalizations l10n,
   }) {
     final statusColor = _getStatusColor(status);
-    final displayStatus = _getDisplayStatus(status);
+    final displayStatus = _getDisplayStatus(status, l10n);
     // ... (le code de la carte reste le même)
     return Container(
       padding: const EdgeInsets.all(15),

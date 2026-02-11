@@ -7,6 +7,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'package:camelia_logistics/l10n/app_localizations.dart';
+import '../providers/language_provider.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -20,21 +23,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final OrderService _orderService = OrderService();
   final String? _currentUserId = FirebaseAuth.instance.currentUser?.uid;
   
-  late Future<List<dynamic>> _ordersFuture;
-  late Future<UserProfile?> _profileFuture;
+  late Future<List<dynamic>> _dataFuture;
 
   @override
   void initState() {
     super.initState();
-    _ordersFuture = _currentUserId != null 
-        ? _orderService.getOrdersByUserId(_currentUserId) 
-        : Future.value([]);
-    _profileFuture = _currentUserId != null 
-        ? _userSer.getProfile(_currentUserId) 
-        : Future.value(null);
+    _dataFuture = _loadData();
   }
 
-  void _handleLogout() async {
+  Future<List<dynamic>> _loadData() {
+    if (_currentUserId == null) {
+      return Future.value([null, []]);
+    }
+    return Future.wait(
+        [_userSer.getProfile(_currentUserId), _orderService.getOrdersByUserId(_currentUserId)]);
+  }
+
+  void _handleLogout(dynamic l10n) async {
     try {
       await AuthService().signOut();
       if (mounted) {
@@ -49,7 +54,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 const Icon(Icons.error_outline_rounded, color: Colors.white),
                 const SizedBox(width: 10),
                 Text(
-                  'Échec de la déconnexion',
+                  l10n.logoutFailed,
                   style: GoogleFonts.poppins(),
                 ),
               ],
@@ -68,12 +73,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     if (_currentUserId == null) {
       return Scaffold(
         backgroundColor: Colors.grey.shade50,
         body: Center(
           child: Text(
-            'Utilisateur non connecté',
+            l10n.userNotConnected,
             style: GoogleFonts.poppins(
               color: Colors.grey.shade700,
               fontSize: 16,
@@ -95,8 +102,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       },
       child: Scaffold(
         backgroundColor: Colors.grey.shade50,
-        body: FutureBuilder<UserProfile?>(
-          future: _profileFuture,
+        body: FutureBuilder<List<dynamic>>(
+          future: _dataFuture,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(
@@ -104,12 +111,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
               );
             }
 
-            if (snapshot.hasError || !snapshot.hasData || snapshot.data == null) {
+            if (snapshot.hasError || !snapshot.hasData || snapshot.data == null || snapshot.data![0] == null) {
               return Scaffold(
                 backgroundColor: Colors.grey.shade50,
                 body: Center(
                   child: Text(
-                    'Erreur de chargement du profil',
+                    l10n.profileLoadingError,
                     style: GoogleFonts.poppins(
                       color: Colors.grey.shade700,
                     ),
@@ -118,13 +125,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
               );
             }
 
-            final UserProfile profile = snapshot.data!;
+            final UserProfile profile = snapshot.data![0];
+            final List<dynamic> orders = snapshot.data![1];
             
             return CustomScrollView(
               slivers: [
                 // Header avec gradient
                 SliverAppBar(
-                  expandedHeight: 280,
+                  expandedHeight: 400,
                   floating: false,
                   pinned: true,
                   backgroundColor: Colors.white,
@@ -191,15 +199,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 24),
+                            const SizedBox(height: 15),
                             
                             // Photo de profil et nom
                             Center(
-                              child: Column(
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Column(
                                 children: [
                                   Container(
                                     width: 100,
-                                    height: 100,
+                                    height: 90,
                                     decoration: BoxDecoration(
                                       shape: BoxShape.circle,
                                       border: Border.all(
@@ -212,11 +222,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ),
                                     child: const Icon(
                                       Icons.person,
-                                      size: 50,
+                                      size: 40,
                                       color: Colors.white,
                                     ),
                                   ),
-                                  const SizedBox(height: 16),
+                                  const SizedBox(height: 12),
                                   Text(
                                     profile.name,
                                     style: GoogleFonts.poppins(
@@ -226,15 +236,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       letterSpacing: -0.5,
                                     ),
                                   ),
-                                  const SizedBox(height: 8),
+                                  const SizedBox(height: 4),
                                   Text(
-                                    'Membre depuis le Cameroun',
+                                    l10n.memberSince,
                                     style: GoogleFonts.poppins(
                                       color: Colors.white.withValues(alpha:0.9),
                                       fontSize: 14,
                                     ),
                                   ),
                                 ],
+                              ),
                               ),
                             ),
                             
@@ -244,53 +255,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceAround,
                               children: [
-                                FutureBuilder(
-                                  future: _ordersFuture,
-                                  builder: (context, snapshot) {
-                                    final count = snapshot.data?.length ?? 0;
-                                    return _buildStatColumn(
-                                      count.toString(),
-                                      'Livraisons',
+                                _buildStatColumn(
+                                  orders.length.toString(),
+                                  l10n.deliveries,
+                                ),
+                                Builder(builder: (context) {
+                                  final int count = orders.length;
+                                  List<Widget> stars = [];
+                                  if (count >= 100) {
+                                    stars = List.generate(
+                                      4,
+                                      (_) => const Icon(Icons.star, color: Colors.amber, size: 20),
                                     );
-                                  },
-                                ),
-                                FutureBuilder(
-                                  future: _ordersFuture,
-                                  builder: (context, snapshot) {
-                                    final int count = snapshot.data?.length ?? 0;
-                                    List<Widget> stars = [];
-                                    if (count >= 100) {
-                                      stars = List.generate(
-                                        4,
-                                        (_) => const Icon(
-                                          Icons.star,
-                                          color: Colors.amber,
-                                          size: 20,
-                                        ),
-                                      );
-                                    } else if (count > 50) {
-                                      stars = List.generate(
-                                        2,
-                                        (_) => const Icon(
-                                          Icons.star,
-                                          color: Colors.amber,
-                                          size: 20,
-                                        ),
-                                      );
-                                    } else {
-                                      stars = List.generate(
-                                        1,
-                                        (_) => const Icon(
-                                          Icons.star,
-                                          color: Colors.amber,
-                                          size: 20,
-                                        ),
-                                      );
-                                    }
-                                    return _buildStatColumnWithStars(stars, 'Niveau');
-                                  },
-                                ),
-                                _buildStatColumn('98%', 'Réussite'),
+                                  } else if (count > 50) {
+                                    stars = List.generate(
+                                      2,
+                                      (_) => const Icon(Icons.star, color: Colors.amber, size: 20),
+                                    );
+                                  } else if (count > 0) {
+                                    stars = List.generate(
+                                      1,
+                                      (_) => const Icon(Icons.star, color: Colors.amber, size: 20),
+                                    );
+                                  }
+                                  return _buildStatColumnWithStars(stars, l10n.level, l10n);
+                                }),
+                                _buildStatColumn('98%', l10n.successRate),
                               ],
                             ),
                           ],
@@ -302,27 +292,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 
                 // Section Informations personnelles
                 _buildSection(
-                  title: 'Informations personnelles',
+                  title: l10n.personalInfo,
                   icon: Icons.person_outline_rounded,
                   items: [
                     _buildInfoItem(
                       icon: Icons.mail_outline_rounded,
-                      title: 'Email principal',
+                      title: l10n.mainEmail,
                       subtitle: profile.email,
                       onTap: () {},
                     ),
                     _buildDivider(),
                     _buildInfoItem(
                       icon: Icons.phone_rounded,
-                      title: 'Téléphone',
+                      title: l10n.phone,
                       subtitle: profile.phoneNumber,
                       onTap: () {},
                     ),
                     _buildDivider(),
                     _buildActionItem(
                       icon: Icons.edit_rounded,
-                      title: 'Modifier mes informations',
-                      subtitle: 'Mettre à jour votre profil',
+                      title: l10n.editProfile,
+                      subtitle: l10n.updateYourProfile,
                       onTap: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
@@ -336,24 +326,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 
                 // Section Performances
                 _buildSection(
-                  title: 'Vos performances',
+                  title: l10n.yourPerformances,
                   icon: Icons.analytics_rounded,
                   items: [
                     _buildPerformanceItem(
-                      title: 'Note moyenne',
+                      title: l10n.averageRating,
                       value: '4.8/5',
                       color: Colors.blue.shade700,
                     ),
                     _buildDivider(),
                     _buildPerformanceItem(
-                      title: 'Taux de réussite',
+                      title: l10n.successRateLabel,
                       value: '98%',
                       color: Colors.green.shade700,
                     ),
                     _buildDivider(),
                     _buildPerformanceItem(
-                      title: 'Total des livraisons',
-                      value: '24',
+                      title: l10n.totalDeliveries,
+                      value: orders.length.toString(),
                       color: Colors.grey.shade800,
                     ),
                   ],
@@ -361,15 +351,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 
                 // Section Paramètres
                 _buildSection(
-                  title: 'Paramètres',
+                  title: l10n.settings,
                   icon: Icons.settings_rounded,
                   items: [
                     _buildSettingItem(
                       icon: Icons.notifications_outlined,
-                      title: 'Notifications push',
-                      subtitle: 'Activer/Désactiver les notifications',
+                      title: l10n.notifications,
+                      subtitle: l10n.toggleNotifications,
                       value: true,
                       onChanged: (value) {},
+                    ),
+                    _buildDivider(),
+                    _buildSettingItem(
+                      icon: Icons.language,
+                      title: l10n.language,
+                      subtitle: Localizations.localeOf(context).languageCode == 'fr' ? l10n.french : l10n.english,
+                      value: Localizations.localeOf(context).languageCode == 'en',
+                      onChanged: (value) {
+                        final provider = Provider.of<LanguageProvider>(context, listen: false);
+                        provider.changeLanguage(value ? const Locale('en') : const Locale('fr'));
+                      },
                     ),
                   ],
                 ),
@@ -383,7 +384,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       color: Colors.white,
                       elevation: 0,
                       child: InkWell(
-                        onTap: _handleLogout,
+                        onTap: () => _handleLogout(l10n),
                         borderRadius: BorderRadius.circular(18),
                         child: Container(
                           padding: const EdgeInsets.all(22),
@@ -419,7 +420,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      'Se déconnecter',
+                                      l10n.logout,
                                       style: GoogleFonts.poppins(
                                         fontSize: 17,
                                         fontWeight: FontWeight.w700,
@@ -428,7 +429,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     ),
                                     const SizedBox(height: 6),
                                     Text(
-                                      'Déconnectez-vous de votre compte',
+                                      l10n.logoutDescription,
                                       style: GoogleFonts.poppins(
                                         color: Colors.grey.shade600,
                                         fontSize: 14,
@@ -485,7 +486,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildStatColumnWithStars(List<Widget> stars, String label) {
+  Widget _buildStatColumnWithStars(List<Widget> stars, String label, dynamic l10n) {
     return Column(
       children: [
         Row(
@@ -494,7 +495,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ? stars
               : [
                   Text(
-                    'Débutant',
+                    l10n.beginner,
                     style: GoogleFonts.poppins(
                       color: Colors.white,
                       fontSize: 16,

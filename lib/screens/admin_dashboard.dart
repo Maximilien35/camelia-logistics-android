@@ -5,6 +5,7 @@ import 'package:camelia_logistics/models/services/user_profile_service.dart';
 import 'package:camelia_logistics/models/user_profile.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:camelia_logistics/l10n/app_localizations.dart';
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
@@ -41,6 +42,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
       body: CustomScrollView(
@@ -88,9 +90,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              'Dashboard',
-                              style: TextStyle(
+                            Text(
+                              l10n.dashboard,
+                              style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 28,
                                 fontWeight: FontWeight.w800,
@@ -99,8 +101,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              'Tableau de bord',
-                              style: TextStyle(
+                              l10n.dashboardTitle,
+                              style:  TextStyle(
                                 color: Colors.white.withValues(alpha:0.85),
                                 fontSize: 14,
                               ),
@@ -113,9 +115,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Dashboard',
-                            style: TextStyle(
+                          Text(
+                            l10n.dashboard,
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 28,
                               fontWeight: FontWeight.w800,
@@ -124,8 +126,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'Bonjour, ${prof.name}',
-                            style: TextStyle(
+                            l10n.helloAdmin(prof.name),
+                            style:  TextStyle(
                               color: Colors.white.withValues(alpha:0.85),
                               fontSize: 14,
                             ),
@@ -160,9 +162,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      const Text(
-                                        'Administrateur',
-                                        style: TextStyle(
+                                      Text(
+                                        l10n.administrator,
+                                        style: const TextStyle(
                                           color: Colors.white,
                                           fontSize: 16,
                                           fontWeight: FontWeight.w600,
@@ -170,8 +172,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                       ),
                                       const SizedBox(height: 2),
                                       Text(
-                                        'Gérez votre plateforme',
-                                        style: TextStyle(
+                                        l10n.managePlatform,
+                                        style:  TextStyle(
                                           color: Colors.white.withValues(alpha:0.85),
                                           fontSize: 10,
                                         ),
@@ -219,9 +221,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
                         ),
                       ),
                       const SizedBox(width: 12),
-                      const Text(
-                        'Statistiques',
-                        style: TextStyle(
+                      Text(
+                        l10n.statistics,
+                        style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w700,
                           color: Colors.black87,
@@ -252,11 +254,12 @@ class _AdminDashboardState extends State<AdminDashboard> {
                             child: _buildStatCard(
                               context: context,
                               icon: Icons.people_alt_rounded,
-                              title: 'Utilisateurs',
+                              title: l10n.users,
                               color: const Color(0xFF6C63FF),
                               stream: _usersStream,
                               builder: (data) => data.length.toString(),
                               loadingWidget: '...',
+                              l10n: l10n,
                             ),
                           ),
 
@@ -266,11 +269,12 @@ class _AdminDashboardState extends State<AdminDashboard> {
                             child: _buildStatCard(
                               context: context,
                               icon: Icons.local_shipping_rounded,
-                              title: 'Chauffeurs',
+                              title: l10n.drivers,
                               color: const Color(0xFF4CAF50),
                               stream: _deliverersStream,
                               builder: (data) => data.length.toString(),
                               loadingWidget: '...',
+                              l10n: l10n,
                             ),
                           ),
 
@@ -280,11 +284,12 @@ class _AdminDashboardState extends State<AdminDashboard> {
                             child: _buildStatCardFuture(
                               context: context,
                               icon: Icons.delivery_dining_rounded,
-                              title: 'Livraisons',
-                              subtitle: 'Aujourd\'hui',
+                              title: l10n.deliveries,
+                              subtitle: l10n.deliveriesToday,
                               color: const Color(0xFFFF9800),
                               future: _ordersTodayFuture,
                               formatter: (value) => value?.toString() ?? '0',
+                              l10n: l10n,
                             ),
                           ),
 
@@ -294,10 +299,11 @@ class _AdminDashboardState extends State<AdminDashboard> {
                             child: _buildStatCardFuture(
                               context: context,
                               icon: Icons.attach_money_rounded,
-                              title: 'Chiffre d\'affaires',
+                              title: l10n.revenue,
                               color: const Color(0xFF9C27B0),
                               future: _revenueFuture,
                               formatter: (value) => '${value?.toStringAsFixed(0) ?? '0'} FCFA',
+                              l10n: l10n,
                             ),
                           ),
                         ],
@@ -333,9 +339,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
                         ),
                       ),
                       const SizedBox(width: 12),
-                      const Text(
-                        'Analyses',
-                        style: TextStyle(
+                      Text(
+                        l10n.analysis,
+                        style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w700,
                           color: Colors.black87,
@@ -379,9 +385,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
                           ),
                         ),
                         const SizedBox(width: 12),
-                        const Text(
-                          'Distribution des commandes',
-                          style: TextStyle(
+                        Text(
+                          l10n.orderDistribution,
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                             color: Colors.black87,
@@ -421,8 +427,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                     ),
                                     const SizedBox(height: 12),
                                     Text(
-                                      'Erreur de chargement',
-                                      style: TextStyle(
+                                      l10n.loadingError,
+                                      style:  TextStyle(
                                         color: Colors.grey.shade600,
                                       ),
                                     ),
@@ -448,8 +454,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                     ),
                                     const SizedBox(height: 12),
                                     Text(
-                                      'Aucune donnée disponible',
-                                      style: TextStyle(
+                                      l10n.noDataAvailable,
+                                      style:  TextStyle(
                                         color: Colors.grey.shade600,
                                       ),
                                     ),
@@ -504,9 +510,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
                           ),
                         ),
                         const SizedBox(width: 12),
-                        const Text(
-                          'Chiffre d\'affaires mensuel',
-                          style: TextStyle(
+                        Text(
+                          l10n.monthlyRevenue,
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                             color: Colors.black87,
@@ -546,8 +552,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                     ),
                                     const SizedBox(height: 12),
                                     Text(
-                                      'Erreur de chargement',
-                                      style: TextStyle(
+                                      l10n.loadingError,
+                                      style:  TextStyle(
                                         color: Colors.grey.shade600,
                                       ),
                                     ),
@@ -573,8 +579,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                     ),
                                     const SizedBox(height: 12),
                                     Text(
-                                      'Aucune donnée de CA',
-                                      style: TextStyle(
+                                      l10n.noRevenueData,
+                                      style:  TextStyle(
                                         color: Colors.grey.shade600,
                                       ),
                                     ),
@@ -613,6 +619,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     required Stream<List<UserProfile>>? stream,
     required String Function(List<UserProfile> data) builder,
     required String loadingWidget,
+    required AppLocalizations l10n,
   }) {
     return Material(
       color: Colors.white,
@@ -661,7 +668,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   else if (snapshot.hasError)
                     FittedBox(
                       child: Text(
-                        'Erreur',
+                        l10n.error,
                         style: TextStyle(
                           fontSize: 22, // Réduit de 24 à 22
                           fontWeight: FontWeight.w700,
@@ -711,6 +718,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     required Color color,
     required Future<dynamic> future,
     required String Function(dynamic value) formatter,
+    required AppLocalizations l10n,
     String? subtitle,
   }) {
     return Material(
@@ -760,8 +768,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   else if (snapshot.hasError)
                     FittedBox(
                       child: Text(
-                        'Erreur',
-                        style: TextStyle(
+                        l10n.error,
+                        style:  TextStyle(
                           fontSize: 22, // Réduit de 24 à 22
                           fontWeight: FontWeight.w700,
                           color: Colors.grey.shade600,

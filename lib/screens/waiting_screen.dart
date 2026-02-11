@@ -1,9 +1,10 @@
-import 'package:camelia_logistics/models/services/admin_service.dart';
 import 'package:camelia_logistics/models/services/order_service.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:camelia_logistics/models/order_model.dart';
 import 'package:go_router/go_router.dart';
+import 'package:camelia_logistics/l10n/app_localizations.dart';
+
 
 class WaitingScreen extends StatefulWidget {
   final String orderId;
@@ -18,14 +19,8 @@ class _WaitingScreenState extends State<WaitingScreen>
   final PageController _pageController = PageController();
   final OrderService _orderService = OrderService();
   late final AnimationController _animationController;
-  final AdminService _admin = AdminService();
-  bool _hasShownFlashCard = false;
+  late List<String> messages;
   
-  final List<String> messages = [
-    'Recherche d\'un chauffeur en cours...',
-    'Cela ne devrait pas prendre plus de quelques minutes',
-    'Un chauffeur va vous contacter très bientôt !',
-  ];
 
   @override
   void initState() {
@@ -55,95 +50,26 @@ class _WaitingScreenState extends State<WaitingScreen>
     super.dispose();
   }
 
-  void _showSuccessFlashCard() {
-    if (_hasShownFlashCard) return;
-    _hasShownFlashCard = true;
-
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (ctx) => Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        backgroundColor: Colors.white,
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 80,
-                height: 80,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF4CAF50).withValues(alpha:0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.check_rounded,
-                  size: 48,
-                  color: Color(0xFF4CAF50),
-                ),
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                'Commande Validée !',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w800,
-                  color: Colors.black87,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                'Votre commande a été validée et payée avec succès',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 15,
-                  color: Colors.grey.shade600,
-                ),
-              ),
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                child: Material(
-                  borderRadius: BorderRadius.circular(12),
-                  child: InkWell(
-                    onTap: () => context.go('/home_custom'),
-                    borderRadius: BorderRadius.circular(12),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFF6C63FF), Color(0xFF8B84FF)],
-                        ),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Center(
-                        child: Text(
-                          'Retour à l\'accueil',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    messages = [
+      l10n.searchingDriver,
+      l10n.searchingDriverDesc,
+      l10n.driverNotification,
+      l10n.driverContactSoon,
+    ];
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) {
-        _admin.handlePopInvoked(didPop, context);
+        if (didPop) return;
+        if (Navigator.of(context).canPop()) {
+          Navigator.of(context).pop();
+        } else {
+          context.go('/home_custom');
+        }
+
       },
       child: Scaffold(
         backgroundColor: Colors.grey.shade50,
@@ -161,12 +87,6 @@ class _WaitingScreenState extends State<WaitingScreen>
 
             final order = snapshot.data;
 
-            // Vérification pour la Flash Card
-            if (order != null && order.status == 'COMPLETED') {
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                _showSuccessFlashCard();
-              });
-            }
 
             return CustomScrollView(
               slivers: [
@@ -278,9 +198,9 @@ class _WaitingScreenState extends State<WaitingScreen>
                                       ),
                                     ),
                                     const SizedBox(width: 16),
-                                    const Text(
-                                      'Résumé de votre commande',
-                                      style: TextStyle(
+                                     Text(
+                                      l10n.orderSummary,
+                                      style: const TextStyle(
                                         fontSize: 17,
                                         fontWeight: FontWeight.w700,
                                         color: Colors.black87,
@@ -291,28 +211,28 @@ class _WaitingScreenState extends State<WaitingScreen>
                                 const SizedBox(height: 20),
                                 _buildInfoRow(
                                   icon: Icons.location_on_rounded,
-                                  label: 'Départ',
+                                  label: l10n.departure,
                                   value: order.pickupAddress,
                                   color: const Color(0xFF6C63FF),
                                 ),
                                 const SizedBox(height: 16),
                                 _buildInfoRow(
                                   icon: Icons.flag_rounded,
-                                  label: 'Destination',
+                                  label: l10n.destination,
                                   value: order.dropoffAddress,
                                   color: const Color(0xFF4CAF50),
                                 ),
                                 const SizedBox(height: 16),
                                 _buildInfoRow(
                                   icon: Icons.local_shipping_rounded,
-                                  label: 'Véhicule',
+                                  label: l10n.vehicle,
                                   value: order.vehicleType,
                                   color: const Color(0xFFFF9800),
                                 ),
                                 const SizedBox(height: 16),
                                 _buildInfoRow(
                                   icon: Icons.inventory_2_rounded,
-                                  label: 'Type de colis',
+                                  label: l10n.packageType,
                                   value: order.packageNature,
                                   color: const Color(0xFF9C27B0),
                                 ),
@@ -338,7 +258,7 @@ class _WaitingScreenState extends State<WaitingScreen>
                                 ),
                                 const SizedBox(height: 16),
                                 Text(
-                                  'Commande non trouvée',
+                                 l10n.orderNotFound,
                                   style: TextStyle(
                                     color: Colors.grey.shade600,
                                     fontSize: 16,
@@ -385,9 +305,9 @@ class _WaitingScreenState extends State<WaitingScreen>
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
-                                  'Chauffeurs actifs',
-                                  style: TextStyle(
+                                 Text(
+                                  l10n.activeDrivers,
+                                  style: const TextStyle(
                                     fontSize: 15,
                                     fontWeight: FontWeight.w600,
                                     color: Colors.black87,
@@ -395,7 +315,7 @@ class _WaitingScreenState extends State<WaitingScreen>
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  'Plus de 100 chauffeurs disponibles dans votre zone',
+                                  l10n.driversAvailable,
                                   style: TextStyle(
                                     fontSize: 13,
                                     color: Colors.grey.shade600,
@@ -432,9 +352,9 @@ class _WaitingScreenState extends State<WaitingScreen>
                                   color: Color(0xFF2196F3),
                                   size: 20,
                                 ),
-                                label: const Text(
-                                  'Urgence',
-                                  style: TextStyle(
+                                label:  Text(
+                                 l10n.emergency,
+                                  style: const TextStyle(
                                     color: Color(0xFF2196F3),
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -461,9 +381,9 @@ class _WaitingScreenState extends State<WaitingScreen>
                                   color: Color(0xFF9C27B0),
                                   size: 20,
                                 ),
-                                label: const Text(
-                                  'Support',
-                                  style: TextStyle(
+                                label:  Text(
+                                  l10n.support,
+                                  style: const TextStyle(
                                     color: Color(0xFF9C27B0),
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -492,9 +412,9 @@ class _WaitingScreenState extends State<WaitingScreen>
                               color: Color(0xFF6C63FF),
                               size: 20,
                             ),
-                            label: const Text(
-                              'Retour à l\'accueil',
-                              style: TextStyle(
+                            label:  Text(
+                              l10n.backToHome,
+                              style: const TextStyle(
                                 color: Color(0xFF6C63FF),
                                 fontWeight: FontWeight.w600,
                               ),
@@ -527,7 +447,7 @@ class _WaitingScreenState extends State<WaitingScreen>
                           ),
                           const SizedBox(height: 16),
                           Text(
-                            'En attente d\'un chauffeur...',
+                           l10n.waitingForDriver,
                             style: TextStyle(
                               color: Colors.grey.shade600,
                               fontSize: 14,

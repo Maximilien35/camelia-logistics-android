@@ -2,6 +2,7 @@ import 'package:camelia_logistics/models/services/user_profile_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:camelia_logistics/l10n/app_localizations.dart';
 
 class ChangeInformations extends StatefulWidget {
   const ChangeInformations({super.key});
@@ -38,6 +39,7 @@ class _ChangeInformationsState extends State<ChangeInformations> {
   }
 
   void _changeInfo() async {
+    final l10n = AppLocalizations.of(context)!;
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -56,17 +58,17 @@ class _ChangeInformationsState extends State<ChangeInformations> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content:const Row(
+            content: Row(
               children: [
-                Icon(
+                const Icon(
                   Icons.check_circle_rounded,
                   color: Colors.white,
                   size: 20,
                 ),
-                 SizedBox(width: 8),
-                 Text(
-                  'Profil mis à jour avec succès',
-                  style: TextStyle(color: Colors.white),
+                const SizedBox(width: 8),
+                Text(
+                  l10n.profileUpdateSuccess,
+                  style: const TextStyle(color: Colors.white),
                 ),
               ],
             ),
@@ -92,7 +94,7 @@ class _ChangeInformationsState extends State<ChangeInformations> {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  'Erreur: ${e.toString()}',
+                  l10n.profileUpdateError(e.toString()),
                   style: const TextStyle(color: Colors.white),
                 ),
               ],
@@ -114,10 +116,11 @@ class _ChangeInformationsState extends State<ChangeInformations> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Modifier le profil',
+          l10n.changeProfileTitle,
           style: TextStyle(
             fontWeight: FontWeight.w700,
             color: Colors.grey.shade900,
@@ -171,9 +174,9 @@ class _ChangeInformationsState extends State<ChangeInformations> {
                           ),
                         ),
                         const SizedBox(height: 20),
-                        const Text(
-                          'Modifier vos informations',
-                          style: TextStyle(
+                        Text(
+                          l10n.editYourInfo,
+                          style: const TextStyle(
                             fontSize: 28,
                             fontWeight: FontWeight.w800,
                             color: Colors.black87,
@@ -182,7 +185,7 @@ class _ChangeInformationsState extends State<ChangeInformations> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Mettez à jour vos informations personnelles',
+                          l10n.updateYourPersonalInfo,
                           style: TextStyle(
                             fontSize: 14,
                             color: Colors.grey.shade600,
@@ -201,9 +204,9 @@ class _ChangeInformationsState extends State<ChangeInformations> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           // Nom
-                          const Text(
-                            'Nom complet',
-                            style: TextStyle(
+                          Text(
+                            l10n.fullName,
+                            style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
                               color: Colors.black87,
@@ -214,7 +217,7 @@ class _ChangeInformationsState extends State<ChangeInformations> {
                             controller: _nameController,
                             keyboardType: TextInputType.text,
                             decoration: InputDecoration(
-                              hintText: 'Jean Pierre',
+                              hintText: l10n.nameHint,
                               hintStyle: TextStyle(color: Colors.grey.shade400),
                               prefixIcon: Icon(
                                 Icons.person_outline_rounded,
@@ -238,7 +241,7 @@ class _ChangeInformationsState extends State<ChangeInformations> {
                             ),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'Veuillez entrer votre nom';
+                                return l10n.pleaseEnterName;
                               }
                               return null;
                             },
@@ -246,9 +249,9 @@ class _ChangeInformationsState extends State<ChangeInformations> {
                           const SizedBox(height: 20),
 
                           // Téléphone
-                          const Text(
-                            'Téléphone',
-                            style: TextStyle(
+                          Text(
+                            l10n.phone,
+                            style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
                               color: Colors.black87,
@@ -259,7 +262,7 @@ class _ChangeInformationsState extends State<ChangeInformations> {
                             controller: _telController,
                             keyboardType: TextInputType.phone,
                             decoration: InputDecoration(
-                              hintText: '6 XX XX XX XX',
+                              hintText: l10n.phoneHint,
                               hintStyle: TextStyle(color: Colors.grey.shade400),
                               prefixIcon: Icon(
                                 Icons.phone_rounded,
@@ -283,10 +286,10 @@ class _ChangeInformationsState extends State<ChangeInformations> {
                             ),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'Veuillez entrer votre numéro de téléphone';
+                                return l10n.pleaseEnterPhone;
                               }
                               if (value.length < 9) {
-                                return 'Veuillez entrer un numéro valide';
+                                return l10n.pleaseEnterValidPhone;
                               }
                               return null;
                             },
@@ -294,9 +297,9 @@ class _ChangeInformationsState extends State<ChangeInformations> {
                           const SizedBox(height: 20),
 
                           // Email
-                          const Text(
-                            'Adresse email',
-                            style: TextStyle(
+                          Text(
+                            l10n.emailAddress,
+                            style: const TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
                               color: Colors.black87,
@@ -308,7 +311,7 @@ class _ChangeInformationsState extends State<ChangeInformations> {
                             controller: _emailController,
                             keyboardType: TextInputType.emailAddress,
                             decoration: InputDecoration(
-                              hintText: 'votre.email@exemple.com',
+                              hintText: l10n.emailHint,
                               hintStyle: TextStyle(color: Colors.grey.shade400),
                               prefixIcon: Icon(
                                 Icons.email_rounded,
@@ -332,11 +335,11 @@ class _ChangeInformationsState extends State<ChangeInformations> {
                             ),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'L\'email est obligatoire';
+                                return l10n.emailIsRequired;
                               }
                               if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
                                   .hasMatch(value)) {
-                                return 'Format d\'email invalide';
+                                return l10n.invalidEmail;
                               }
                               return null;
                             },
@@ -380,9 +383,9 @@ class _ChangeInformationsState extends State<ChangeInformations> {
                                             strokeWidth: 2.5,
                                           ),
                                         )
-                                      : const Text(
-                                          'Enregistrer les modifications',
-                                          style: TextStyle(
+                                      : Text(
+                                          l10n.saveChanges,
+                                          style: const TextStyle(
                                             color: Colors.white,
                                             fontSize: 16,
                                             fontWeight: FontWeight.w700,
@@ -406,9 +409,9 @@ class _ChangeInformationsState extends State<ChangeInformations> {
                               ),
                               side: const BorderSide(color: Color(0xFF6C63FF)),
                             ),
-                            child:const Text(
-                              'Annuler',
-                              style: TextStyle(
+                            child: Text(
+                              l10n.cancel,
+                              style: const TextStyle(
                                 color:  Color(0xFF6C63FF),
                                 fontWeight: FontWeight.w600,
                               ),

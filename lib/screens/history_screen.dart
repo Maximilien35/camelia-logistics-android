@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../models/services/order_service.dart';
+import 'package:camelia_logistics/l10n/app_localizations.dart';
 
 // Définition de l'écran d'historique
 class HistoryScreen extends StatefulWidget {
@@ -31,6 +32,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop,result) {
@@ -44,7 +46,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
       child: Scaffold(
       appBar: AppBar(
         title: Text(
-          "Historique",
+          l10n.history,
           style: GoogleFonts.pacifico(fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
@@ -80,7 +82,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         child: _CardHistory(
                           icon: Icons.inventory_2,
                           value: (snapshot.data ?? 0).toString(),
-                          label: 'Colis livrés',
+                          label: l10n.packagesDelivered,
                         ),
                       ),
                       const SizedBox(width: 20),
@@ -98,7 +100,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                             child: _CardHistory(
                               icon: Icons.monetization_on,
                               value: (snapshots.data ?? 0.0).toStringAsFixed(0),
-                              label: 'Total Depense',
+                              label: l10n.totalSpent,
                             ),
                           );
                         },
@@ -126,7 +128,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                   return Center(
                     child: Padding(
                       padding: const EdgeInsets.only(top: 50.0),
-                      child: Text('Erreur : ${snapshot.error}'),
+                      child: Text(l10n.historyError(snapshot.error.toString())),
                     ),
                   );
                 }
@@ -134,10 +136,10 @@ class _HistoryScreenState extends State<HistoryScreen> {
                 // 3. État sans Données
                 final orders = snapshot.data;
                 if (orders == null || orders.isEmpty) {
-                  return const Center(
+                  return Center(
                     child: Padding(
-                      padding: EdgeInsets.only(top: 50.0),
-                      child: Text('Aucune commande trouvée.'),
+                      padding: const EdgeInsets.only(top: 50.0),
+                      child: Text(l10n.noOrdersFound),
                     ),
                   );
                 }
@@ -166,6 +168,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                           context.push('/waiting/${order.id!}');
                         }
                       },
+                      l10n: l10n,
                     );
                   },
                 );
@@ -240,6 +243,7 @@ class _CardInventory extends StatelessWidget {
   final int prix;
   final String status;
   final VoidCallback onTap; // Ajouté pour gérer le clic
+  final AppLocalizations l10n;
 
   const _CardInventory({
     required this.type,
@@ -249,8 +253,9 @@ class _CardInventory extends StatelessWidget {
     required this.prix,
     required this.onTap,
     required this.status, // Requis
+    required this.l10n,
   });
-  static Color _getStatusColor(String status) {
+  Color _getStatusColor(String status) {
     switch (status.toUpperCase()) {
       case 'PENDING':
         return Colors.orange.shade700;
@@ -267,18 +272,18 @@ class _CardInventory extends StatelessWidget {
     }
   }
 
-  static String _getDisplayStatus(String status) {
+  String _getDisplayStatus(String status) {
     switch (status.toUpperCase()) {
       case 'PENDING':
-        return 'En Attente';
+        return l10n.statusPending;
       case 'ACCEPTED':
-        return 'Validée';
+        return l10n.statusAccepted;
       case 'ASSIGNED':
-        return 'En cours';
+        return l10n.statusAssigned;
       case 'COMPLETED':
-        return 'Livrée';
+        return l10n.statusCompleted;
       case 'CANCELLED':
-        return 'Annulée';
+        return l10n.statusCancelled;
       default:
         return status;
     }

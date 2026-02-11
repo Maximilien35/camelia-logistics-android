@@ -75,3 +75,34 @@ class AdminService {
     }
   }
 }
+Future<void> handlePopInvokedWait(bool didPop, BuildContext context) async {
+    if (didPop) {
+      return;
+    }
+    bool? exitConfirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Confirmer le Retour '),
+          content: const Text(
+            'Êtes-vous sûr de vouloir retouner a l\'accueil ?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () =>
+                  Navigator.of(context).pop(false), 
+              child: const Text('ANNULER'),
+            ),
+            TextButton(
+              onPressed: () {
+                //context.go('/home_custom');
+                Navigator.of(context).pop();
+                // SystemNavigator.pop();
+              },
+              child: const Text('QUITTER'),
+            ),
+          ],
+        );
+      },
+    );
+  }
