@@ -17,6 +17,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:http/http.dart' as http;
 import 'dart:async';
+import 'package:camelia_logistics/l10n/app_localizations.dart';
 
 class OrderScreen extends StatefulWidget {
   const OrderScreen({super.key});
@@ -29,18 +30,17 @@ class _OrderScreenState extends State<OrderScreen> {
   void _selectVehicleAndProceed(String vehicleType) {
     final orderState = Provider.of<OrderStateModel>(context, listen: false);
     orderState.setVehicleType(vehicleType);
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => const PackagePhotoScreen(),
-      ),
-    );
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (context) => const PackagePhotoScreen()));
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return PopScope(
       canPop: false,
-      onPopInvokedWithResult: (didPop,result) {
+      onPopInvokedWithResult: (didPop, result) {
         if (didPop) return;
         if (Navigator.of(context).canPop()) {
           Navigator.of(context).pop();
@@ -51,7 +51,7 @@ class _OrderScreenState extends State<OrderScreen> {
       child: Scaffold(
         appBar: AppBar(
           title: Text(
-            'Choisir un véhicule',
+            l10n.chooseVehicleTitle,
             style: TextStyle(
               fontWeight: FontWeight.w700,
               color: Colors.grey.shade900,
@@ -118,7 +118,7 @@ class _OrderScreenState extends State<OrderScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Sélectionnez votre mode de transport',
+                    l10n.selectTransportMode,
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.grey.shade600,
@@ -129,25 +129,25 @@ class _OrderScreenState extends State<OrderScreen> {
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF6C63FF).withValues(alpha:0.08),
+                      color: const Color(0xFF6C63FF).withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: const Color(0xFF6C63FF).withValues(alpha:0.2),
+                        color: const Color(0xFF6C63FF).withValues(alpha: 0.2),
                       ),
                     ),
-                    child:const Row(
+                    child: Row(
                       children: [
-                         Icon(
+                        const Icon(
                           Icons.location_on_rounded,
                           color: Color(0xFF6C63FF),
                           size: 22,
                         ),
-                         SizedBox(width: 12),
+                        const SizedBox(width: 12),
                         Expanded(
                           child: Text(
-                            'Service Bientôt disponible à Yaoundé, Bafoussam, Garoua et Kribi',
-                            style: TextStyle(
-                              color:  Color(0xFF6C63FF),
+                            l10n.serviceComingSoon,
+                            style: const TextStyle(
+                              color: Color(0xFF6C63FF),
                               fontWeight: FontWeight.w500,
                               fontSize: 13,
                             ),
@@ -167,34 +167,34 @@ class _OrderScreenState extends State<OrderScreen> {
                   children: [
                     _buildVehicleCard(
                       icon: Icons.fire_truck_rounded,
-                      title: 'Camion Bennes',
-                      subtitle: 'Rapide et économique',
+                      title: l10n.dumpTruck,
+                      subtitle: l10n.fastAndEconomic,
                       color: const Color(0xFF6C63FF),
-                      onTap: () => _selectVehicleAndProceed('Camion Bennes'),
+                      onTap: () => _selectVehicleAndProceed(l10n.dumpTruck),
                     ),
                     const SizedBox(height: 16),
                     _buildVehicleCard(
                       icon: Icons.local_shipping_rounded,
-                      title: 'Camionnette',
-                      subtitle: 'Transport sécurisé',
+                      title: l10n.van,
+                      subtitle: l10n.secureTransport,
                       color: const Color(0xFF4CAF50),
-                      onTap: () => _selectVehicleAndProceed('Camionnette'),
+                      onTap: () => _selectVehicleAndProceed(l10n.van),
                     ),
                     const SizedBox(height: 16),
                     _buildVehicleCard(
                       icon: Icons.moped_rounded,
-                      title: 'Tricycle',
-                      subtitle: 'Rapide et économique',
+                      title: l10n.tricycle,
+                      subtitle: l10n.fastAndEconomic,
                       color: const Color(0xFFFF9800),
-                      onTap: () => _selectVehicleAndProceed('Tricycle'),
+                      onTap: () => _selectVehicleAndProceed(l10n.tricycle),
                     ),
                     const SizedBox(height: 16),
                     _buildVehicleCard(
                       icon: Icons.airport_shuttle_rounded,
-                      title: 'Fourgonnette',
-                      subtitle: 'Capacité moyenne',
+                      title: l10n.minivan,
+                      subtitle: l10n.mediumCapacity,
                       color: const Color(0xFF9C27B0),
-                      onTap: () => _selectVehicleAndProceed('Fourgonnette'),
+                      onTap: () => _selectVehicleAndProceed(l10n.minivan),
                     ),
                   ],
                 ),
@@ -209,21 +209,20 @@ class _OrderScreenState extends State<OrderScreen> {
                       Expanded(
                         child: OutlinedButton.icon(
                           onPressed: () {},
-                          icon:const Icon(
+                          icon: const Icon(
                             Icons.location_on_rounded,
-                            color:  Color(0xFF6C63FF),
+                            color: Color(0xFF6C63FF),
                             size: 20,
                           ),
-                          label:const  Text(
-                            'Suivi colis',
-                            style: TextStyle(
-                              color:  Color(0xFF6C63FF),
+                          label: Text(
+                            l10n.trackPackage,
+                            style: const TextStyle(
+                              color: Color(0xFF6C63FF),
                               fontWeight: FontWeight.w600,
                             ),
                           ),
                           style: OutlinedButton.styleFrom(
-                            padding:
-                                const EdgeInsets.symmetric(vertical: 16),
+                            padding: const EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
@@ -235,21 +234,20 @@ class _OrderScreenState extends State<OrderScreen> {
                       Expanded(
                         child: OutlinedButton.icon(
                           onPressed: () {},
-                          icon:const  Icon(
+                          icon: const Icon(
                             Icons.chat_bubble_outline_rounded,
                             color: Color(0xFF9C27B0),
                             size: 20,
                           ),
-                          label: const Text(
-                            'Support',
-                            style: TextStyle(
+                          label: Text(
+                            l10n.support,
+                            style: const TextStyle(
                               color: Color(0xFF9C27B0),
                               fontWeight: FontWeight.w600,
                             ),
                           ),
                           style: OutlinedButton.styleFrom(
-                            padding:
-                                const EdgeInsets.symmetric(vertical: 16),
+                            padding: const EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
@@ -261,11 +259,8 @@ class _OrderScreenState extends State<OrderScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Vous pouvez suivre vos commandes ou contacter le support à tout moment',
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: Colors.grey.shade500,
-                    ),
+                    l10n.contactSupportCta,
+                    style:  TextStyle(fontSize: 11, color: Colors.grey.shade500),
                     textAlign: TextAlign.center,
                   ),
                 ],
@@ -302,14 +297,10 @@ class _OrderScreenState extends State<OrderScreen> {
                 width: 56,
                 height: 56,
                 decoration: BoxDecoration(
-                  color: color.withValues(alpha:0.1),
+                  color: color.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(14),
                 ),
-                child: Icon(
-                  icon,
-                  size: 28,
-                  color: color,
-                ),
+                child: Icon(icon, size: 28, color: color),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -390,11 +381,12 @@ class _PackagePhotoScreenState extends State<PackagePhotoScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Nouvelle commande',
-          style: TextStyle(
+          l10n.newOrderTitle,
+          style:  TextStyle(
             fontWeight: FontWeight.w700,
             color: Colors.grey.shade900,
             fontSize: 18,
@@ -415,7 +407,12 @@ class _PackagePhotoScreenState extends State<PackagePhotoScreen> {
               color: Colors.grey.shade700,
             ),
           ),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => {
+            if (Navigator.of(context).canPop())
+              {Navigator.of(context).pop()}
+            else
+              {context.go('/home_custom')},
+          },
         ),
       ),
       body: CustomScrollView(
@@ -432,22 +429,22 @@ class _PackagePhotoScreenState extends State<PackagePhotoScreen> {
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF6C63FF).withValues(alpha:0.1),
+                      color: const Color(0xFF6C63FF).withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child:const Text(
-                      'Étape 2 sur 4',
-                      style: TextStyle(
+                    child: Text(
+                      l10n.step2of4,
+                      style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        color:  Color(0xFF6C63FF),
+                        color: Color(0xFF6C63FF),
                       ),
                     ),
                   ),
                   const SizedBox(height: 16),
-                  const Text(
-                    'Photo du colis',
-                    style: TextStyle(
+                  Text(
+                    l10n.packagePhotoTitle,
+                    style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.w800,
                       color: Colors.black87,
@@ -455,11 +452,8 @@ class _PackagePhotoScreenState extends State<PackagePhotoScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Prenez une photo pour faciliter la livraison',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey.shade600,
-                    ),
+                    l10n.packagePhotoSubtitle,
+                    style:  TextStyle(fontSize: 14, color: Colors.grey.shade600),
                   ),
                 ],
               ),
@@ -498,8 +492,8 @@ class _PackagePhotoScreenState extends State<PackagePhotoScreen> {
                                 ),
                                 const SizedBox(height: 16),
                                 Text(
-                                  'Ajouter une photo',
-                                  style: TextStyle(
+                                  l10n.addAPhoto,
+                                  style:  TextStyle(
                                     fontSize: 16,
                                     color: Colors.grey.shade600,
                                     fontWeight: FontWeight.w500,
@@ -507,8 +501,8 @@ class _PackagePhotoScreenState extends State<PackagePhotoScreen> {
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  'Touchez pour prendre ou choisir une photo',
-                                  style: TextStyle(
+                                  l10n.touchToChoosePhoto,
+                                  style:  TextStyle(
                                     fontSize: 12,
                                     color: Colors.grey.shade500,
                                   ),
@@ -522,15 +516,15 @@ class _PackagePhotoScreenState extends State<PackagePhotoScreen> {
                         width: double.infinity,
                         child: OutlinedButton.icon(
                           onPressed: _pickAndAddPhoto,
-                          icon:const Icon(
+                          icon: const Icon(
                             Icons.add_a_photo_rounded,
-                            color:  Color(0xFF6C63FF),
+                            color: Color(0xFF6C63FF),
                             size: 20,
                           ),
-                          label:const Text(
-                            'Prendre ou choisir une photo',
-                            style: TextStyle(
-                              color:  Color(0xFF6C63FF),
+                          label: Text(
+                            l10n.takeOrChoosePhoto,
+                            style: const TextStyle(
+                              color: Color(0xFF6C63FF),
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -555,9 +549,9 @@ class _PackagePhotoScreenState extends State<PackagePhotoScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Type de colis',
-                    style: TextStyle(
+                  Text(
+                    l10n.packageType,
+                    style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
                       color: Colors.black87,
@@ -572,32 +566,32 @@ class _PackagePhotoScreenState extends State<PackagePhotoScreen> {
                         runSpacing: 12,
                         children: [
                           _buildPackageTypeChip(
-                            'Marchandises',
+                            l10n.goods,
                             Icons.local_shipping_rounded,
                             currentSelection,
                           ),
                           _buildPackageTypeChip(
-                            'Électronique',
+                            l10n.electronics,
                             Icons.laptop_mac_rounded,
                             currentSelection,
                           ),
                           _buildPackageTypeChip(
-                            'Meubles',
+                            l10n.furniture,
                             Icons.chair_rounded,
                             currentSelection,
                           ),
                           _buildPackageTypeChip(
-                            'Nourriture',
+                            l10n.food,
                             Icons.restaurant_rounded,
                             currentSelection,
                           ),
                           _buildPackageTypeChip(
-                            'Fragile',
+                            l10n.fragile,
                             Icons.warning_rounded,
                             currentSelection,
                           ),
                           _buildPackageTypeChip(
-                            'Autre',
+                            l10n.other,
                             Icons.more_horiz_rounded,
                             currentSelection,
                           ),
@@ -615,9 +609,9 @@ class _PackagePhotoScreenState extends State<PackagePhotoScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Description (optionnel)',
-                    style: TextStyle(
+                  Text(
+                    l10n.descriptionOptional,
+                    style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
                       color: Colors.black87,
@@ -628,8 +622,8 @@ class _PackagePhotoScreenState extends State<PackagePhotoScreen> {
                     controller: _descriptionController,
                     maxLines: 3,
                     decoration: InputDecoration(
-                      hintText: 'Décrivez votre colis...',
-                      hintStyle: TextStyle(color: Colors.grey.shade400),
+                      hintText: l10n.describeYourPackageHint,
+                      hintStyle:  TextStyle(color: Colors.grey.shade400),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(color: Colors.grey.shade300),
@@ -653,7 +647,8 @@ class _PackagePhotoScreenState extends State<PackagePhotoScreen> {
               child: Consumer<OrderStateModel>(
                 builder: (context, orderState, child) {
                   final hasPhotos = orderState.selectedFiles.isNotEmpty;
-                  final hasPackage = orderState.packageNature?.isNotEmpty ?? false;
+                  final hasPackage =
+                      orderState.packageNature?.isNotEmpty ?? false;
                   return SizedBox(
                     width: double.infinity,
                     child: Material(
@@ -663,13 +658,16 @@ class _PackagePhotoScreenState extends State<PackagePhotoScreen> {
                           if (hasPhotos && hasPackage) {
                             Navigator.of(context).push(
                               MaterialPageRoute(
-                                builder: (context) => const DeliveryPointsScreen(),
+                                builder: (context) =>
+                                    const DeliveryPointsScreen(),
                               ),
                             );
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: const Text('Veuillez terminer la sélection'),
+                                content: Text(
+                                  l10n.pleaseCompleteSelection,
+                                ),
                                 behavior: SnackBarBehavior.floating,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
@@ -688,10 +686,10 @@ class _PackagePhotoScreenState extends State<PackagePhotoScreen> {
                             ),
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          child:const Center(
-                            child:Text(
-                              'Continuer',
-                              style:  TextStyle(
+                          child: Center(
+                            child: Text(
+                              l10n.continueButton,
+                              style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,
                                 fontWeight: FontWeight.w700,
@@ -706,9 +704,7 @@ class _PackagePhotoScreenState extends State<PackagePhotoScreen> {
               ),
             ),
           ),
-          const SliverToBoxAdapter(
-            child: SizedBox(height: 32),
-          ),
+          const SliverToBoxAdapter(child: SizedBox(height: 32)),
         ],
       ),
     );
@@ -786,14 +782,10 @@ class _PackagePhotoScreenState extends State<PackagePhotoScreen> {
         width: 100,
         height: 100,
         decoration: BoxDecoration(
-          color: isSelected
-              ? const Color(0xFF6C63FF)
-              : Colors.grey.shade50,
+          color: isSelected ? const Color(0xFF6C63FF) : Colors.grey.shade50,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isSelected
-                ? const Color(0xFF6C63FF)
-                : Colors.grey.shade200,
+            color: isSelected ? const Color(0xFF6C63FF) : Colors.grey.shade200,
             width: 1.5,
           ),
         ),
@@ -858,6 +850,7 @@ class DeliveryPointsScreenState extends State<DeliveryPointsScreen> {
   }
 
   Future<void> _useMyLocation() async {
+    final l10n = AppLocalizations.of(context)!;
     LocationPermission permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
@@ -865,7 +858,7 @@ class DeliveryPointsScreenState extends State<DeliveryPointsScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: const Text('Localisation refusée définitivement'),
+              content: Text(l10n.locationPermissionDenied),
               backgroundColor: Colors.red.shade600,
               behavior: SnackBarBehavior.floating,
               shape: RoundedRectangleBorder(
@@ -906,7 +899,7 @@ class DeliveryPointsScreenState extends State<DeliveryPointsScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erreur de localisation: $e'),
+            content: Text(l10n.locationError(e.toString())),
             backgroundColor: Colors.red.shade600,
           ),
         );
@@ -962,9 +955,10 @@ class DeliveryPointsScreenState extends State<DeliveryPointsScreen> {
 
     final start = _pickupCoords!;
     final end = _dropoffCoords!;
-    
+
     final url = Uri.parse(
-        'http://router.project-osrm.org/route/v1/driving/${start.longitude},${start.latitude};${end.longitude},${end.latitude}?overview=full&geometries=geojson');
+      'http://router.project-osrm.org/route/v1/driving/${start.longitude},${start.latitude};${end.longitude},${end.latitude}?overview=full&geometries=geojson',
+    );
 
     try {
       final response = await http.get(url);
@@ -973,7 +967,9 @@ class DeliveryPointsScreenState extends State<DeliveryPointsScreen> {
         final geometry = data['routes'][0]['geometry']['coordinates'] as List;
         if (mounted) {
           setState(() {
-            _routePoints = geometry.map((p) => LatLng(p[1].toDouble(), p[0].toDouble())).toList();
+            _routePoints = geometry
+                .map((p) => LatLng(p[1].toDouble(), p[0].toDouble()))
+                .toList();
           });
         }
       }
@@ -984,11 +980,12 @@ class DeliveryPointsScreenState extends State<DeliveryPointsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Points de livraison',
-          style: TextStyle(
+          l10n.deliveryPointsTitle,
+          style:  TextStyle(
             fontWeight: FontWeight.w700,
             color: Colors.grey.shade900,
             fontSize: 18,
@@ -1026,12 +1023,12 @@ class DeliveryPointsScreenState extends State<DeliveryPointsScreen> {
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF6C63FF).withValues(alpha:0.1),
+                      color: const Color(0xFF6C63FF).withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(20),
                     ),
-                    child: const Text(
-                      'Étape 3 sur 4',
-                      style: TextStyle(
+                    child: Text(
+                      l10n.step3of4,
+                      style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
                         color: Color(0xFF6C63FF),
@@ -1039,9 +1036,9 @@ class DeliveryPointsScreenState extends State<DeliveryPointsScreen> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  const Text(
-                    'Points de livraison',
-                    style: TextStyle(
+                  Text(
+                    l10n.deliveryPointsTitle,
+                    style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.w800,
                       color: Colors.black87,
@@ -1049,11 +1046,8 @@ class DeliveryPointsScreenState extends State<DeliveryPointsScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Définissez le départ et la destination',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey.shade600,
-                    ),
+                    l10n.setDepartureAndDestination,
+                    style:  TextStyle(fontSize: 14, color: Colors.grey.shade600),
                   ),
                 ],
               ),
@@ -1065,9 +1059,9 @@ class DeliveryPointsScreenState extends State<DeliveryPointsScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Point de départ',
-                    style: TextStyle(
+                  Text(
+                    l10n.startingPoint,
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                       color: Colors.black87,
@@ -1077,8 +1071,8 @@ class DeliveryPointsScreenState extends State<DeliveryPointsScreen> {
                   TextFormField(
                     controller: _depart,
                     decoration: InputDecoration(
-                      hintText: 'Adresse de départ',
-                      hintStyle: TextStyle(color: Colors.grey.shade400),
+                      hintText: l10n.departureAddressHint,
+                      hintStyle:  TextStyle(color: Colors.grey.shade400),
                       prefixIcon: const Icon(
                         Icons.location_on_rounded,
                         color: Color(0xFF6C63FF),
@@ -1106,9 +1100,9 @@ class DeliveryPointsScreenState extends State<DeliveryPointsScreen> {
                         color: Color(0xFF6C63FF),
                         size: 18,
                       ),
-                      label: const Text(
-                        'Utiliser ma position',
-                        style: TextStyle(
+                      label: Text(
+                        l10n.useMyPosition,
+                        style: const TextStyle(
                           color: Color(0xFF6C63FF),
                           fontWeight: FontWeight.w600,
                         ),
@@ -1132,9 +1126,9 @@ class DeliveryPointsScreenState extends State<DeliveryPointsScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Destination',
-                    style: TextStyle(
+                  Text(
+                    l10n.destinationPoint,
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                       color: Colors.black87,
@@ -1144,8 +1138,8 @@ class DeliveryPointsScreenState extends State<DeliveryPointsScreen> {
                   TextFormField(
                     controller: _arrive,
                     decoration: InputDecoration(
-                      hintText: 'Adresse de livraison',
-                      hintStyle: TextStyle(color: Colors.grey.shade400),
+                      hintText: l10n.deliveryAddressHint,
+                      hintStyle:  TextStyle(color: Colors.grey.shade400),
                       prefixIcon: const Icon(
                         Icons.flag_rounded,
                         color: Color(0xFF4CAF50),
@@ -1173,9 +1167,9 @@ class DeliveryPointsScreenState extends State<DeliveryPointsScreen> {
                         color: Color(0xFF6C63FF),
                         size: 18,
                       ),
-                      label: const Text(
-                        'Choisir sur la carte',
-                        style: TextStyle(
+                      label: Text(
+                        l10n.chooseOnMap,
+                        style: const TextStyle(
                           color: Color(0xFF6C63FF),
                           fontWeight: FontWeight.w600,
                         ),
@@ -1199,9 +1193,9 @@ class DeliveryPointsScreenState extends State<DeliveryPointsScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Carte et distance',
-                    style: TextStyle(
+                  Text(
+                    l10n.mapAndDistance,
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                       color: Colors.black87,
@@ -1228,8 +1222,8 @@ class DeliveryPointsScreenState extends State<DeliveryPointsScreen> {
                                   ),
                                   const SizedBox(height: 12),
                                   Text(
-                                    'Carte interactive',
-                                    style: TextStyle(
+                                    l10n.interactiveMap,
+                                    style:  TextStyle(
                                       color: Colors.grey.shade600,
                                       fontWeight: FontWeight.w600,
                                     ),
@@ -1238,8 +1232,8 @@ class DeliveryPointsScreenState extends State<DeliveryPointsScreen> {
                                   Text(
                                     _estimatedDistance != null
                                         ? '${_estimatedDistance!.toStringAsFixed(1)} km'
-                                        : 'Sélectionnez les adresses',
-                                    style: TextStyle(
+                                        : l10n.selectAddresses,
+                                    style:  TextStyle(
                                       color: Colors.grey.shade500,
                                       fontSize: 13,
                                     ),
@@ -1250,13 +1244,17 @@ class DeliveryPointsScreenState extends State<DeliveryPointsScreen> {
                           : FlutterMap(
                               options: MapOptions(
                                 initialCenter:
-                                    _pickupCoords ?? const LatLng(4.0450, 9.7041),
+                                    _pickupCoords ??
+                                    const LatLng(4.0450, 9.7041),
                                 initialZoom: 13.0,
-                                initialCameraFit: _pickupCoords != null &&
+                                initialCameraFit:
+                                    _pickupCoords != null &&
                                         _dropoffCoords != null
                                     ? CameraFit.bounds(
                                         bounds: LatLngBounds(
-                                            _pickupCoords!, _dropoffCoords!),
+                                          _pickupCoords!,
+                                          _dropoffCoords!,
+                                        ),
                                         padding: const EdgeInsets.all(40),
                                       )
                                     : null,
@@ -1286,12 +1284,14 @@ class DeliveryPointsScreenState extends State<DeliveryPointsScreen> {
                                           padding: const EdgeInsets.all(8),
                                           decoration: BoxDecoration(
                                             color: Colors.white,
-                                            borderRadius:
-                                                BorderRadius.circular(20),
+                                            borderRadius: BorderRadius.circular(
+                                              20,
+                                            ),
                                             boxShadow: [
                                               BoxShadow(
-                                                color: Colors.grey
-                                                    .withValues(alpha:0.3),
+                                                color: Colors.grey.withValues(
+                                                  alpha: 0.3,
+                                                ),
                                                 blurRadius: 10,
                                               ),
                                             ],
@@ -1310,12 +1310,14 @@ class DeliveryPointsScreenState extends State<DeliveryPointsScreen> {
                                           padding: const EdgeInsets.all(8),
                                           decoration: BoxDecoration(
                                             color: Colors.white,
-                                            borderRadius:
-                                                BorderRadius.circular(20),
+                                            borderRadius: BorderRadius.circular(
+                                              20,
+                                            ),
                                             boxShadow: [
                                               BoxShadow(
-                                                color: Colors.grey
-                                                    .withValues(alpha:0.3),
+                                                color: Colors.grey.withValues(
+                                                  alpha: 0.3,
+                                                ),
                                                 blurRadius: 10,
                                               ),
                                             ],
@@ -1367,22 +1369,23 @@ class DeliveryPointsScreenState extends State<DeliveryPointsScreen> {
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       decoration: BoxDecoration(
-                        gradient: _pickupCoords != null && _dropoffCoords != null
+                        gradient:
+                            _pickupCoords != null && _dropoffCoords != null
                             ? const LinearGradient(
                                 colors: [Color(0xFF6C63FF), Color(0xFF8B84FF)],
                               )
                             : LinearGradient(
                                 colors: [
                                   Colors.grey.shade400,
-                                  Colors.grey.shade400
+                                  Colors.grey.shade400,
                                 ],
                               ),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Center(
+                      child: Center(
                         child: Text(
-                          'Continuer',
-                          style: TextStyle(
+                          l10n.continueButton,
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
@@ -1395,9 +1398,7 @@ class DeliveryPointsScreenState extends State<DeliveryPointsScreen> {
               ),
             ),
           ),
-          const SliverToBoxAdapter(
-            child: SizedBox(height: 32),
-          ),
+          const SliverToBoxAdapter(child: SizedBox(height: 32)),
         ],
       ),
     );
@@ -1420,8 +1421,9 @@ class _FinalisationOrderState extends State<FinalisationOrder> {
   @override
   void initState() {
     super.initState();
-    _profileFuture =
-        (id != null) ? _userServices.getProfile(id!) : Future.value(null);
+    _profileFuture = (id != null)
+        ? _userServices.getProfile(id!)
+        : Future.value(null);
   }
 
   void createOrder() async {
@@ -1464,8 +1466,8 @@ class _FinalisationOrderState extends State<FinalisationOrder> {
       context.go('/waiting/$newOrderId');
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Erreur lors de l\'envoi de la commande.'),
+         SnackBar( // This should be translated, but requires context.
+          content: const Text("Erreur lors de l'envoi de la commande."),
           backgroundColor: Colors.red.shade600,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
@@ -1480,10 +1482,11 @@ class _FinalisationOrderState extends State<FinalisationOrder> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Résumé de commande',
+          l10n.orderSummaryTitle,
           style: TextStyle(
             fontWeight: FontWeight.w700,
             color: Colors.grey.shade900,
@@ -1513,7 +1516,7 @@ class _FinalisationOrderState extends State<FinalisationOrder> {
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
-              child: CircularProgressIndicator(
+              child:  CircularProgressIndicator(
                 color: Color(0xFF6C63FF),
                 strokeWidth: 2,
               ),
@@ -1521,7 +1524,7 @@ class _FinalisationOrderState extends State<FinalisationOrder> {
           }
           final profile = snapshot.data!;
           final orderState = Provider.of<OrderStateModel>(context);
-          
+
           return CustomScrollView(
             slivers: [
               SliverToBoxAdapter(
@@ -1536,12 +1539,12 @@ class _FinalisationOrderState extends State<FinalisationOrder> {
                           vertical: 6,
                         ),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF6C63FF).withValues(alpha:0.1),
+                          color: const Color(0xFF6C63FF).withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(20),
                         ),
-                        child: const Text(
-                          'Étape 4 sur 4',
-                          style: TextStyle(
+                        child: Text(
+                          l10n.step4of4,
+                          style: const TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
                             color: Color(0xFF6C63FF),
@@ -1549,9 +1552,9 @@ class _FinalisationOrderState extends State<FinalisationOrder> {
                         ),
                       ),
                       const SizedBox(height: 24),
-                      const Text(
-                        'Résumé de votre commande',
-                        style: TextStyle(
+                      Text(
+                        l10n.orderSummaryTitle,
+                        style: const TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.w800,
                           color: Colors.black87,
@@ -1559,7 +1562,7 @@ class _FinalisationOrderState extends State<FinalisationOrder> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Vérifiez les détails avant confirmation',
+                        l10n.reviewDetailsBeforeConfirming,
                         style: TextStyle(
                           fontSize: 14,
                           color: Colors.grey.shade600,
@@ -1582,35 +1585,35 @@ class _FinalisationOrderState extends State<FinalisationOrder> {
                     child: Column(
                       children: [
                         _buildSummaryRow(
-                          label: 'Transport',
-                          value: orderState.vehicleType ?? 'Non spécifié',
+                          label: l10n.transport,
+                          value: orderState.vehicleType ?? l10n.notSpecified,
                           icon: Icons.local_shipping_rounded,
                           color: const Color(0xFF6C63FF),
                         ),
                         const SizedBox(height: 16),
                         _buildSummaryRow(
-                          label: 'Téléphone',
+                          label: l10n.phone,
                           value: profile.phoneNumber,
                           icon: Icons.phone_rounded,
                           color: const Color(0xFF4CAF50),
                         ),
                         const SizedBox(height: 16),
                         _buildSummaryRow(
-                          label: 'Départ',
+                          label: l10n.departure,
                           value: _truncateAddress(orderState.pickupAddress),
                           icon: Icons.location_on_rounded,
                           color: const Color(0xFFFF9800),
                         ),
                         const SizedBox(height: 16),
                         _buildSummaryRow(
-                          label: 'Type de colis',
-                          value: orderState.packageNature ?? 'Non spécifié',
+                          label: l10n.packageType,
+                          value: orderState.packageNature ?? l10n.notSpecified,
                           icon: Icons.inventory_2_rounded,
                           color: const Color(0xFF9C27B0),
                         ),
                         const SizedBox(height: 16),
                         _buildSummaryRow(
-                          label: 'Destination',
+                          label: l10n.destination,
                           value: _truncateAddress(orderState.dropoffAddress),
                           icon: Icons.flag_rounded,
                           color: const Color(0xFF2196F3),
@@ -1648,9 +1651,9 @@ class _FinalisationOrderState extends State<FinalisationOrder> {
                                       strokeWidth: 2.5,
                                     ),
                                   )
-                                : const Text(
-                                    'Confirmer la commande',
-                                    style: TextStyle(
+                                : Text(
+                                    l10n.confirmOrder,
+                                    style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 16,
                                       fontWeight: FontWeight.w700,
@@ -1663,9 +1666,7 @@ class _FinalisationOrderState extends State<FinalisationOrder> {
                   ),
                 ),
               ),
-              const SliverToBoxAdapter(
-                child: SizedBox(height: 32),
-              ),
+              const SliverToBoxAdapter(child: SizedBox(height: 32)),
             ],
           );
         },
@@ -1674,7 +1675,8 @@ class _FinalisationOrderState extends State<FinalisationOrder> {
   }
 
   String _truncateAddress(String? address) {
-    if (address == null) return 'Non spécifié';
+    final l10n = AppLocalizations.of(context)!;
+    if (address == null) return l10n.notSpecified;
     return address.length > 30 ? '${address.substring(0, 30)}...' : address;
   }
 
@@ -1690,14 +1692,10 @@ class _FinalisationOrderState extends State<FinalisationOrder> {
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: color.withValues(alpha:0.1),
+            color: color.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(10),
           ),
-          child: Icon(
-            icon,
-            color: color,
-            size: 22,
-          ),
+          child: Icon(icon, color: color, size: 22),
         ),
         const SizedBox(width: 16),
         Expanded(
@@ -1740,7 +1738,7 @@ class MapSelectorScreen extends StatefulWidget {
 
 class _MapSelectorScreenState extends State<MapSelectorScreen> {
   late LatLng _currentCameraPosition;
-  String _selectedAddress = "Recherche de l'adresse...";
+  String _selectedAddress = "";
   bool _isGeocoding = false;
   final MapController _mapController = MapController();
 
@@ -1748,11 +1746,13 @@ class _MapSelectorScreenState extends State<MapSelectorScreen> {
   void initState() {
     super.initState();
     _currentCameraPosition = widget.initialPosition;
-    _fetchAddress(_currentCameraPosition);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fetchAddress(_currentCameraPosition);
+    });
   }
 
   Future<void> _fetchAddress(LatLng position) async {
-    if (!mounted) return;
+    final l10n = AppLocalizations.of(context)!;
     setState(() => _isGeocoding = true);
     try {
       List<Placemark> placemarks = await placemarkFromCoordinates(
@@ -1767,7 +1767,7 @@ class _MapSelectorScreenState extends State<MapSelectorScreen> {
         });
       }
     } catch (e) {
-      if (mounted) setState(() => _selectedAddress = "Lieu inconnu");
+      if (mounted) setState(() => _selectedAddress = l10n.unknownLocation);
     } finally {
       if (mounted) setState(() => _isGeocoding = false);
     }
@@ -1775,14 +1775,15 @@ class _MapSelectorScreenState extends State<MapSelectorScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    if (_selectedAddress.isEmpty) {
+      _selectedAddress = l10n.searchingForAddress;
+    }
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Choisir la destination',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-          ),
+        title: Text(
+          l10n.chooseDestinationTitle,
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
         ),
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
@@ -1845,7 +1846,7 @@ class _MapSelectorScreenState extends State<MapSelectorScreen> {
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha:0.1),
+                    color: Colors.black.withValues(alpha: 0.1),
                     blurRadius: 20,
                     spreadRadius: 2,
                   ),
@@ -1867,8 +1868,9 @@ class _MapSelectorScreenState extends State<MapSelectorScreen> {
                         child: _isGeocoding
                             ? LinearProgressIndicator(
                                 color: const Color(0xFF6C63FF),
-                                backgroundColor:
-                                    const Color(0xFF6C63FF).withValues(alpha:0.1),
+                                backgroundColor: const Color(
+                                  0xFF6C63FF,
+                                ).withValues(alpha: 0.1),
                               )
                             : Text(
                                 _selectedAddress,
@@ -1904,10 +1906,10 @@ class _MapSelectorScreenState extends State<MapSelectorScreen> {
                             ),
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          child: const Center(
+                          child: Center(
                             child: Text(
-                              'Confirmer ce point',
-                              style: TextStyle(
+                              l10n.confirmThisPoint,
+                              style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,

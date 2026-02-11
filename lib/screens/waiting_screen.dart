@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:camelia_logistics/models/order_model.dart';
 import 'package:go_router/go_router.dart';
+import 'package:camelia_logistics/l10n/app_localizations.dart';
+
 
 class WaitingScreen extends StatefulWidget {
   final String orderId;
@@ -17,12 +19,8 @@ class _WaitingScreenState extends State<WaitingScreen>
   final PageController _pageController = PageController();
   final OrderService _orderService = OrderService();
   late final AnimationController _animationController;
-  final List<String> messages = [
-    'Recherche d\'un chauffeur en cours...',
-    'Cela ne devrait pas prendre plus de quelques minutes',
-    'Vous recevrez une notification dès qu\'un chauffeur acceptera votre commande',
-    'Un chauffeur va vous contacter très bientôt !',
-  ];
+  late List<String> messages;
+  
 
   @override
   void initState() {
@@ -55,10 +53,23 @@ class _WaitingScreenState extends State<WaitingScreen>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    messages = [
+      l10n.searchingDriver,
+      l10n.searchingDriverDesc,
+      l10n.driverNotification,
+      l10n.driverContactSoon,
+    ];
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) {
-      return context.go('/home_custom');
+        if (didPop) return;
+        if (Navigator.of(context).canPop()) {
+          Navigator.of(context).pop();
+        } else {
+          context.go('/home_custom');
+        }
+
       },
       child: Scaffold(
         backgroundColor: Colors.grey.shade50,
@@ -187,9 +198,9 @@ class _WaitingScreenState extends State<WaitingScreen>
                                       ),
                                     ),
                                     const SizedBox(width: 16),
-                                    const Text(
-                                      'Résumé de votre commande',
-                                      style: TextStyle(
+                                     Text(
+                                      l10n.orderSummary,
+                                      style: const TextStyle(
                                         fontSize: 17,
                                         fontWeight: FontWeight.w700,
                                         color: Colors.black87,
@@ -200,28 +211,28 @@ class _WaitingScreenState extends State<WaitingScreen>
                                 const SizedBox(height: 20),
                                 _buildInfoRow(
                                   icon: Icons.location_on_rounded,
-                                  label: 'Départ',
+                                  label: l10n.departure,
                                   value: order.pickupAddress,
                                   color: const Color(0xFF6C63FF),
                                 ),
                                 const SizedBox(height: 16),
                                 _buildInfoRow(
                                   icon: Icons.flag_rounded,
-                                  label: 'Destination',
+                                  label: l10n.destination,
                                   value: order.dropoffAddress,
                                   color: const Color(0xFF4CAF50),
                                 ),
                                 const SizedBox(height: 16),
                                 _buildInfoRow(
                                   icon: Icons.local_shipping_rounded,
-                                  label: 'Véhicule',
+                                  label: l10n.vehicle,
                                   value: order.vehicleType,
                                   color: const Color(0xFFFF9800),
                                 ),
                                 const SizedBox(height: 16),
                                 _buildInfoRow(
                                   icon: Icons.inventory_2_rounded,
-                                  label: 'Type de colis',
+                                  label: l10n.packageType,
                                   value: order.packageNature,
                                   color: const Color(0xFF9C27B0),
                                 ),
@@ -247,7 +258,7 @@ class _WaitingScreenState extends State<WaitingScreen>
                                 ),
                                 const SizedBox(height: 16),
                                 Text(
-                                  'Commande non trouvée',
+                                 l10n.orderNotFound,
                                   style: TextStyle(
                                     color: Colors.grey.shade600,
                                     fontSize: 16,
@@ -294,9 +305,9 @@ class _WaitingScreenState extends State<WaitingScreen>
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text(
-                                  'Chauffeurs actifs',
-                                  style: TextStyle(
+                                 Text(
+                                  l10n.activeDrivers,
+                                  style: const TextStyle(
                                     fontSize: 15,
                                     fontWeight: FontWeight.w600,
                                     color: Colors.black87,
@@ -304,7 +315,7 @@ class _WaitingScreenState extends State<WaitingScreen>
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  'Plus de 100 chauffeurs disponibles dans votre zone',
+                                  l10n.driversAvailable,
                                   style: TextStyle(
                                     fontSize: 13,
                                     color: Colors.grey.shade600,
@@ -341,9 +352,9 @@ class _WaitingScreenState extends State<WaitingScreen>
                                   color: Color(0xFF2196F3),
                                   size: 20,
                                 ),
-                                label: const Text(
-                                  'Urgence',
-                                  style: TextStyle(
+                                label:  Text(
+                                 l10n.emergency,
+                                  style: const TextStyle(
                                     color: Color(0xFF2196F3),
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -370,9 +381,9 @@ class _WaitingScreenState extends State<WaitingScreen>
                                   color: Color(0xFF9C27B0),
                                   size: 20,
                                 ),
-                                label: const Text(
-                                  'Support',
-                                  style: TextStyle(
+                                label:  Text(
+                                  l10n.support,
+                                  style: const TextStyle(
                                     color: Color(0xFF9C27B0),
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -401,9 +412,9 @@ class _WaitingScreenState extends State<WaitingScreen>
                               color: Color(0xFF6C63FF),
                               size: 20,
                             ),
-                            label: const Text(
-                              'Retour à l\'accueil',
-                              style: TextStyle(
+                            label:  Text(
+                              l10n.backToHome,
+                              style: const TextStyle(
                                 color: Color(0xFF6C63FF),
                                 fontWeight: FontWeight.w600,
                               ),
@@ -436,7 +447,7 @@ class _WaitingScreenState extends State<WaitingScreen>
                           ),
                           const SizedBox(height: 16),
                           Text(
-                            'En attente d\'un chauffeur...',
+                           l10n.waitingForDriver,
                             style: TextStyle(
                               color: Colors.grey.shade600,
                               fontSize: 14,

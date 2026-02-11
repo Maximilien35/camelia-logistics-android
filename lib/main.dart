@@ -25,6 +25,8 @@ import 'screens/order_screen.dart';
 import 'screens/profil.dart';
 import 'screens/history_screen.dart';
 import 'package:provider/provider.dart';
+import 'package:camelia_logistics/l10n/app_localizations.dart';
+import 'providers/language_provider.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -142,6 +144,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Configuration du Router (inchangée)
     final GoRouter router = GoRouter(
       initialLocation: '/start',
       navigatorKey: navigatorKey, 
@@ -218,17 +221,25 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => OrderStateModel()),
+        ChangeNotifierProvider(create: (context) => LanguageProvider()),
         // ... autres providers
       ],
-      child: MaterialApp.router(
-        title: 'Camelia Logistics',
-        routerConfig: router,
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-          useMaterial3: true,
-          textTheme: TextTheme(bodyLarge: GoogleFonts.montserrat()),
-        ),
+      child: Consumer<LanguageProvider>(
+        builder: (context, languageProvider, child) {
+          return MaterialApp.router(
+            title: 'Camelia Logistics',
+            routerConfig: router,
+            debugShowCheckedModeBanner: false,
+            locale: languageProvider.currentLocale,
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            theme: ThemeData(
+              colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+              useMaterial3: true,
+              textTheme: TextTheme(bodyLarge: GoogleFonts.montserrat()),
+            ),
+          );
+        },
       ),
     );
   }

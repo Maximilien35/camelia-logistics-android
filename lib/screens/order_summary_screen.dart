@@ -1,5 +1,6 @@
 // Importations nécessaires
 import 'package:camelia_logistics/models/services/order_service.dart';
+import 'package:camelia_logistics/l10n/app_localizations.dart';
 import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 import '../screens/waiting_screen.dart';
@@ -26,14 +27,15 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
   bool _hasShownFlashCard = false;
 
   void showManageDialog(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Gérer la commande'),
-          content: const Text(
-            'etes vous sure de vouloir annuler la commande ',
-            style: TextStyle(fontWeight: FontWeight.bold),
+          title: Text(l10n.manageOrder),
+          content: Text(
+            l10n.cancelOrderConfirmation,
+            style: const TextStyle(fontWeight: FontWeight.bold),
           ),
           actions: [
             Row(
@@ -46,9 +48,9 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red.shade500,
                   ),
-                  child: const Text(
-                    'Confirmer',
-                    style: TextStyle(color: Colors.white),
+                  child: Text(
+                    l10n.confirm,
+                    style: const TextStyle(color: Colors.white),
                   ),
                 ),
                 ElevatedButton(
@@ -58,9 +60,9 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.indigo.shade600,
                   ),
-                  child: const Text(
-                    'Annuler',
-                    style: TextStyle(color: Colors.white),
+                  child: Text(
+                    l10n.cancel,
+                    style: const TextStyle(color: Colors.white),
                   ),
                 ),
               ],
@@ -72,6 +74,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
   }
 
   void showSuccessFlashCard(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     if (_hasShownFlashCard) return;
     setState(() {
       _hasShownFlashCard = true;
@@ -102,9 +105,9 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-              const Text(
-                'Commande Validée !',
-                style: TextStyle(
+              Text(
+                l10n.orderValidated,
+                style: const TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.w800,
                   color: Colors.black87,
@@ -112,7 +115,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
               ),
               const SizedBox(height: 12),
               Text(
-                'Votre commande a été validée et payée avec succès',
+                l10n.orderValidationSuccessMessage,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 15,
@@ -135,10 +138,10 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                         ),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Center(
+                      child: Center(
                         child: Text(
-                          'Retour à l\'accueil',
-                          style: TextStyle(
+                          l10n.backToHome,
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
@@ -158,13 +161,14 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     if (kDebugMode) {
       print('Tentative de chargement de la commande avec ID: ${widget.orderId}');
     }
 
     if (widget.orderId.isEmpty) {
-      return const Scaffold(
-        body: Center(child: Text("Erreur: L'ID de la commande est manquant.")),
+      return Scaffold(
+        body: Center(child: Text(l10n.errorMissingOrderId)),
       );
     }
     return StreamBuilder<Order?>(
@@ -176,8 +180,8 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
           );
         }
         if (!snapshot.hasData || snapshot.data == null) {
-          return const Scaffold(
-            body: Center(child: Text("Commande introuvable.")),
+          return Scaffold(
+            body: Center(child: Text(l10n.orderNotFound)),
           );
         }
 
@@ -188,11 +192,12 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
   }
 
   Widget _buildInterface(BuildContext context, Order order, String id) {
+    final l10n = AppLocalizations.of(context)!;
     if (order.priceQuote == 0.0) {
       return WaitingScreen(orderId: widget.orderId);
     } else {
       return Scaffold(
-          appBar: AppBar(title: const Text('Confirmer votre commande')),
+          appBar: AppBar(title: Text(l10n.confirmYourOrder)),
           body: SingleChildScrollView(
             padding: const EdgeInsets.all(20),
             child: Column(
@@ -211,16 +216,16 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                     ],
                   ),
                 ),
-                const Text(
-                  "Détails du Devis",
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                Text(
+                  l10n.quoteDetails,
+                  style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 15),
 
                 Card(
                   color: Colors.lightGreen.shade50,
                   child: ListTile(
-                    title: const Text("Prix Final (Hors Taxes) :"),
+                    title: Text(l10n.finalPriceWithoutTax),
                     trailing: Text(
                       "${order.priceQuote!.toStringAsFixed(0)} FCFA",
                       style: const TextStyle(
@@ -248,9 +253,9 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                         borderRadius: BorderRadius.circular(15),
                       ),
                     ),
-                    child: const Text(
-                      'Confirmer et recevoir un appel',
-                      style: TextStyle(fontSize: 18),
+                    child: Text(
+                      l10n.confirmAndReceiveCall,
+                      style: const TextStyle(fontSize: 18),
                     ),
                   ),
                 ),
@@ -269,9 +274,9 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                         borderRadius: BorderRadius.circular(15),
                       ),
                     ),
-                    child: const Text(
-                      'refuser',
-                      style: TextStyle(fontSize: 18),
+                    child: Text(
+                      l10n.refuse,
+                      style: const TextStyle(fontSize: 18),
                     ),
                   ),
                 ),

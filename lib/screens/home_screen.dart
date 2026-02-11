@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:async';
+import 'package:camelia_logistics/l10n/app_localizations.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -15,40 +16,7 @@ class _HomeScreenState extends State<HomeScreen> {
   int _currentPage = 0;
   Timer? _timer;
 
-  final List<Map<String, dynamic>> _cards = [
-    {
-      'title': 'De point A à point B',
-      'subtitle': 'Livraison simplifiée',
-      'description': 'Indiquez simplement votre départ et destination pour une livraison rapide et efficace',
-      'icon': Icons.location_on_rounded,
-      'color': const Color(0xFF6C63FF),
-      'illustration': Icons.map_rounded,
-    },
-    {
-      'title': 'Choisissez votre véhicule',
-      'subtitle': 'Adapté à vos besoins',
-      'description': 'Tricycle, camionnette, camion-benne... Sélectionnez le véhicule idéal pour votre colis',
-      'icon': Icons.local_shipping_rounded,
-      'color': const Color(0xFFFF9800),
-      'illustration': Icons.directions_car_filled_rounded,
-    },
-    {
-      'title': 'Décrivez votre colis',
-      'subtitle': 'Informations précises',
-      'description': 'Nature, dimensions et caractéristiques pour une prise en charge optimale',
-      'icon': Icons.inventory_rounded,
-      'color': const Color(0xFF4CAF50),
-      'illustration': Icons.widgets_rounded,
-    },
-    {
-      'title': 'Un chauffeur en route',
-      'subtitle': 'Service rapide',
-      'description': 'Un chauffeur expérimenté est dépêché immédiatement pour votre transport',
-      'icon': Icons.person_pin_circle_rounded,
-      'color': const Color(0xFF2196F3),
-      'illustration': Icons.emoji_people_rounded,
-    },
-  ];
+ late List<Map<String, dynamic>> _cards; 
 
   @override
   void initState() {
@@ -59,6 +27,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _startAutoPlay() {
     _timer = Timer.periodic(const Duration(seconds: 4), (timer) {
+      if (!mounted) return;
       if (_currentPage < _cards.length - 1) {
         _pageController.nextPage(
           duration: const Duration(milliseconds: 500),
@@ -79,6 +48,41 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    _cards = [
+      {
+        'title': l10n.pointAtoB,
+        'subtitle': l10n.simplifiedDelivery,
+        'description': l10n.pointAtoBDesc,
+        'icon': Icons.location_on_rounded,
+        'color': const Color(0xFF6C63FF),
+        'illustration': Icons.map_rounded,
+      },
+      {
+        'title': l10n.chooseVehicle,
+        'subtitle': l10n.adaptedToNeeds,
+        'description': l10n.chooseVehicleDesc,
+        'icon': Icons.local_shipping_rounded,
+        'color': const Color(0xFFFF9800),
+        'illustration': Icons.directions_car_filled_rounded,
+      },
+      {
+        'title': l10n.describePackage,
+        'subtitle': l10n.preciseInfo,
+        'description': l10n.describePackageDesc,
+        'icon': Icons.inventory_rounded,
+        'color': const Color(0xFF4CAF50),
+        'illustration': Icons.widgets_rounded,
+      },
+      {
+        'title': l10n.driverOnWay,
+        'subtitle': l10n.fastService,
+        'description': l10n.driverOnWayDesc,
+        'icon': Icons.person_pin_circle_rounded,
+        'color': const Color(0xFF2196F3),
+        'illustration': Icons.emoji_people_rounded,
+      },
+    ];
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
     final isSmallScreen = screenWidth < 380;
@@ -160,7 +164,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         SizedBox(height: screenHeight * 0.02),
                         Text(
-                          'Camelia Logistics',
+                         l10n.appName,
                           style: GoogleFonts.poppins(
                             fontSize: isSmallScreen ? 26 : 30,
                             fontWeight: FontWeight.w800,
@@ -170,7 +174,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         SizedBox(height: screenHeight * 0.01),
                         Text(
-                          'Transportez en toute simplicité',
+                          l10n.transportSimply,
                           style: GoogleFonts.poppins(
                             fontSize: isSmallScreen ? 14 : 15,
                             fontWeight: FontWeight.w500,
@@ -262,7 +266,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             children: [
                               _buildStatItem(
                                 value: '1000+',
-                                label: 'Livraisons',
+                                label: l10n.deliveries,
                                 isSmallScreen: isSmallScreen,
                               ),
                               Container(
@@ -272,7 +276,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                               _buildStatItem(
                                 value: '50+',
-                                label: 'Chauffeurs',
+                                label: l10n.activeDrivers,
                                 isSmallScreen: isSmallScreen,
                               ),
                               Container(
@@ -282,7 +286,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                               _buildStatItem(
                                 value: '24/7',
-                                label: 'Service',
+                                label: l10n.service,
                                 isSmallScreen: isSmallScreen,
                               ),
                             ],
@@ -331,7 +335,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       Text(
-                                        'Commencer maintenant',
+                                        l10n.startNow,
                                         style: GoogleFonts.poppins(
                                           fontSize: isSmallScreen ? 16 : 18,
                                           fontWeight: FontWeight.w700,
