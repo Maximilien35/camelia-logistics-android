@@ -29,7 +29,6 @@ class Order {
     this.delivererId,
   });
 
-  // Convertit l'objet Dart en Map<String, dynamic> pour l'écriture dans Firestore
   Map<String, dynamic> toJson() {
     return {
       'userId': userId,
@@ -46,7 +45,6 @@ class Order {
     };
   }
 
-  // Crée un objet Dart à partir d'un Map de Firestore
   factory Order.fromJson(Map<String, dynamic> json, {String? id}) {
     final priceQuoteValue = json['priceQuote'];
     return Order(
@@ -55,7 +53,7 @@ class Order {
       pickupAddress: json['pickupAddress'] as String,
       dropoffAddress: json['dropoffAddress'] as String,
       packageNature: json['packageNature'] as String,
-      description: json['description'] as String,
+      description: json['description'] as String?,
       photoUrls: List<String>.from(json['photoUrls']),
       vehicleType: json['vehicleType'] as String,
       status: json['status'] as String,

@@ -1,19 +1,44 @@
 rules_version = '2';
-
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // This rule allows anyone with your Firestore database reference to view, edit,
-    // and delete all data in your Firestore database. It is useful for getting
-    // started, but it is configured to expire after 30 days because it
-    // leaves your app open to attackers. At that time, all client
-    // requests to your Firestore database will be denied.
-    //
-    // Make sure to write security rules for your app before that time, or else
-    // all client requests to your Firestore database will be denied until you Update
-    // your rules
+    // ===================================
+    // --- 0. FONCTIONS UTILITAIRES ---
+    // ===================================
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    function isAdmin() {
+      return isSignedIn() && request.auth.token.role == 'admin';
+    }
+    function isDeliverer() {
+      return isSignedIn() && request.auth.token.role == 'deliverer';
+    }
+    // =====================================================
+    // --- 1. COLLECTION 'users' ---
+    // =====================================================
+    match /users/{userId} {
+      // Lecture autorisée si propriétaire, admin, livreur OU si c'est une vérification d'existence (limit 1)
+      allow read: if request.auth.uid == userId || isAdmin() || isDeliverer() || (request.query.limit <= 1);
+      allow create: if isAdmin() || (isSignedIn() && request.auth.uid == userId);
+      allow update: if request.auth.uid == userId || isAdmin();
+      allow delete: if isAdmin();
+    }
+    // ====================================================
+    // --- 2. COLLECTION 'orders' ---
+    // ====================================================
+    match /orders/{orderId} {
+      allow read: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid) || isDeliverer();
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      // Le client peut mettre à jour le statut (pour annuler) et la date de mise à jour
+      // L'admin et le livreur assigné peuvent mettre à jour plus de champs
+      allow update: if isAdmin() || (isDeliverer() && request.auth.uid == resource.data.delivererId) || (isSignedIn() && request.auth.uid == resource.data.userId && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'updatedAt']));
+      allow delete: if isAdmin();
+    }
+    // ====================================
+    // --- 3. SÉCURITÉ PAR DÉFAUT ---
+    // ====================================
     match /{document=**} {
-      allow read, write: if request.time < timestamp.date(2025, 10, 30);
+      allow read, write: if false;
     }
   }
 }

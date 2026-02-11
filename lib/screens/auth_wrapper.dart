@@ -1,5 +1,5 @@
-import 'package:camelia_logistics/screens/AdminPanel.dart';
-import 'package:camelia_logistics/screens/HomeCustumer_Screen.dart';
+import 'package:camelia_logistics/screens/admin_panel.dart';
+import 'package:camelia_logistics/screens/home_custumer_screen.dart';
 import 'package:camelia_logistics/screens/home_screen.dart';
 import 'package:camelia_logistics/screens/splash_screen.dart';
 import 'package:flutter/material.dart';
@@ -34,7 +34,7 @@ class AuthWrapper extends StatelessWidget {
               .snapshots(),
           builder: (context, roleSnapshot) {
             if (roleSnapshot.connectionState == ConnectionState.waiting) {
-              return SplashScreen();
+              return const SplashScreen();
             }
 
             // Si le document  et contient des données
@@ -45,12 +45,12 @@ class AuthWrapper extends StatelessWidget {
               // 3. LOGIQUE DE REDIRECTION BASÉE SUR LE RÔLE
 
               if (role == 'admin') {
-                return AdminPage();
+                return const AdminPage();
               } else {
-                return HomeCustumerScreen();
+                return const HomeCustumerScreen();
               }
             }
-            return HomeScreen();
+            return const HomeScreen();
           },
         );
       },

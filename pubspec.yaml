@@ -41,14 +41,18 @@ dependencies:
   cloud_functions: 6.0.2
   geolocator: ^10.1.0      # Pour obtenir la position GPS
   geocoding: ^2.1.1       # Pour transformer Lat/Lng en adresse texte
-  google_maps_flutter: ^2.5.3
-  flutter_polyline_points: ^2.0.0 # Pour dessiner l'itinéraire
+  flutter_map: ^6.1.0     # OpenStreetMap Widget
+  latlong2: ^0.9.0        # Gestion des coordonnées
+  http: ^1.2.0            # Pour requêter OSRM
   fl_chart: ^1.1.1
+  firebase_app_check: ^0.4.1+4
+
   # Média
   image_picker: ^1.0.7
   video_player: ^2.8.2
 
   # UI & Animations
+  auto_size_text: ^3.0.0
   flutter_svg: ^2.0.9
   lottie: ^3.1.0
   google_fonts: ^6.2.1
@@ -62,6 +66,7 @@ dependencies:
   # Sécurité
   flutter_secure_storage: ^9.2.2
 
+
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
@@ -69,6 +74,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_pre_commit: ^0.4.0
 
 
 
@@ -78,6 +84,10 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
+
+flutter_pre_commit:
+  format: true
+  analyze: true
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

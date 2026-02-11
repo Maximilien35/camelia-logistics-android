@@ -1,70 +1,71 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 
 class MetricsService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   static const String ordersCollection = 'orders';
 
-  // Structure simplifiée pour stocker les données du graphique
-  // Utilisée pour le Chiffre d'Affaires Mensuel
   Map<int, double> monthlySales = {};
 
-  // Structure pour stocker les totaux par statut
-  // Utilisée pour la Distribution des Commandes
   Map<String, int> ordersByStatus = {};
 
-  /// Calcule le chiffre d'affaires (CA) et le nombre de commandes par mois pour l'année en cours.
   Future<Map<int, double>> calculateMonthlyRevenue() async {
-    // Récupérer toutes les commandes de l'année en cours
     final currentYear = DateTime.now().year;
-
-    // Initialisation pour les 12 mois
     monthlySales = {
       for (var month in List.generate(12, (i) => i + 1)) month: 0.0,
     };
 
     try {
-      final snapshot = await _firestore
-          .collection(ordersCollection)
-          // Si vous avez un champ 'createdAt' de type Timestamp, vous pouvez filtrer
-          .where(
-            'createdAt',
-            isGreaterThanOrEqualTo: DateTime(currentYear, 1, 1),
-          )
-          .get();
+      List<Future<void>> tasks = [];
 
-      for (var doc in snapshot.docs) {
-        final data = doc.data();
-        final price = (data['priceQuote'] as num?)?.toDouble() ?? 0.0;
-        final timestamp = data['createdAt'] as Timestamp;
-        final month = timestamp.toDate().month;
+      for (int month = 1; month <= 12; month++) {
+        final startOfMonth = DateTime(currentYear, month, 1);
+        final endOfMonth = (month == 12) 
+            ? DateTime(currentYear + 1, 1, 1).subtract(const Duration(milliseconds: 1))
+            : DateTime(currentYear, month + 1, 1).subtract(const Duration(milliseconds: 1));
 
-        // Ajouter le montant au mois correspondant
-        monthlySales[month] = (monthlySales[month] ?? 0.0) + price;
+        tasks.add(_firestore
+            .collection(ordersCollection)
+            .where('timestamp', isGreaterThanOrEqualTo: Timestamp.fromDate(startOfMonth))
+            .where('timestamp', isLessThanOrEqualTo: Timestamp.fromDate(endOfMonth))
+            .where('status', isEqualTo: 'COMPLETED') // On ne compte que les commandes payées
+            .aggregate(sum('priceQuote'))
+            .get()
+            .then((snapshot) {
+              monthlySales[month] = snapshot.getSum('priceQuote')?.toDouble() ?? 0.0;
+            }));
       }
-
+      
+      await Future.wait(tasks);
       return monthlySales;
     } catch (e) {
-      print("Erreur lors du calcul du CA mensuel : $e");
+      if (kDebugMode) print('Erreur lors du calcul du CA mensuel : $e');
       return {};
     }
   }
 
-  /// Calcule le nombre de commandes pour chaque statut (ex: 'pending', 'delivered', 'cancelled').
   Future<Map<String, int>> calculateOrdersByStatus() async {
     ordersByStatus = {};
+    final statuses = ['PENDING', 'ACCEPTED', 'ASSIGNED', 'COMPLETED', 'CANCELLED'];
+    
     try {
-      final snapshot = await _firestore.collection(ordersCollection).get();
+      List<Future<void>> tasks = [];
 
-      for (var doc in snapshot.docs) {
-        final data = doc.data();
-        final status = data['status'] as String? ?? 'unknown';
-
-        ordersByStatus[status] = (ordersByStatus[status] ?? 0) + 1;
+      for (var status in statuses) {
+        tasks.add(_firestore
+            .collection(ordersCollection)
+            .where('status', isEqualTo: status)
+            .count()
+            .get()
+            .then((snapshot) {
+              ordersByStatus[status] = snapshot.count ?? 0;
+            }));
       }
-
+      
+      await Future.wait(tasks);
       return ordersByStatus;
     } catch (e) {
-      print("Erreur lors du calcul des commandes par statut : $e");
+      if (kDebugMode) print("Erreur lors du calcul des commandes par statut : $e");
       return {};
     }
   }

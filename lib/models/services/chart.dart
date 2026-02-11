@@ -2,8 +2,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
 class MonthlyRevenueChart extends StatelessWidget {
-  final Map<int, double>
-  monthlyData; // Données formatées {1: 1500.0, 2: 2200.0, ...}
+  final Map<int, double> monthlyData; // Données formatées {1: 1500.0, 2: 2200.0, ...}
 
   const MonthlyRevenueChart({super.key, required this.monthlyData});
 
@@ -26,7 +25,6 @@ class MonthlyRevenueChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Trouver la valeur maximale pour définir l'échelle de l'axe Y
     final maxY = monthlyData.values.reduce((a, b) => a > b ? a : b) * 1.1;
 
     final barGroups = monthlyData.entries.map((entry) {
@@ -58,7 +56,6 @@ class MonthlyRevenueChart extends StatelessWidget {
                 sideTitles: SideTitles(
                   showTitles: true,
                   getTitlesWidget: (value, meta) {
-                    // Afficher le numéro du mois (1 à 12)
                     return SideTitleWidget(
                       // axisSide: meta.axisSide,
                       space: 4.0,
@@ -105,12 +102,10 @@ class MonthlyRevenueChart extends StatelessWidget {
 }
 
 class OrderDistributionChart extends StatelessWidget {
-  final Map<String, int>
-  statusData; // Données formatées {'delivered': 50, 'pending': 20, ...}
+  final Map<String, int> statusData;
 
   const OrderDistributionChart({super.key, required this.statusData});
 
-  // Assigner des couleurs uniques aux statuts
   Color _getColorForStatus(String status) {
     switch (status) {
       case 'ASSIGNED':
@@ -135,7 +130,6 @@ class OrderDistributionChart extends StatelessWidget {
       (prev, count) => prev + count,
     );
 
-    // Créer les sections du diagramme circulaire
     final sections = statusData.entries.map((entry) {
       final percentage = (entry.value / totalOrders) * 100;
       return PieChartSectionData(
@@ -159,7 +153,7 @@ class OrderDistributionChart extends StatelessWidget {
             PieChartData(
               sections: sections,
               borderData: FlBorderData(show: false),
-              centerSpaceRadius: 40, // Taille du trou central
+              centerSpaceRadius: 25, // Taille du trou central
             ),
           ),
         ),
