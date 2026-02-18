@@ -160,12 +160,12 @@ class _HomeContentState extends State<_HomeContent> {
   static Color _getStatusColor(String status) {
     
     switch (status.toUpperCase()) {
-      case 'PENDING':
-        return Colors.orange.shade700;
-      case 'ACCEPTED': 
+      case 'PENDING': 
         return Colors.green.shade700;
       case 'ASSIGNED':
         return Colors.blue.shade700;
+      case 'ACCEPTED':
+        return  const Color.fromARGB(255, 129, 7, 229);
       case 'COMPLETED': 
         return Colors.indigo.shade700;
       case 'CANCELLED':
@@ -473,7 +473,7 @@ class _HomeContentState extends State<_HomeContent> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  "Bonjour, $name",
+                  name,
                   style: GoogleFonts.pacifico(
                     color: Colors.white,
                     fontSize: 24,

@@ -1,5 +1,5 @@
 name: camelia_logistics
-description: "A new Flutter project."
+description: "Une application de livraison de colis pour les particuliers et les professionnels, offrant une expérience utilisateur fluide et des fonctionnalités avancées pour suivre et gérer les livraisons en temps réel."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -59,6 +59,7 @@ dependencies:
   lottie: ^3.1.0
   google_fonts: ^6.2.1
   flutter_launcher_icons: ^0.13.1
+  url_launcher: ^6.2.1
 
   # État & Utilitaires
   provider: ^6.1.2
@@ -108,13 +109,12 @@ flutter:
     - assets/
   # À la fin du fichier pubspec.yaml
 flutter_launcher_icons:
-  android: "launcher_icon" # Nom du fichier de ressources Android (laisser tel quel)
-  ios: true # Définir à true pour générer les icônes iOS
-  image_path: "assets/log.webp" # <--- Chemin de votre icône
-  #min_sdk_android: 21 # (Optionnel) Changer si vous supportez des versions Android très anciennes
-  # Pour Android, si vous voulez une icône adaptative (recommandé) :
-  adaptive_icon_background: "#FFFFFF" # Couleur d'arrière-plan de l'icône adaptative
-  adaptive_icon_foreground: "assets/logor.webp" # Icône au premier plan (sans l'arrière-plan)
+ android: true
+ ios: true
+ remove_alpha_ios: true
+ image_path: "assets/logo2.png"
+ adaptive_icon_background: "#FFFFFF"
+ adaptive_icon_foreground: "assets/logo2.png" #
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

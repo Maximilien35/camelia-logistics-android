@@ -52,7 +52,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
         centerTitle: true,
         leading: IconButton(
           onPressed: () {
-            context.go('/home_custom');
+            context.push('/home_custom');
           },
           icon:const Icon(Icons.arrow_back),
         ),
@@ -258,9 +258,9 @@ class _CardInventory extends StatelessWidget {
   Color _getStatusColor(String status) {
     switch (status.toUpperCase()) {
       case 'PENDING':
-        return Colors.orange.shade700;
+        return  Colors.green.shade700;
       case 'ACCEPTED': // Correspond à Validée
-        return Colors.green.shade700;
+        return  const Color.fromARGB(255, 129, 7, 229);
       case 'ASSIGNED':
         return Colors.blue.shade700;
       case 'COMPLETED': // Correspond à Livrée

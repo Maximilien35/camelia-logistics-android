@@ -203,7 +203,7 @@ abstract class AppLocalizations {
   /// No description provided for @phone.
   ///
   /// In fr, this message translates to:
-  /// **'Téléphone'**
+  /// **'Téléphone (joignable)'**
   String get phone;
 
   /// No description provided for @updateYourProfile.
@@ -1193,7 +1193,7 @@ abstract class AppLocalizations {
   /// No description provided for @locationPermissionDenied.
   ///
   /// In fr, this message translates to:
-  /// **'Localisation refusée définitivement'**
+  /// **'veuillez activer la localisation et  les permissions dans les paramètres de votre téléphone.'**
   String get locationPermissionDenied;
 
   /// No description provided for @locationError.
@@ -1435,6 +1435,186 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Erreur'**
   String get error;
+
+  /// No description provided for @searchAddressHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entrer votre adresse'**
+  String get searchAddressHint;
+
+  /// No description provided for @statusConfirmed.
+  ///
+  /// In fr, this message translates to:
+  /// **'CONFIRME'**
+  String get statusConfirmed;
+
+  /// No description provided for @deleteAccount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer mon compte'**
+  String get deleteAccount;
+
+  /// No description provided for @deleteAccountWarning.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette action est irréversible. Toutes vos données seront effacées.'**
+  String get deleteAccountWarning;
+
+  /// No description provided for @deleteAccountFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Échec de la suppression du compte'**
+  String get deleteAccountFailed;
+
+  /// No description provided for @confirmDelete.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmer la suppression'**
+  String get confirmDelete;
+
+  /// No description provided for @help.
+  ///
+  /// In fr, this message translates to:
+  /// **'Centre d/\'aide'**
+  String get help;
+
+  /// No description provided for @faq.
+  ///
+  /// In fr, this message translates to:
+  /// **'FAQ et guides'**
+  String get faq;
+
+  /// No description provided for @contactSupport.
+  ///
+  /// In fr, this message translates to:
+  /// **'Contacter le support'**
+  String get contactSupport;
+
+  /// No description provided for @avis.
+  ///
+  /// In fr, this message translates to:
+  /// **'Donner votre avis'**
+  String get avis;
+
+  /// No description provided for @colis.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comment suivre mon colis ?'**
+  String get colis;
+
+  /// No description provided for @colisAns.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous pouvez suivre votre colis en temps réel via l\'application. Allez dans \'Mes commandes\', sélectionnez la commande en cours, et cliquez sur \'Suivre le colis\' pour voir sa position actuelle sur la carte.'**
+  String get colisAns;
+
+  /// No description provided for @modifyAddress.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comment modifier l\'adresse de livraison ?'**
+  String get modifyAddress;
+
+  /// No description provided for @modifyAddressAns.
+  ///
+  /// In fr, this message translates to:
+  /// **'Si vous souhaitez modifier l\'adresse de livraison, veuillez contacter notre support via le chat ou par téléphone avant que le livreur ne récupère le colis. Nous ferons de notre mieux pour répondre à votre demande.'**
+  String get modifyAddressAns;
+
+  /// No description provided for @setupAddress.
+  ///
+  /// In fr, this message translates to:
+  /// **'Comment choisir les points de livraisons ?'**
+  String get setupAddress;
+
+  /// No description provided for @setupAddressAns.
+  ///
+  /// In fr, this message translates to:
+  /// **'ecrivez vos adresses ou utiliser la localisation et la carte ,nous demandrons plus de detail lors de commande'**
+  String get setupAddressAns;
+
+  /// No description provided for @suggestions.
+  ///
+  /// In fr, this message translates to:
+  /// **'Partagez vos suggestions pour améliorer notre service'**
+  String get suggestions;
+
+  /// No description provided for @faqGetDeliverers.
+  ///
+  /// In fr, this message translates to:
+  /// **'Espace Livreurs'**
+  String get faqGetDeliverers;
+
+  /// No description provided for @faqGetDeliverersAns.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous êtes intéressé pour devenir livreur ? Rejoignez notre équipe de chauffeurs et commencez à gagner de l\'argent en livrant avec Camelia Logistics !'**
+  String get faqGetDeliverersAns;
+
+  /// No description provided for @faqClientAbsent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Client absent ou injoignable'**
+  String get faqClientAbsent;
+
+  /// No description provided for @faqClientAbsentAns.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tentez d/\'appeler le client 3 fois via l/\'app. Après 10 min d/\'attente sans réponse, contactez le support pour valider le retour du colis.'**
+  String get faqClientAbsentAns;
+
+  /// No description provided for @faqTechSupportTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'🛠 Support technique'**
+  String get faqTechSupportTitle;
+
+  /// No description provided for @faqAppBug.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'application est lente ou bugue'**
+  String get faqAppBug;
+
+  /// No description provided for @faqAppBugAns.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifiez votre connexion internet et assurez-vous d\'avoir la dernière mise à jour. Si le problème persiste, essayez de vider le cache de l\'application.'**
+  String get faqAppBugAns;
+
+  /// No description provided for @faqNoNotif.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je ne reçois pas les notifications'**
+  String get faqNoNotif;
+
+  /// No description provided for @faqNoNotifAns.
+  ///
+  /// In fr, this message translates to:
+  /// **'Allez dans les paramètres de votre téléphone > Applications > Camelia Logistics et vérifiez que les notifications sont autorisées.'**
+  String get faqNoNotifAns;
+
+  /// No description provided for @policy.
+  ///
+  /// In fr, this message translates to:
+  /// **'Politique de confidentialité'**
+  String get policy;
+
+  /// No description provided for @conditions.
+  ///
+  /// In fr, this message translates to:
+  /// **'Conditions d\'utilisation'**
+  String get conditions;
+
+  /// No description provided for @policyContent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre politique de confidentialité ici...'**
+  String get policyContent;
+
+  /// No description provided for @conditionsContent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vos conditions d\'utilisation ici...'**
+  String get conditionsContent;
 }
 
 class _AppLocalizationsDelegate

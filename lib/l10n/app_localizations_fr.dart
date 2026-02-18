@@ -60,7 +60,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get mainEmail => 'Email principal';
 
   @override
-  String get phone => 'Téléphone';
+  String get phone => 'Téléphone (joignable)';
 
   @override
   String get updateYourProfile => 'Mettre à jour votre profil';
@@ -577,7 +577,8 @@ class AppLocalizationsFr extends AppLocalizations {
   String get deliveryPointsTitle => 'Points de livraison';
 
   @override
-  String get locationPermissionDenied => 'Localisation refusée définitivement';
+  String get locationPermissionDenied =>
+      'veuillez activer la localisation et  les permissions dans les paramètres de votre téléphone.';
 
   @override
   String locationError(Object error) {
@@ -704,4 +705,103 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get error => 'Erreur';
+
+  @override
+  String get searchAddressHint => 'Entrer votre adresse';
+
+  @override
+  String get statusConfirmed => 'CONFIRME';
+
+  @override
+  String get deleteAccount => 'Supprimer mon compte';
+
+  @override
+  String get deleteAccountWarning =>
+      'Cette action est irréversible. Toutes vos données seront effacées.';
+
+  @override
+  String get deleteAccountFailed => 'Échec de la suppression du compte';
+
+  @override
+  String get confirmDelete => 'Confirmer la suppression';
+
+  @override
+  String get help => 'Centre d/\'aide';
+
+  @override
+  String get faq => 'FAQ et guides';
+
+  @override
+  String get contactSupport => 'Contacter le support';
+
+  @override
+  String get avis => 'Donner votre avis';
+
+  @override
+  String get colis => 'Comment suivre mon colis ?';
+
+  @override
+  String get colisAns =>
+      'Vous pouvez suivre votre colis en temps réel via l\'application. Allez dans \'Mes commandes\', sélectionnez la commande en cours, et cliquez sur \'Suivre le colis\' pour voir sa position actuelle sur la carte.';
+
+  @override
+  String get modifyAddress => 'Comment modifier l\'adresse de livraison ?';
+
+  @override
+  String get modifyAddressAns =>
+      'Si vous souhaitez modifier l\'adresse de livraison, veuillez contacter notre support via le chat ou par téléphone avant que le livreur ne récupère le colis. Nous ferons de notre mieux pour répondre à votre demande.';
+
+  @override
+  String get setupAddress => 'Comment choisir les points de livraisons ?';
+
+  @override
+  String get setupAddressAns =>
+      'ecrivez vos adresses ou utiliser la localisation et la carte ,nous demandrons plus de detail lors de commande';
+
+  @override
+  String get suggestions =>
+      'Partagez vos suggestions pour améliorer notre service';
+
+  @override
+  String get faqGetDeliverers => 'Espace Livreurs';
+
+  @override
+  String get faqGetDeliverersAns =>
+      'Vous êtes intéressé pour devenir livreur ? Rejoignez notre équipe de chauffeurs et commencez à gagner de l\'argent en livrant avec Camelia Logistics !';
+
+  @override
+  String get faqClientAbsent => 'Client absent ou injoignable';
+
+  @override
+  String get faqClientAbsentAns =>
+      'Tentez d/\'appeler le client 3 fois via l/\'app. Après 10 min d/\'attente sans réponse, contactez le support pour valider le retour du colis.';
+
+  @override
+  String get faqTechSupportTitle => '🛠 Support technique';
+
+  @override
+  String get faqAppBug => 'L\'application est lente ou bugue';
+
+  @override
+  String get faqAppBugAns =>
+      'Vérifiez votre connexion internet et assurez-vous d\'avoir la dernière mise à jour. Si le problème persiste, essayez de vider le cache de l\'application.';
+
+  @override
+  String get faqNoNotif => 'Je ne reçois pas les notifications';
+
+  @override
+  String get faqNoNotifAns =>
+      'Allez dans les paramètres de votre téléphone > Applications > Camelia Logistics et vérifiez que les notifications sont autorisées.';
+
+  @override
+  String get policy => 'Politique de confidentialité';
+
+  @override
+  String get conditions => 'Conditions d\'utilisation';
+
+  @override
+  String get policyContent => 'Votre politique de confidentialité ici...';
+
+  @override
+  String get conditionsContent => 'Vos conditions d\'utilisation ici...';
 }

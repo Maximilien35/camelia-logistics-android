@@ -10,10 +10,13 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:camelia_logistics/l10n/app_localizations.dart';
 import '../providers/language_provider.dart';
+import 'package:camelia_logistics/screens/help_center.dart';
+import 'package:url_launcher/url_launcher.dart';
+ 
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
-  
+
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
@@ -22,7 +25,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final UserProfileService _userSer = UserProfileService();
   final OrderService _orderService = OrderService();
   final String? _currentUserId = FirebaseAuth.instance.currentUser?.uid;
-  
+
   late Future<List<dynamic>> _dataFuture;
 
   @override
@@ -35,8 +38,76 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (_currentUserId == null) {
       return Future.value([null, []]);
     }
-    return Future.wait(
-        [_userSer.getProfile(_currentUserId), _orderService.getOrdersByUserId(_currentUserId)]);
+    return Future.wait([
+      _userSer.getProfile(_currentUserId),
+      _orderService.getOrdersByUserId(_currentUserId),
+    ]);
+  }
+
+  void _deleteAccount(dynamic l10n) async {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(
+          l10n.deleteAccount,
+          style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
+        ),
+        content: Text(l10n.deleteAccountWarning, style: GoogleFonts.poppins()),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(
+              l10n.cancel,
+              style: GoogleFonts.poppins(color: Colors.grey.shade700),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              try {
+                _userSer.deleteUserAccount();
+                if (mounted) {
+                  context.go('/home');
+                }
+              } catch (e) {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Row(
+                        children: [
+                          const Icon(
+                            Icons.error_outline_rounded,
+                            color: Colors.white,
+                          ),
+                          const SizedBox(width: 10),
+                          Text(
+                            l10n.deleteAccountFailed,
+                            style: GoogleFonts.poppins(),
+                          ),
+                        ],
+                      ),
+                      backgroundColor: Colors.red.shade600,
+                      behavior: SnackBarBehavior.floating,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      elevation: 10,
+                    ),
+                  );
+                }
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red.shade600,
+            ),
+            child: Text(
+              l10n.confirmDelete,
+              style: GoogleFonts.poppins(color: Colors.white),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   void _handleLogout(dynamic l10n) async {
@@ -53,10 +124,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               children: [
                 const Icon(Icons.error_outline_rounded, color: Colors.white),
                 const SizedBox(width: 10),
-                Text(
-                  l10n.logoutFailed,
-                  style: GoogleFonts.poppins(),
-                ),
+                Text(l10n.logoutFailed, style: GoogleFonts.poppins()),
               ],
             ),
             backgroundColor: Colors.red.shade600,
@@ -106,20 +174,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
           future: _dataFuture,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
+              return const Center(child: CircularProgressIndicator());
             }
 
-            if (snapshot.hasError || !snapshot.hasData || snapshot.data == null || snapshot.data![0] == null) {
+            if (snapshot.hasError ||
+                !snapshot.hasData ||
+                snapshot.data == null ||
+                snapshot.data![0] == null) {
               return Scaffold(
                 backgroundColor: Colors.grey.shade50,
                 body: Center(
                   child: Text(
                     l10n.profileLoadingError,
-                    style: GoogleFonts.poppins(
-                      color: Colors.grey.shade700,
-                    ),
+                    style: GoogleFonts.poppins(color: Colors.grey.shade700),
                   ),
                 ),
               );
@@ -127,7 +194,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
             final UserProfile profile = snapshot.data![0];
             final List<dynamic> orders = snapshot.data![1];
-            
+
             return CustomScrollView(
               slivers: [
                 // Header avec gradient
@@ -142,8 +209,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [
-                            const Color(0xFF4C4CE7).withValues(alpha:0.95),
-                            const Color(0xFF6B4EE7).withValues(alpha:0.95),
+                            const Color(0xFF4C4CE7).withValues(alpha: 0.95),
+                            const Color(0xFF6B4EE7).withValues(alpha: 0.95),
                           ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
@@ -173,7 +240,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     width: 44,
                                     height: 44,
                                     decoration: BoxDecoration(
-                                      color: Colors.white.withValues(alpha:0.2),
+                                      color: Colors.white.withValues(
+                                        alpha: 0.2,
+                                      ),
                                       borderRadius: BorderRadius.circular(14),
                                     ),
                                     child: const Icon(
@@ -188,7 +257,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   width: 44,
                                   height: 44,
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withValues(alpha:0.2),
+                                    color: Colors.white.withValues(alpha: 0.2),
                                     borderRadius: BorderRadius.circular(14),
                                   ),
                                   child: const Icon(
@@ -200,57 +269,62 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ],
                             ),
                             const SizedBox(height: 15),
-                            
+
                             // Photo de profil et nom
                             Center(
                               child: FittedBox(
                                 fit: BoxFit.scaleDown,
                                 child: Column(
-                                children: [
-                                  Container(
-                                    width: 100,
-                                    height: 90,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      border: Border.all(
+                                  children: [
+                                    Container(
+                                      width: 100,
+                                      height: 90,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: Colors.white,
+                                          width: 4,
+                                        ),
+                                        gradient: const LinearGradient(
+                                          colors: [
+                                            Color(0xFF6C63FF),
+                                            Color(0xFF8B84FF),
+                                          ],
+                                        ),
+                                      ),
+                                      child: const Icon(
+                                        Icons.person,
+                                        size: 40,
                                         color: Colors.white,
-                                        width: 4,
-                                      ),
-                                      gradient: const LinearGradient(
-                                        colors: [Color(0xFF6C63FF), Color(0xFF8B84FF)],
                                       ),
                                     ),
-                                    child: const Icon(
-                                      Icons.person,
-                                      size: 40,
-                                      color: Colors.white,
+                                    const SizedBox(height: 12),
+                                    Text(
+                                      profile.name,
+                                      style: GoogleFonts.poppins(
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 24,
+                                        color: Colors.white,
+                                        letterSpacing: -0.5,
+                                      ),
                                     ),
-                                  ),
-                                  const SizedBox(height: 12),
-                                  Text(
-                                    profile.name,
-                                    style: GoogleFonts.poppins(
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 24,
-                                      color: Colors.white,
-                                      letterSpacing: -0.5,
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      l10n.memberSince,
+                                      style: GoogleFonts.poppins(
+                                        color: Colors.white.withValues(
+                                          alpha: 0.9,
+                                        ),
+                                        fontSize: 14,
+                                      ),
                                     ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    l10n.memberSince,
-                                    style: GoogleFonts.poppins(
-                                      color: Colors.white.withValues(alpha:0.9),
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                ],
-                              ),
+                                  ],
+                                ),
                               ),
                             ),
-                            
+
                             const SizedBox(height: 24),
-                            
+
                             // Statistiques
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -259,27 +333,45 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   orders.length.toString(),
                                   l10n.deliveries,
                                 ),
-                                Builder(builder: (context) {
-                                  final int count = orders.length;
-                                  List<Widget> stars = [];
-                                  if (count >= 100) {
-                                    stars = List.generate(
-                                      4,
-                                      (_) => const Icon(Icons.star, color: Colors.amber, size: 20),
+                                Builder(
+                                  builder: (context) {
+                                    final int count = orders.length;
+                                    List<Widget> stars = [];
+                                    if (count >= 100) {
+                                      stars = List.generate(
+                                        4,
+                                        (_) => const Icon(
+                                          Icons.star,
+                                          color: Colors.amber,
+                                          size: 20,
+                                        ),
+                                      );
+                                    } else if (count > 50) {
+                                      stars = List.generate(
+                                        2,
+                                        (_) => const Icon(
+                                          Icons.star,
+                                          color: Colors.amber,
+                                          size: 20,
+                                        ),
+                                      );
+                                    } else if (count > 0) {
+                                      stars = List.generate(
+                                        1,
+                                        (_) => const Icon(
+                                          Icons.star,
+                                          color: Colors.amber,
+                                          size: 20,
+                                        ),
+                                      );
+                                    }
+                                    return _buildStatColumnWithStars(
+                                      stars,
+                                      l10n.level,
+                                      l10n,
                                     );
-                                  } else if (count > 50) {
-                                    stars = List.generate(
-                                      2,
-                                      (_) => const Icon(Icons.star, color: Colors.amber, size: 20),
-                                    );
-                                  } else if (count > 0) {
-                                    stars = List.generate(
-                                      1,
-                                      (_) => const Icon(Icons.star, color: Colors.amber, size: 20),
-                                    );
-                                  }
-                                  return _buildStatColumnWithStars(stars, l10n.level, l10n);
-                                }),
+                                  },
+                                ),
                                 _buildStatColumn('98%', l10n.successRate),
                               ],
                             ),
@@ -289,7 +381,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                 ),
-                
+
                 // Section Informations personnelles
                 _buildSection(
                   title: l10n.personalInfo,
@@ -323,7 +415,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ],
                 ),
-                
+
                 // Section Performances
                 _buildSection(
                   title: l10n.yourPerformances,
@@ -348,7 +440,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ],
                 ),
-                
+
                 // Section Paramètres
                 _buildSection(
                   title: l10n.settings,
@@ -365,16 +457,68 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     _buildSettingItem(
                       icon: Icons.language,
                       title: l10n.language,
-                      subtitle: Localizations.localeOf(context).languageCode == 'fr' ? l10n.french : l10n.english,
-                      value: Localizations.localeOf(context).languageCode == 'en',
+                      subtitle:
+                          Localizations.localeOf(context).languageCode == 'fr'
+                          ? l10n.french
+                          : l10n.english,
+                      value:
+                          Localizations.localeOf(context).languageCode == 'en',
                       onChanged: (value) {
-                        final provider = Provider.of<LanguageProvider>(context, listen: false);
-                        provider.changeLanguage(value ? const Locale('en') : const Locale('fr'));
+                        final provider = Provider.of<LanguageProvider>(
+                          context,
+                          listen: false,
+                        );
+                        provider.changeLanguage(
+                          value ? const Locale('en') : const Locale('fr'),
+                        );
                       },
                     ),
                   ],
                 ),
-                
+                const SliverToBoxAdapter(child: SizedBox(height: 20)),
+                _buildSection(
+                  title: l10n.support,
+                  icon: Icons.support_agent_rounded,
+                  items: [
+                    _buildInfoItem(
+                      icon: Icons.help_outline_rounded,
+                      title: l10n.help,
+                      subtitle: l10n.faq,
+
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const HelpCenterPage(),
+                          ),
+                        );
+                      },
+                    ),
+                    _buildDivider(),
+                    _buildInfoItem(
+                      icon: Icons.feedback_outlined,
+                      title: l10n.avis,
+                      subtitle: l10n.suggestions,
+                      onTap: (){},
+                    ),
+                    _buildDivider(),
+
+                    _buildInfoItem(
+                      icon: Icons.privacy_tip_outlined,
+                      title: l10n.policy,
+                      subtitle: l10n.policyContent,
+                      onTap: ()  => launchURL("https://camelia-logistics.vercel.app/legal/#policy"),
+                    ),
+                    _buildDivider(),
+                    _buildInfoItem(
+                      icon: Icons.description_outlined,
+                      title: l10n.conditions,
+                      subtitle: l10n.conditionsContent,
+                      onTap: () => launchURL("https://camelia-logistics.vercel.app/legal/#conditions"),
+                    ),
+                  ],
+                ),
+
                 // Bouton de déconnexion
                 SliverToBoxAdapter(
                   child: Padding(
@@ -390,10 +534,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           padding: const EdgeInsets.all(22),
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(18),
-                            border: Border.all(color: Colors.grey.shade100, width: 1.5),
+                            border: Border.all(
+                              color: Colors.grey.shade100,
+                              width: 1.5,
+                            ),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.grey.withValues(alpha:0.05),
+                                color: Colors.grey.withValues(alpha: 0.05),
                                 blurRadius: 20,
                                 spreadRadius: 2,
                               ),
@@ -450,11 +597,88 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                 ),
-                
-                // Espace en bas
-                const SliverToBoxAdapter(
-                  child: SizedBox(height: 32),
+
+                const SliverToBoxAdapter(child: SizedBox(height: 5)),
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Material(
+                      borderRadius: BorderRadius.circular(18),
+                      color: Colors.white,
+                      elevation: 0,
+                      child: InkWell(
+                        onTap: () => _deleteAccount(l10n),
+                        borderRadius: BorderRadius.circular(18),
+                        child: Container(
+                          padding: const EdgeInsets.all(22),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(18),
+                            border: Border.all(
+                              color: Colors.grey.shade100,
+                              width: 1.5,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withValues(alpha: 0.05),
+                                blurRadius: 20,
+                                spreadRadius: 2,
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 56,
+                                height: 56,
+                                decoration: BoxDecoration(
+                                  color: Colors.red.shade50,
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                                child: Icon(
+                                  Icons.logout_rounded,
+                                  color: Colors.red.shade700,
+                                  size: 26,
+                                ),
+                              ),
+                              const SizedBox(width: 18),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      l10n.deleteAccount,
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 17,
+                                        fontWeight: FontWeight.w700,
+                                        color: Colors.red.shade800,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 6),
+                                    Text(
+                                      l10n.deleteAccountWarning,
+                                      style: GoogleFonts.poppins(
+                                        color: Colors.grey.shade600,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Icon(
+                                Icons.chevron_right_rounded,
+                                color: Colors.grey.shade400,
+                                size: 26,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
+
+                // Espace en bas
+                const SliverToBoxAdapter(child: SizedBox(height: 32)),
               ],
             );
           },
@@ -462,7 +686,45 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
     );
   }
-
+  Future<void> launchURL(String url) async {
+    final uri = Uri.parse(url);
+    
+    if (!await canLaunchUrl(uri)) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Lien invalide ou impossible à ouvrir'),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+      return;
+    }
+    try {
+      final launched = await launchUrl(
+        uri,
+        mode: LaunchMode.externalApplication,
+        webViewConfiguration: const WebViewConfiguration(
+          enableJavaScript: true,
+          enableDomStorage: true,
+        ),
+      );
+      
+      if (!launched && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Échec de l\'ouverture du lien')),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erreur: ${e.toString()}')),
+        );
+      }
+    }
+  }
+    }
   Widget _buildStatColumn(String value, String label) {
     return Column(
       children: [
@@ -478,7 +740,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         Text(
           label,
           style: GoogleFonts.poppins(
-            color: Colors.white.withValues(alpha:0.9),
+            color: Colors.white.withValues(alpha: 0.9),
             fontSize: 13,
           ),
         ),
@@ -486,7 +748,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildStatColumnWithStars(List<Widget> stars, String label, dynamic l10n) {
+  Widget _buildStatColumnWithStars(
+    List<Widget> stars,
+    String label,
+    dynamic l10n,
+  ) {
     return Column(
       children: [
         Row(
@@ -507,7 +773,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         Text(
           label,
           style: GoogleFonts.poppins(
-            color: Colors.white.withValues(alpha:0.9),
+            color: Colors.white.withValues(alpha: 0.9),
             fontSize: 13,
           ),
         ),
@@ -532,14 +798,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   width: 42,
                   height: 42,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF6C63FF).withValues(alpha:0.1),
+                    color: const Color(0xFF6C63FF).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Icon(
-                    icon,
-                    color: const Color(0xFF6C63FF),
-                    size: 22,
-                  ),
+                  child: Icon(icon, color: const Color(0xFF6C63FF), size: 22),
                 ),
                 const SizedBox(width: 14),
                 Text(
@@ -561,15 +823,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 border: Border.all(color: Colors.grey.shade100, width: 1.5),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.grey.withValues(alpha:0.05),
+                    color: Colors.grey.withValues(alpha: 0.05),
                     blurRadius: 20,
                     spreadRadius: 2,
                   ),
                 ],
               ),
-              child: Column(
-                children: items,
-              ),
+              child: Column(children: items),
             ),
           ],
         ),
@@ -599,11 +859,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   color: Colors.blue.shade50,
                   borderRadius: BorderRadius.circular(14),
                 ),
-                child: Icon(
-                  icon,
-                  color: Colors.blue.shade700,
-                  size: 24,
-                ),
+                child: Icon(icon, color: Colors.blue.shade700, size: 24),
               ),
               const SizedBox(width: 18),
               Expanded(
@@ -655,14 +911,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 width: 52,
                 height: 52,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF6C63FF).withValues(alpha:0.1),
+                  color: const Color(0xFF6C63FF).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(14),
                 ),
-                child: Icon(
-                  icon,
-                  color: const Color(0xFF6C63FF),
-                  size: 24,
-                ),
+                child: Icon(icon, color: const Color(0xFF6C63FF), size: 24),
               ),
               const SizedBox(width: 18),
               Expanded(
@@ -710,12 +962,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            title,
-            style: GoogleFonts.poppins(
-              fontSize: 15,
-              fontWeight: FontWeight.w500,
-              color: Colors.grey.shade800,
+          Expanded(
+            child: Text(
+              title,
+              style: GoogleFonts.poppins(
+                fontSize: 15,
+                fontWeight: FontWeight.w500,
+                color: Colors.grey.shade800,
+              ),
+              overflow: TextOverflow.ellipsis,
             ),
           ),
           Text(
@@ -749,11 +1004,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               color: Colors.grey.shade50,
               borderRadius: BorderRadius.circular(14),
             ),
-            child: Icon(
-              icon,
-              color: Colors.grey.shade700,
-              size: 24,
-            ),
+            child: Icon(icon, color: Colors.grey.shade700, size: 24),
           ),
           const SizedBox(width: 18),
           Expanded(
@@ -792,11 +1043,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildDivider() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 22),
-      child: Divider(
-        height: 0,
-        thickness: 1,
-        color: Colors.grey.shade100,
-      ),
+      child: Divider(height: 0, thickness: 1, color: Colors.grey.shade100),
     );
   }
-}
+

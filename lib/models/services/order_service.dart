@@ -9,10 +9,8 @@ class OrderService {
     try {
       DocumentReference orderRef = await _ordersRef.add(order.toJson());
       return orderRef.id;
-    } on FirebaseException catch (e) {
-      throw Exception(
-        "Erreur Firestore lors de l'ajout de la commande : ${e.message}",
-      );
+    } on FirebaseException catch (_) {
+      throw Exception("Impossible de créer la commande. Vérifiez votre connexion internet.");
     }
   }
 
@@ -35,10 +33,8 @@ class OrderService {
           .get(const GetOptions(source: Source.server));
 
       return snapshotServer.docs.map((doc) => Order.fromJson(doc.data() as Map<String, dynamic>, id: doc.id)).toList();
-    } on FirebaseException catch (e) {
-      throw Exception(
-        'Erreur Firestore lors de la récupération : ${e.message}',
-      );
+    } on FirebaseException catch (_) {
+      throw Exception("Impossible de récupérer l'historique des commandes.");
     }
   }
 
@@ -102,7 +98,7 @@ class OrderService {
       if (kDebugMode) {
         print("Erreur lors de la mise à jour du statut de la commande : $e");
       }
-      rethrow;
+      throw Exception("Impossible de mettre à jour le statut. Vérifiez votre connexion.");
     }
   }
 
@@ -113,10 +109,8 @@ class OrderService {
         'status':
             'PRICE_QUOTED', 
       });
-    } on FirebaseException catch (e) {
-      throw Exception(
-        "Erreur Firestore lors de la mise à jour du prix : ${e.message}",
-      );
+    } on FirebaseException catch (_) {
+      throw Exception("Échec de l'envoi du devis. Veuillez réessayer.");
     }
   }
 
@@ -140,6 +134,18 @@ class OrderService {
         );
   }
 
+  // OPTIMISATION: Récupère uniquement les commandes actives pour vérifier la disponibilité des chauffeurs
+  // Cela évite de faire une requête par chauffeur.
+  Stream<List<Order>> streamActiveOrdersForDrivers() {
+    return _ordersRef
+        .where('status', isEqualTo: 'ASSIGNED')
+        .snapshots()
+        .map((snapshot) => snapshot.docs.map((doc) {
+              final data = doc.data() as Map<String, dynamic>;
+              return Order.fromJson(data, id: doc.id);
+            }).toList());
+  }
+
   Future<void> assignDeliverer({
     required String orderId,
     required String delivererUid,
@@ -158,7 +164,7 @@ class OrderService {
       if (kDebugMode) {
         print('Erreur d\'assignation: $e');
       }
-      rethrow;
+      throw Exception("Impossible d'assigner le chauffeur.");
     }
   }
 
@@ -224,10 +230,12 @@ class OrderService {
   Future<Order?> getOrdersById(String orderId) async {
     try {
       DocumentSnapshot docSnapshot;
+      // Tentative Cache
       try {
         docSnapshot = await _ordersRef.doc(orderId).get(const GetOptions(source: Source.cache));
-        if (!docSnapshot.exists) throw Exception("Cache miss");
+        if (!docSnapshot.exists) throw Exception("Non trouvé en cache");
       } catch (_) {
+        // Repli Serveur
         docSnapshot = await _ordersRef.doc(orderId).get(const GetOptions(source: Source.server));
       }
 

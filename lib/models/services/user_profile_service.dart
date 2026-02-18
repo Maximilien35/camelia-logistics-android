@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import '../user_profile.dart';
 
 class UserProfileService {
@@ -35,12 +35,12 @@ class UserProfileService {
           'Erreur Firebase lors de l\'enregistrement du chauffeur : ${e.code} - ${e.message}',
         );
       }
-      throw Exception("Échec de l'enregistrement du chauffeur : ${e.message}");
+      throw Exception("Impossible d'enregistrer le chauffeur. Vérifiez les droits d'accès ou la connexion.");
     } catch (e) {
       if (kDebugMode) {
         print('Erreur inconnue lors de l\'enregistrement du chauffeur : $e');
       }
-      throw Exception("Échec de l'enregistrement du chauffeur : $e");
+      throw Exception("Une erreur inattendue est survenue lors de l'enregistrement.");
     }
   }
 
@@ -119,8 +119,6 @@ class UserProfileService {
         'phoneNumber': phone,
         'email': email,
       });
-
-      SnackBar(content: Text('le profil $uid a ete  mis à jour à'));
     } catch (e) {
       if (kDebugMode) {
         print("Erreur lors de la mise à jour du statut de la commande : $e");
@@ -184,5 +182,41 @@ class UserProfileService {
     });
   }
 
-  // ... (Vos méthodes existantes : getProfile, etc.)
+ Future<void> deleteUserAccount() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) return;
+      final String uid = user.uid;
+
+      // 1. Récupérer et supprimer les commandes associées (Nettoyage client)
+      final ordersRef = FirebaseFirestore.instance.collection('orders');
+      final ordersSnapshot =
+          await ordersRef.where('userId', isEqualTo: uid).get();
+
+      WriteBatch batch = FirebaseFirestore.instance.batch();
+      int count = 0;
+
+      for (var doc in ordersSnapshot.docs) {
+        batch.delete(doc.reference);
+        count++;
+        if (count >= 450) {
+          await batch.commit();
+          batch = FirebaseFirestore.instance.batch();
+          count = 0;
+        }
+      }
+
+      // 2. Supprimer le document utilisateur dans le batch final
+      batch.delete(_usersCollection.doc(uid));
+      await batch.commit();
+
+      // 3. Supprimer le compte d'authentification
+      await user.delete();
+    } catch (e) {
+      if (kDebugMode) {
+        print("Erreur lors de la suppression du compte : $e");
+      }
+      rethrow;
+    }
+  }
 }

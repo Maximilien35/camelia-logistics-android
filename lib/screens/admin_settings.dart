@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:camelia_logistics/screens/help_center.dart';
 
 class AdminSettings extends StatefulWidget {
   const AdminSettings({super.key});
@@ -269,7 +270,7 @@ class _AdminSettingsState extends State<AdminSettings> {
                 const Icon(Icons.error_outline_rounded, color: Colors.white),
                 const SizedBox(width: 10),
                 Text(
-                  'Échec de la déconnexion',
+                  'Échec de la déconnexion,Verifier votre connexion internet',
                   style: GoogleFonts.poppins(),
                 ),
               ],
@@ -437,14 +438,7 @@ class _AdminSettingsState extends State<AdminSettings> {
                 onTap: () {},
                 showChevron: true,
               ),
-              _buildDivider(),
-              _buildSettingItem(
-                icon: Icons.analytics_outlined,
-                title: 'Statistiques',
-                subtitle: 'Voir les métriques système',
-                onTap: () {},
-                showChevron: true,
-              ),
+             
             ],
           ),
           
@@ -457,7 +451,12 @@ class _AdminSettingsState extends State<AdminSettings> {
                 icon: Icons.help_outline_rounded,
                 title: 'Centre d\'aide',
                 subtitle: 'FAQ et guides',
-                onTap: () {},
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const HelpCenterPage()),
+                  );
+                },
                 showChevron: true,
               ),
               _buildDivider(),

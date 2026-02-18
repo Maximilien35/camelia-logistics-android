@@ -4,6 +4,7 @@ import 'package:camelia_logistics/models/services/user_profile_service.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:camelia_logistics/l10n/app_localizations.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -16,6 +17,7 @@ class LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return DefaultTabController(
         length: 2,
         child: Scaffold(
@@ -105,7 +107,7 @@ class LoginPageState extends State<LoginPage> {
                             ),
                             const SizedBox(height: 10),
                             Text(
-                              "Camelia Logistics",
+                              l10n.appName,
                               style: GoogleFonts.poppins(
                                 fontSize: 24,
                                 fontWeight: FontWeight.w700,
@@ -114,7 +116,7 @@ class LoginPageState extends State<LoginPage> {
                               ),
                             ),
                             Text(
-                              "Livraison express à votre service",
+                              l10n.expressDeliveryService,
                               style: GoogleFonts.poppins(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w500,
@@ -179,9 +181,9 @@ class LoginPageState extends State<LoginPage> {
                               fontWeight: FontWeight.w500,
                               fontSize: 14,
                             ),
-                            tabs: const [
-                              Tab(text: 'Connexion'),
-                              Tab(text: 'Inscription'),
+                            tabs: [
+                              Tab(text: l10n.loginTab),
+                              Tab(text: l10n.signupTab),
                             ],
                           ),
                         ),
@@ -220,6 +222,7 @@ class _LoginTabContentState extends State<LoginTabContent> {
   bool _isPasswordVisible = false;
 
   void _submitLogin() async {
+    final l10n = AppLocalizations.of(context)!;
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -252,7 +255,7 @@ class _LoginTabContentState extends State<LoginTabContent> {
                   const Icon(Icons.error_outline_rounded, color: Colors.white),
                   const SizedBox(width: 10),
                   Text(
-                    'Identifiants invalides',
+                    l10n.invalidCredentials,
                     style: GoogleFonts.poppins(),
                   ),
                 ],
@@ -277,7 +280,7 @@ class _LoginTabContentState extends State<LoginTabContent> {
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    'Erreur: ${e.toString()}',
+                    '${l10n.error}: ${e.toString().replaceAll('Exception: ', '')}',
                     style: GoogleFonts.poppins(),
                   ),
                 ),
@@ -306,6 +309,7 @@ class _LoginTabContentState extends State<LoginTabContent> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
       child: Column(
@@ -316,7 +320,7 @@ class _LoginTabContentState extends State<LoginTabContent> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Bon retour !',
+                l10n.welcomeBack,
                 style: GoogleFonts.poppins(
                   fontSize: 28,
                   fontWeight: FontWeight.w700,
@@ -325,7 +329,7 @@ class _LoginTabContentState extends State<LoginTabContent> {
                 ),
               ),
               Text(
-                'Content de vous revoir',
+                l10n.gladToSeeYou,
                 style: GoogleFonts.poppins(
                   fontSize: 14,
                   color: Colors.grey.shade600,
@@ -356,7 +360,7 @@ class _LoginTabContentState extends State<LoginTabContent> {
                     controller: _emailController,
                     style: GoogleFonts.poppins(),
                     decoration: InputDecoration(
-                      hintText: 'votre.email@exemple.com',
+                      hintText: l10n.emailHint,
                       hintStyle: GoogleFonts.poppins(color: Colors.grey.shade400),
                       prefixIcon: Container(
                         margin: const EdgeInsets.all(12),
@@ -379,10 +383,10 @@ class _LoginTabContentState extends State<LoginTabContent> {
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'L\'email est requis';
+                        return l10n.emailRequired;
                       }
                       if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                        return 'Format d\'email invalide';
+                        return l10n.invalidEmail;
                       }
                       return null;
                     },
@@ -407,7 +411,7 @@ class _LoginTabContentState extends State<LoginTabContent> {
                     style: GoogleFonts.poppins(),
                     obscureText: !_isPasswordVisible,
                     decoration: InputDecoration(
-                      hintText: 'Votre mot de passe',
+                      hintText: l10n.passwordHint,
                       hintStyle: GoogleFonts.poppins(color: Colors.grey.shade400),
                       prefixIcon: Container(
                         margin: const EdgeInsets.all(12),
@@ -445,10 +449,10 @@ class _LoginTabContentState extends State<LoginTabContent> {
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Le mot de passe est requis';
+                        return l10n.passwordRequired;
                       }
                       if (value.length < 6) {
-                        return 'Minimum 6 caractères';
+                        return l10n.passwordMinLength;
                       }
                       return null;
                     },
@@ -462,7 +466,7 @@ class _LoginTabContentState extends State<LoginTabContent> {
                   child: TextButton(
                     onPressed: () => context.go('/reset'),
                     child: Text(
-                      'Mot de passe oublié ?',
+                      l10n.forgotPassword,
                       style: GoogleFonts.poppins(
                         color: const Color(0xFF6C63FF),
                         fontWeight: FontWeight.w600,
@@ -513,7 +517,7 @@ class _LoginTabContentState extends State<LoginTabContent> {
                                   ),
                                 )
                               : Text(
-                                  'Se connecter',
+                                  l10n.login,
                                   style: GoogleFonts.poppins(
                                     color: Colors.white,
                                     fontSize: 16,
@@ -539,7 +543,7 @@ class _LoginTabContentState extends State<LoginTabContent> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 15),
                       child: Text(
-                        'Ou continuer avec',
+                        l10n.continueWith,
                         style: GoogleFonts.poppins(
                           color: Colors.grey.shade600,
                           fontSize: 13,
@@ -599,7 +603,7 @@ class _LoginTabContentState extends State<LoginTabContent> {
                             ),
                             const SizedBox(width: 15),
                             Text(
-                              'Continuer avec Google',
+                              l10n.continueWithGoogle,
                               style: GoogleFonts.poppins(
                                 fontSize: 15,
                                 fontWeight: FontWeight.w600,
@@ -619,7 +623,7 @@ class _LoginTabContentState extends State<LoginTabContent> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'Pas encore de compte ? ',
+                      l10n.noAccount,
                       style: GoogleFonts.poppins(
                         fontSize: 14,
                         color: Colors.grey.shade600,
@@ -630,7 +634,7 @@ class _LoginTabContentState extends State<LoginTabContent> {
                         DefaultTabController.of(context).animateTo(1);
                       },
                       child: Text(
-                        'S\'inscrire',
+                        l10n.signUp,
                         style: GoogleFonts.poppins(
                           fontSize: 14,
                           color: const Color(0xFF6C63FF),
@@ -669,6 +673,7 @@ class _SignupTabContentState extends State<SignupTabContent> {
   bool _isConfirmPasswordVisible = false;
 
   void _submitForm() async {
+    final l10n = AppLocalizations.of(context)!;
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -692,7 +697,7 @@ class _SignupTabContentState extends State<SignupTabContent> {
                   const Icon(Icons.check_circle_rounded, color: Colors.white),
                   const SizedBox(width: 10),
                   Text(
-                    'Inscription réussie !',
+                    l10n.registrationSuccess,
                     style: GoogleFonts.poppins(),
                   ),
                 ],
@@ -718,7 +723,7 @@ class _SignupTabContentState extends State<SignupTabContent> {
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    'Erreur: ${e.toString()}',
+                    '${l10n.error}: ${e.toString().replaceAll('Exception: ', '')}',
                     style: GoogleFonts.poppins(),
                   ),
                 ),
@@ -750,6 +755,7 @@ class _SignupTabContentState extends State<SignupTabContent> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
       child: Column(
@@ -760,7 +766,7 @@ class _SignupTabContentState extends State<SignupTabContent> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Créer un compte',
+                l10n.createAccount,
                 style: GoogleFonts.poppins(
                   fontSize: 28,
                   fontWeight: FontWeight.w700,
@@ -769,7 +775,7 @@ class _SignupTabContentState extends State<SignupTabContent> {
                 ),
               ),
               Text(
-                'Rejoignez notre communauté',
+                l10n.joinCommunity,
                 style: GoogleFonts.poppins(
                   fontSize: 14,
                   color: Colors.grey.shade600,
@@ -800,7 +806,7 @@ class _SignupTabContentState extends State<SignupTabContent> {
                     controller: _nameController,
                     style: GoogleFonts.poppins(),
                     decoration: InputDecoration(
-                      hintText: 'Jean Pierre',
+                      hintText: l10n.nameHint,
                       hintStyle: GoogleFonts.poppins(color: Colors.grey.shade400),
                       prefixIcon: Container(
                         margin: const EdgeInsets.all(12),
@@ -823,7 +829,7 @@ class _SignupTabContentState extends State<SignupTabContent> {
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Le nom est requis';
+                        return l10n.nameRequired;
                       }
                       return null;
                     },
@@ -847,7 +853,7 @@ class _SignupTabContentState extends State<SignupTabContent> {
                     controller: _emailController,
                     style: GoogleFonts.poppins(),
                     decoration: InputDecoration(
-                      hintText: 'votre.email@exemple.com',
+                      hintText: l10n.emailHint,
                       hintStyle: GoogleFonts.poppins(color: Colors.grey.shade400),
                       prefixIcon: Container(
                         margin: const EdgeInsets.all(12),
@@ -870,10 +876,10 @@ class _SignupTabContentState extends State<SignupTabContent> {
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'L\'email est requis';
+                        return l10n.emailRequired;
                       }
                       if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                        return 'Format d\'email invalide';
+                        return l10n.invalidEmail;
                       }
                       return null;
                     },
@@ -898,7 +904,7 @@ class _SignupTabContentState extends State<SignupTabContent> {
                     style: GoogleFonts.poppins(),
                     obscureText: !_isPasswordVisible,
                     decoration: InputDecoration(
-                      hintText: 'Minimum 6 caractères',
+                      hintText: l10n.passwordMinLength,
                       hintStyle: GoogleFonts.poppins(color: Colors.grey.shade400),
                       prefixIcon: Container(
                         margin: const EdgeInsets.all(12),
@@ -936,10 +942,10 @@ class _SignupTabContentState extends State<SignupTabContent> {
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Le mot de passe est requis';
+                        return l10n.passwordRequired;
                       }
                       if (value.length < 6) {
-                        return 'Minimum 6 caractères';
+                        return l10n.passwordMinLength;
                       }
                       return null;
                     },
@@ -964,7 +970,7 @@ class _SignupTabContentState extends State<SignupTabContent> {
                     style: GoogleFonts.poppins(),
                     obscureText: !_isConfirmPasswordVisible,
                     decoration: InputDecoration(
-                      hintText: 'Confirmez votre mot de passe',
+                      hintText: l10n.confirmPasswordHint,
                       hintStyle: GoogleFonts.poppins(color: Colors.grey.shade400),
                       prefixIcon: Container(
                         margin: const EdgeInsets.all(12),
@@ -1002,10 +1008,10 @@ class _SignupTabContentState extends State<SignupTabContent> {
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Veuillez confirmer votre mot de passe';
+                        return l10n.confirmPasswordRequired;
                       }
                       if (value != _passwordController.text) {
-                        return 'Les mots de passe ne correspondent pas';
+                        return l10n.passwordsDoNotMatch;
                       }
                       return null;
                     },
@@ -1029,7 +1035,7 @@ class _SignupTabContentState extends State<SignupTabContent> {
                     controller: _phoneController,
                     style: GoogleFonts.poppins(),
                     decoration: InputDecoration(
-                      hintText: '6 XX XX XX XX',
+                      hintText: l10n.phoneHint,
                       hintStyle: GoogleFonts.poppins(color: Colors.grey.shade400),
                       prefixIcon: Container(
                         margin: const EdgeInsets.all(12),
@@ -1053,10 +1059,10 @@ class _SignupTabContentState extends State<SignupTabContent> {
                     keyboardType: TextInputType.phone,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Le téléphone est requis';
+                        return l10n.phoneRequired;
                       }
                       if (value.length < 8) {
-                        return 'Numéro invalide';
+                        return l10n.invalidPhone;
                       }
                       return null;
                     },
@@ -1104,7 +1110,7 @@ class _SignupTabContentState extends State<SignupTabContent> {
                                   ),
                                 )
                               : Text(
-                                  'Créer mon compte',
+                                  l10n.createMyAccount,
                                   style: GoogleFonts.poppins(
                                     color: Colors.white,
                                     fontSize: 16,
@@ -1123,7 +1129,7 @@ class _SignupTabContentState extends State<SignupTabContent> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'Déjà un compte ? ',
+                      l10n.alreadyHaveAccount,
                       style: GoogleFonts.poppins(
                         fontSize: 14,
                         color: Colors.grey.shade600,
@@ -1134,7 +1140,7 @@ class _SignupTabContentState extends State<SignupTabContent> {
                         DefaultTabController.of(context).animateTo(0);
                       },
                       child: Text(
-                        'Se connecter',
+                        l10n.login,
                         style: GoogleFonts.poppins(
                           fontSize: 14,
                           color: const Color(0xFF6C63FF),
