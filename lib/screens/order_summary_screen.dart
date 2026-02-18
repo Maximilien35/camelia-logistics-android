@@ -42,8 +42,9 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
               children: [
                 ElevatedButton(
                   onPressed: () {
-                    finalizeOrder(widget.orderId, 'CANCELLED'); // Statut payé/terminé
+                    finalizeOrder(widget.orderId, 'CANCELLED');
                     Navigator.of(context).pop();
+                    context.push('/home_custom');
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red.shade500,
@@ -242,8 +243,9 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () {
-                      finalizeOrder(widget.orderId, 'CONFIRMED');
+                      finalizeOrder(widget.orderId, 'ACCEPTED');
                       showSuccessFlashCard(context);
+                      context.push('/home_custom');
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF4CAF50),

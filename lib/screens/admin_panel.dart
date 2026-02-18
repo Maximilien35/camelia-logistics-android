@@ -17,7 +17,6 @@ import 'package:geocoding/geocoding.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-/// Simple cache d'images en mémoire avec TTL et préchargement.
 class ImageCacheService {
   ImageCacheService._private();
   static final ImageCacheService instance = ImageCacheService._private();
@@ -277,14 +276,6 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
   final TextEditingController _searchController = TextEditingController();
   Timer? _searchDebounce;
 
-  int _getStatusPriority(String status) {
-    switch (status.toUpperCase()) {
-      case 'PENDING': return 0;
-      case 'ACCEPTED': return 1;
-      case 'ASSIGNED': return 2;
-      default: return 3;
-    }
-  }
 
   @override
   void dispose() {
@@ -516,13 +507,6 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
                 }).toList();
 
                 filteredOrders.sort((a, b) {
-                  final priorityA = _getStatusPriority(a.status);
-                  final priorityB = _getStatusPriority(b.status);
-
-                  if (priorityA != priorityB) {
-                    return priorityA.compareTo(priorityB);
-                  }
-
                   if (_sortAscending) {
                     return a.timestamp.compareTo(b.timestamp);
                   } else {
@@ -752,8 +736,7 @@ class OrderAdminCard extends StatelessWidget {
                           onTap: () {
                             if (order.status.toUpperCase() == 'PENDING') {
                               _showAssignDialog(context);
-                            } else if (order.status.toUpperCase() == 'ACCEPTED' ||
-                                order.status.toUpperCase() == 'ASSIGNED') {
+                            } else if (order.status.toUpperCase() == 'ACCEPTED') {
                               _showManageDialog(context);
                             }
                           },

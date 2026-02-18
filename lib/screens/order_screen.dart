@@ -60,7 +60,7 @@ class _OrderScreenState extends State<OrderScreen> {
           ),
           centerTitle: true,
           leading: IconButton(
-            onPressed: () => context.go('/home_custom'),
+            onPressed: () => context.push('/home_custom'),
             icon: Container(
               width: 36,
               height: 36,
@@ -829,24 +829,92 @@ class DeliveryPointsScreenState extends State<DeliveryPointsScreen> {
   double? _estimatedDistance;
   List<LatLng> _routePoints = [];
 
+  // Debouncer pour la recherche d'adresse
+  Timer? _debounceTimerDepart;
+  Timer? _debounceTimerArrive;
+
   @override
   void initState() {
     super.initState();
-    _arrive.addListener(_updatePointDelivery);
-    _depart.addListener(_updatePointDelivery);
+    _arrive.addListener(_onDestinationChanged);
+    _depart.addListener(_onDepartureChanged); // Ajout du listener pour le départ manuel
   }
 
   @override
   void dispose() {
+    _debounceTimerDepart?.cancel();
+    _debounceTimerArrive?.cancel();
     _depart.dispose();
     _arrive.dispose();
     super.dispose();
   }
 
-  void _updatePointDelivery() {
+  // Nouvelle méthode pour gérer la saisie manuelle du départ
+  void _onDepartureChanged() {
+    setState(() {});
     final orderState = Provider.of<OrderStateModel>(context, listen: false);
     orderState.setPointDelivery(_depart.text, _arrive.text);
-    _calculateDistance();
+    
+    // Si le champ est vide, réinitialiser les coordonnées
+    if (_depart.text.isEmpty) {
+      setState(() {
+        _pickupCoords = null;
+        _calculateDistance();
+        _fetchRoute();
+      });
+      return;
+    }
+
+    // Debounce pour éviter trop de requêtes
+    _debounceTimerDepart?.cancel();
+    _debounceTimerDepart = Timer(const Duration(milliseconds: 800), () {
+      _geocodeAddress(_depart.text, isPickup: true);
+    });
+  }
+
+  void _onDestinationChanged() {
+    setState(() {});
+    final orderState = Provider.of<OrderStateModel>(context, listen: false);
+    orderState.setPointDelivery(_depart.text, _arrive.text);
+
+    if (_arrive.text.isEmpty) {
+      setState(() {
+        _dropoffCoords = null;
+        _calculateDistance();
+        _fetchRoute();
+      });
+      return;
+    }
+
+    _debounceTimerArrive?.cancel();
+    _debounceTimerArrive = Timer(const Duration(milliseconds: 800), () {
+      _geocodeAddress(_arrive.text, isPickup: false);
+    });
+  }
+
+  // Nouvelle méthode : géocodage d'une adresse
+  Future<void> _geocodeAddress(String address, {required bool isPickup}) async {
+    if (address.isEmpty) return;
+
+    try {
+      List<Location> locations = await locationFromAddress(address);
+      if (locations.isNotEmpty) {
+        final location = locations.first;
+        final coords = LatLng(location.latitude, location.longitude);
+
+        setState(() {
+          if (isPickup) {
+            _pickupCoords = coords;
+          } else {
+            _dropoffCoords = coords;
+          }
+          _calculateDistance();
+          _fetchRoute();
+        });
+      }
+    } catch (e) {
+      debugPrint("Erreur de géocodage: $e");
+    }
   }
 
   Future<void> _useMyLocation() async {
@@ -985,7 +1053,7 @@ class DeliveryPointsScreenState extends State<DeliveryPointsScreen> {
       appBar: AppBar(
         title: Text(
           l10n.deliveryPointsTitle,
-          style:  TextStyle(
+          style: TextStyle(
             fontWeight: FontWeight.w700,
             color: Colors.grey.shade900,
             fontSize: 18,
@@ -1047,7 +1115,7 @@ class DeliveryPointsScreenState extends State<DeliveryPointsScreen> {
                   const SizedBox(height: 8),
                   Text(
                     l10n.setDepartureAndDestination,
-                    style:  TextStyle(fontSize: 14, color: Colors.grey.shade600),
+                    style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
                   ),
                 ],
               ),
@@ -1072,7 +1140,7 @@ class DeliveryPointsScreenState extends State<DeliveryPointsScreen> {
                     controller: _depart,
                     decoration: InputDecoration(
                       hintText: l10n.departureAddressHint,
-                      hintStyle:  TextStyle(color: Colors.grey.shade400),
+                      hintStyle: TextStyle(color: Colors.grey.shade400),
                       prefixIcon: const Icon(
                         Icons.location_on_rounded,
                         color: Color(0xFF6C63FF),
@@ -1139,7 +1207,7 @@ class DeliveryPointsScreenState extends State<DeliveryPointsScreen> {
                     controller: _arrive,
                     decoration: InputDecoration(
                       hintText: l10n.deliveryAddressHint,
-                      hintStyle:  TextStyle(color: Colors.grey.shade400),
+                      hintStyle: TextStyle(color: Colors.grey.shade400),
                       prefixIcon: const Icon(
                         Icons.flag_rounded,
                         color: Color(0xFF4CAF50),
@@ -1158,35 +1226,39 @@ class DeliveryPointsScreenState extends State<DeliveryPointsScreen> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton.icon(
-                      onPressed: _selectDestinationOnMap,
-                      icon: const Icon(
-                        Icons.map_rounded,
-                        color: Color(0xFF6C63FF),
-                        size: 18,
-                      ),
-                      label: Text(
-                        l10n.chooseOnMap,
-                        style: const TextStyle(
-                          color: Color(0xFF6C63FF),
-                          fontWeight: FontWeight.w600,
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: _selectDestinationOnMap,
+                          icon: const Icon(
+                            Icons.map_rounded,
+                            color: Color(0xFF6C63FF),
+                            size: 18,
+                          ),
+                          label: Text(
+                            l10n.chooseOnMap,
+                            style: const TextStyle(
+                              color: Color(0xFF6C63FF),
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            side: const BorderSide(color: Color(0xFF6C63FF)),
+                          ),
                         ),
                       ),
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        side: const BorderSide(color: Color(0xFF6C63FF)),
-                      ),
-                    ),
+                    ],
                   ),
                 ],
               ),
             ),
           ),
+          // ... le reste du code (carte, bouton continuer) reste identique
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -1347,15 +1419,15 @@ class DeliveryPointsScreenState extends State<DeliveryPointsScreen> {
                 child: Material(
                   borderRadius: BorderRadius.circular(12),
                   child: InkWell(
-                    onTap: _pickupCoords != null && _dropoffCoords != null
+                    onTap: _depart.text.isNotEmpty && _arrive.text.isNotEmpty
                         ? () {
                             final orderState = Provider.of<OrderStateModel>(
                               context,
                               listen: false,
                             );
                             orderState.setCoordinates(
-                              _pickupCoords!,
-                              _dropoffCoords!,
+                              _pickupCoords ?? const LatLng(0, 0),
+                              _dropoffCoords ?? const LatLng(0, 0),
                               _estimatedDistance ?? 0.0,
                             );
                             Navigator.of(context).push(
@@ -1370,7 +1442,7 @@ class DeliveryPointsScreenState extends State<DeliveryPointsScreen> {
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       decoration: BoxDecoration(
                         gradient:
-                            _pickupCoords != null && _dropoffCoords != null
+                            _depart.text.isNotEmpty && _arrive.text.isNotEmpty
                             ? const LinearGradient(
                                 colors: [Color(0xFF6C63FF), Color(0xFF8B84FF)],
                               )
@@ -1466,7 +1538,7 @@ class _FinalisationOrderState extends State<FinalisationOrder> {
       context.go('/waiting/$newOrderId');
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-         SnackBar( // This should be translated, but requires context.
+         SnackBar( 
           content: const Text("Erreur lors de l'envoi de la commande."),
           backgroundColor: Colors.red.shade600,
           behavior: SnackBarBehavior.floating,
@@ -1741,6 +1813,11 @@ class _MapSelectorScreenState extends State<MapSelectorScreen> {
   String _selectedAddress = "";
   bool _isGeocoding = false;
   final MapController _mapController = MapController();
+  
+  final TextEditingController _searchController = TextEditingController();
+  List<dynamic> _searchResults = [];
+  bool _isSearching = false;
+  Timer? _searchDebounceTimer;
 
   @override
   void initState() {
@@ -1749,6 +1826,13 @@ class _MapSelectorScreenState extends State<MapSelectorScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _fetchAddress(_currentCameraPosition);
     });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _searchDebounceTimer?.cancel();
+    super.dispose();
   }
 
   Future<void> _fetchAddress(LatLng position) async {
@@ -1764,6 +1848,7 @@ class _MapSelectorScreenState extends State<MapSelectorScreen> {
         Placemark place = placemarks.first;
         setState(() {
           _selectedAddress = "${place.street ?? ''}, ${place.locality ?? ''}";
+          _searchController.text = _selectedAddress;
         });
       }
     } catch (e) {
@@ -1773,12 +1858,70 @@ class _MapSelectorScreenState extends State<MapSelectorScreen> {
     }
   }
 
+  Future<void> _searchAddress(String query) async {
+    if (query.isEmpty) {
+      setState(() {
+        _searchResults = [];
+        _isSearching = false;
+      });
+      return;
+    }
+
+    setState(() => _isSearching = true);
+    
+    try {
+      final url = Uri.parse(
+        'https://nominatim.openstreetmap.org/search?q=${Uri.encodeComponent(query)}&format=json&limit=5&addressdetails=1',
+      );
+      
+      final response = await http.get(
+        url,
+        headers: {'User-Agent': 'CameliaLogistics/1.0'},
+      );
+      
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        if (mounted) {
+          setState(() {
+            _searchResults = data;
+            _isSearching = false;
+          });
+        }
+      }
+    } catch (e) {
+      debugPrint("Erreur de recherche: $e");
+      if (mounted) setState(() => _isSearching = false);
+    }
+  }
+
+  void _onSearchChanged(String query) {
+    _searchDebounceTimer?.cancel();
+    _searchDebounceTimer = Timer(const Duration(milliseconds: 500), () {
+      _searchAddress(query);
+    });
+  }
+
+  void _selectLocation(Map<String, dynamic> location) {
+    final lat = double.parse(location['lat']);
+    final lon = double.parse(location['lon']);
+    final position = LatLng(lat, lon);
+    final displayName = location['display_name'] as String;
+
+    setState(() {
+      _currentCameraPosition = position;
+      _selectedAddress = displayName;
+      _searchController.text = displayName;
+      _searchResults = [];
+    });
+
+    _mapController.move(position, 16);
+    _fetchAddress(position);
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    if (_selectedAddress.isEmpty) {
-      _selectedAddress = l10n.searchingForAddress;
-    }
+    
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -1807,6 +1950,7 @@ class _MapSelectorScreenState extends State<MapSelectorScreen> {
       ),
       body: Stack(
         children: [
+          // Carte
           FlutterMap(
             mapController: _mapController,
             options: MapOptions(
@@ -1826,6 +1970,8 @@ class _MapSelectorScreenState extends State<MapSelectorScreen> {
               ),
             ],
           ),
+          
+          // Marqueur central
           Center(
             child: Padding(
               padding: const EdgeInsets.only(bottom: 35),
@@ -1836,6 +1982,107 @@ class _MapSelectorScreenState extends State<MapSelectorScreen> {
               ),
             ),
           ),
+          
+          // Barre de recherche
+          Positioned(
+            top: 16,
+            left: 16,
+            right: 16,
+            child: Column(
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.1),
+                        blurRadius: 10,
+                        spreadRadius: 1,
+                      ),
+                    ],
+                  ),
+                  child: TextField(
+                    controller: _searchController,
+                    onChanged: _onSearchChanged,
+                    decoration: InputDecoration(
+                      hintText: l10n.searchAddressHint,
+                      hintStyle: TextStyle(color: Colors.grey.shade400),
+                      prefixIcon: const Icon(
+                        Icons.search_rounded,
+                        color: Color(0xFF6C63FF),
+                      ),
+                      suffixIcon: _isSearching
+                          ? Container(
+                              width: 20,
+                              height: 20,
+                              margin: const EdgeInsets.all(12),
+                              child: const CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Color(0xFF6C63FF),
+                              ),
+                            )
+                          : _searchController.text.isNotEmpty
+                              ? IconButton(
+                                  icon: const Icon(Icons.close_rounded),
+                                  onPressed: () {
+                                    _searchController.clear();
+                                    setState(() => _searchResults = []);
+                                  },
+                                )
+                              : null,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
+                      filled: true,
+                      fillColor: Colors.white,
+                    ),
+                  ),
+                ),
+                
+                // Résultats de recherche
+                if (_searchResults.isNotEmpty)
+                  Container(
+                    margin: const EdgeInsets.only(top: 8),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.1),
+                          blurRadius: 10,
+                          spreadRadius: 1,
+                        ),
+                      ],
+                    ),
+                    constraints: const BoxConstraints(maxHeight: 300),
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: _searchResults.length,
+                      itemBuilder: (context, index) {
+                        final result = _searchResults[index];
+                        return ListTile(
+                          leading: const Icon(
+                            Icons.location_on_rounded,
+                            color: Color(0xFF6C63FF),
+                          ),
+                          title: Text(
+                            result['display_name'] ?? '',
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(fontSize: 14),
+                          ),
+                          onTap: () => _selectLocation(result),
+                        );
+                      },
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          
+          // Panneau de confirmation
           Positioned(
             bottom: 20,
             left: 15,
@@ -1866,11 +2113,8 @@ class _MapSelectorScreenState extends State<MapSelectorScreen> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: _isGeocoding
-                            ? LinearProgressIndicator(
-                                color: const Color(0xFF6C63FF),
-                                backgroundColor: const Color(
-                                  0xFF6C63FF,
-                                ).withValues(alpha: 0.1),
+                            ? const LinearProgressIndicator(
+                                color: Color(0xFF6C63FF),
                               )
                             : Text(
                                 _selectedAddress,
@@ -1879,6 +2123,7 @@ class _MapSelectorScreenState extends State<MapSelectorScreen> {
                                   fontSize: 15,
                                 ),
                                 overflow: TextOverflow.ellipsis,
+                                maxLines: 2,
                               ),
                       ),
                     ],

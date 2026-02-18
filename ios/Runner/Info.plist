@@ -42,7 +42,7 @@
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Cette application a besoin de votre position pour définir le point de départ de la livraison.</string>
+	<string>Cette application a besoin de votre position pour définir le point de départ et d'arrivée de la livraison.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>Cette application a besoin de votre position pour suivre la livraison en arrière-plan.</string>
 	<key>NSCameraUsageDescription</key>

@@ -98,11 +98,13 @@ Future<void> setupInteractions(BuildContext context) async {
   FirebaseMessaging.onMessageOpenedApp.listen(redirectWrapper);
 
   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    final l10n = AppLocalizations.of(context);
+    
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(message.notification?.title ?? 'Nouvel événement'),
+        content: Text(message.notification?.title ?? l10n?.newEvent ?? 'New Event'),
         action: SnackBarAction(
-          label: 'VOIR',
+          label: l10n?.view ?? 'VIEW',
           onPressed: () {
             // L'utilisateur clique sur l'action du SnackBar
            // redirectWrapper(message);

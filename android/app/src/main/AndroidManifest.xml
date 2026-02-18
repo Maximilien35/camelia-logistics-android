@@ -5,7 +5,7 @@
 
         android:label="camelia_logistics"
         android:name="${applicationName}"
-        android:icon="@mipmap/launcher_icon">
+        android:icon="@mipmap/ic_launcher">
         <meta-data android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyCAq7F496ZWuxRwrfQ3Xpoq9YPV4atQ_04"/>
 

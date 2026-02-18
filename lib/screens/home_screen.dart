@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:async';
 import 'package:camelia_logistics/l10n/app_localizations.dart';
+import 'dart:ui';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -368,144 +369,306 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildCarouselCard({
-    required BuildContext context,
-    required String title,
-    required String subtitle,
-    required String description,
-    required IconData icon,
-    required Color color,
-    required IconData illustration,
-    required bool isSmallScreen,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Container(
-        padding: EdgeInsets.all(isSmallScreen ? 22 : 26),
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha:0.12),
-          borderRadius: BorderRadius.circular(30),
-          border: Border.all(
-            color: Colors.white.withValues(alpha:0.25),
-            width: 1.5,
+  required BuildContext context,
+  required String title,
+  required String subtitle,
+  required String description,
+  required IconData icon,
+  required Color color,
+  required IconData illustration,
+  required bool isSmallScreen,
+}) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 5),
+    child: Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(40),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 30,
+            offset: const Offset(0, 15),
           ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha:0.15),
-              blurRadius: 40,
-              spreadRadius: 5,
+          BoxShadow(
+            color: color.withValues(alpha: 0.15),
+            blurRadius: 20,
+            spreadRadius: -5,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(40),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          child: Container(
+            padding: EdgeInsets.all(isSmallScreen ? 10 : 18),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Colors.white.withValues(alpha: 0.25),
+                  Colors.white.withValues(alpha: 0.15),
+                  Colors.white.withValues(alpha: 0.1),
+                ],
+                stops: const [0.0, 0.5, 1.0],
+              ),
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.4),
+                width: 1.5,
+              ),
             ),
-          ],
-        ),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // Icône principale
-              Container(
-                width: isSmallScreen ? 70 : 80,
-                height: isSmallScreen ? 70 : 80,
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha:0.2),
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: color.withValues(alpha:0.3),
-                      blurRadius: 15,
-                      spreadRadius: 2,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Badge "Fonctionnalité"
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: color.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(30),
+                    border: Border.all(
+                      color: color.withValues(alpha: 0.4),
+                      width: 1,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 6,
+                        height: 6,
+                        decoration: BoxDecoration(
+                          color: color,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'NOUVEAU',
+                        style: GoogleFonts.poppins(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          color: color,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 3),
+
+                // Icône principale avec animation
+                Container(
+                  width: isSmallScreen ? 80 : 90,
+                  height: isSmallScreen ? 80 : 90,
+                  decoration: BoxDecoration(
+                    gradient: RadialGradient(
+                      colors: [
+                        color.withValues(alpha: 0.4),
+                        color.withValues(alpha: 0.1),
+                        Colors.transparent,
+                      ],
+                      stops: const [0.4, 0.7, 1.0],
+                    ),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: Container(
+                      width: isSmallScreen ? 60 : 70,
+                      height: isSmallScreen ? 60 : 70,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.2),
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.3),
+                          width: 2,
+                        ),
+                      ),
+                      child: Icon(
+                        icon,
+                        color: Colors.white,
+                        size: isSmallScreen ? 26 : 30,
+                      ),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 3),
+
+                // Titre
+                Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.poppins(
+                    fontSize: isSmallScreen ? 24 : 26,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                    height: 1.2,
+                  ),
+                ),
+
+                const SizedBox(height: 8),
+
+                // Sous-titre avec ligne décorative
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: 30,
+                      height: 2,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            Colors.transparent,
+                            color,
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 5),
+                    Text(
+                      subtitle.toUpperCase(),
+                      style: GoogleFonts.poppins(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                        color: color,
+                        letterSpacing: 0.8,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Container(
+                      width: 30,
+                      height: 2,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            color,
+                            Colors.transparent,
+                          ],
+                        ),
+                      ),
                     ),
                   ],
                 ),
-                child: Icon(
-                  icon,
-                  color: color,
-                  size: isSmallScreen ? 36 : 40,
-                ),
-              ),
-              SizedBox(height: isSmallScreen ? 20 : 24),
-              
-              // Titre et sous-titre
-              Text(
-                title,
-                textAlign: TextAlign.center,
-                style: GoogleFonts.poppins(
-                  fontSize: isSmallScreen ? 22 : 24,
-                  fontWeight: FontWeight.w800,
-                  color: Colors.white,
-                  letterSpacing: -0.5,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                subtitle,
-                textAlign: TextAlign.center,
-                style: GoogleFonts.poppins(
-                  fontSize: isSmallScreen ? 14 : 15,
-                  fontWeight: FontWeight.w600,
-                  color: color,
-                ),
-              ),
-              SizedBox(height: isSmallScreen ? 16 : 20),
-              
-              // Description
-              Text(
-                description,
-                textAlign: TextAlign.center,
-                style: GoogleFonts.poppins(
-                  fontSize: isSmallScreen ? 14 : 15,
-                  color: Colors.white.withValues(alpha:0.85),
-                  height: 1.5,
-                ),
-              ),
-              SizedBox(height: isSmallScreen ? 24 : 28),
-              
-              // Illustration décorative
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.circle,
-                    size: 8,
-                    color: color,
-                  ),
-                  const SizedBox(width: 8),
-                  Icon(
-                    Icons.circle,
-                    size: 12,
-                    color: color,
-                  ),
-                  const SizedBox(width: 8),
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: color.withValues(alpha:0.1),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Icon(
-                      illustration,
-                      color: color,
-                      size: isSmallScreen ? 28 : 32,
+
+                const SizedBox(height: 8),
+
+                // Description avec puce
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: Text(
+                    description,
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.poppins(
+                      fontSize: isSmallScreen ? 13 : 14,
+                      color: Colors.white.withValues(alpha: 0.9),
+                      height: 1.6,
+                      fontWeight: FontWeight.w400,
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  Icon(
-                    Icons.circle,
-                    size: 12,
-                    color: color,
+                ),
+
+                const SizedBox(height: 8),
+
+                // Carte de fonctionnalités
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.2),
+                      width: 1,
+                    ),
                   ),
-                  const SizedBox(width: 8),
-                  Icon(
-                    Icons.circle,
-                    size: 8,
-                    color: color,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      _buildFeatureChip(
+                        icon: Icons.timer_rounded,
+                        label: 'Rapide',
+                        color: color,
+                      ),
+                      Container(
+                        width: 1,
+                        height: 20,
+                        color: Colors.white.withValues(alpha: 0.2),
+                      ),
+                      _buildFeatureChip(
+                        icon: Icons.verified_rounded,
+                        label: 'Sécurisé',
+                        color: color,
+                      ),
+                      Container(
+                        width: 1,
+                        height: 20,
+                        color: Colors.white.withValues(alpha: 0.2),
+                      ),
+                      _buildFeatureChip(
+                        icon: Icons.support_agent_rounded,
+                        label: 'Support',
+                        color: color,
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ],
+                ),
+
+                const SizedBox(height: 8),
+
+                // Indicateur de page
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ...List.generate(4, (index) {
+                      return Container(
+                        width: 4,
+                        height: 4,
+                        margin: const EdgeInsets.symmetric(horizontal: 2),
+                        decoration: BoxDecoration(
+                          color: index == 0 ? color : Colors.white.withValues(alpha: 0.3),
+                          shape: BoxShape.circle,
+                        ),
+                      );
+                    }),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
+
+// Nouveau widget pour les chips de fonctionnalités
+Widget _buildFeatureChip({
+  required IconData icon,
+  required String label,
+  required Color color,
+}) {
+  return Row(
+    children: [
+      Icon(
+        icon,
+        size: 14,
+        color: color,
+      ),
+      const SizedBox(width: 4),
+      Text(
+        label,
+        style: GoogleFonts.poppins(
+          fontSize: 11,
+          fontWeight: FontWeight.w500,
+          color: Colors.white.withValues(alpha: 0.9),
+        ),
+      ),
+    ],
+  );
+}
 
   Widget _buildStatItem({
     required String value,

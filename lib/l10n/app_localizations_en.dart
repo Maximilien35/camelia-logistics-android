@@ -60,7 +60,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mainEmail => 'Main Email';
 
   @override
-  String get phone => 'Phone';
+  String get phone => 'Phone (joinable)';
 
   @override
   String get updateYourProfile => 'Update your profile';
@@ -574,7 +574,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get locationPermissionDenied =>
-      'Location permission denied permanently';
+      'Activate or verify permissions of location';
 
   @override
   String locationError(Object error) {
@@ -700,4 +700,102 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get error => 'Error';
+
+  @override
+  String get searchAddressHint => 'Enter your address';
+
+  @override
+  String get statusConfirmed => 'ACCEPTED';
+
+  @override
+  String get deleteAccount => 'Delete my account';
+
+  @override
+  String get deleteAccountWarning =>
+      'This action is irreversible. All your data will be deleted.';
+
+  @override
+  String get deleteAccountFailed => 'Delete account failed';
+
+  @override
+  String get confirmDelete => 'Confirm deletion';
+
+  @override
+  String get help => 'Help Center';
+
+  @override
+  String get faq => 'FAQ & Guides';
+
+  @override
+  String get contactSupport => 'Contact Support';
+
+  @override
+  String get avis => 'Give us your feedback';
+
+  @override
+  String get colis => 'How to track my package?';
+
+  @override
+  String get colisAns =>
+      'Go to the \'My Orders\' section, select the order you want to track, and click on \'Track Package\' to see its real-time location.';
+
+  @override
+  String get modifyAddress => 'How to modify my delivery address?';
+
+  @override
+  String get modifyAddressAns =>
+      'Contact support via chat or phone before the driver picks up the package for any modification.';
+
+  @override
+  String get setupAddress => 'How to set up delivery points?';
+
+  @override
+  String get setupAddressAns =>
+      'Enter your addresses or use location and map, we will ask for more details during the order';
+
+  @override
+  String get suggestions => 'Share your suggestions to improve our service';
+
+  @override
+  String get faqGetDeliverers => '🚲 Drivers Area';
+
+  @override
+  String get faqGetDeliverersAns =>
+      'Are you interested in becoming a driver? Join our team of drivers and start earning by delivering with Camelia Logistics!';
+
+  @override
+  String get faqClientAbsent => 'Client absent at delivery';
+
+  @override
+  String get faqClientAbsentAns =>
+      'Wait a few minutes and try to contact the client. If you can\'t reach them, contact support to find a solution.';
+
+  @override
+  String get faqTechSupportTitle => '🛠 Technical Support';
+
+  @override
+  String get faqAppBug => 'App is slow or buggy';
+
+  @override
+  String get faqAppBugAns =>
+      'Check your internet connection and ensure you have the latest update. If the problem persists, clear the app cache.';
+
+  @override
+  String get faqNoNotif => 'I am not receiving notifications';
+
+  @override
+  String get faqNoNotifAns =>
+      'Go to your phone settings > Apps > Camelia Logistics and check that notifications are allowed.';
+
+  @override
+  String get policy => 'Privacy Policy';
+
+  @override
+  String get conditions => 'Terms of Service';
+
+  @override
+  String get policyContent => 'Your privacy policy here...';
+
+  @override
+  String get conditionsContent => 'Your terms of service here...';
 }

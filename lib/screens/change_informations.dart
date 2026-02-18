@@ -288,7 +288,7 @@ class _ChangeInformationsState extends State<ChangeInformations> {
                               if (value == null || value.isEmpty) {
                                 return l10n.pleaseEnterPhone;
                               }
-                              if (value.length < 9) {
+                              if (value.length < 8) {
                                 return l10n.pleaseEnterValidPhone;
                               }
                               return null;
