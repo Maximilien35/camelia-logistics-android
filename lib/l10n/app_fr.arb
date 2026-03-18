@@ -296,6 +296,11 @@
     "policyContent": "Votre politique de confidentialité ici...",
     "@policyContent": {},
     "conditionsContent": "Vos conditions d'utilisation ici...",
-    "@conditionsContent": {}
+    "@conditionsContent": {},
+    "notificationsEnabled":"Notifications activées",
+    "@notificationsEnabled": {},
+    "notificationsDisabled":"Notifications désactivées",
+    "@notificationsDisabled": {}
+
 
 }

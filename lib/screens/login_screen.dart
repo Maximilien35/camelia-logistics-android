@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:camelia_logistics/l10n/app_localizations.dart';
-
+import 'package:camelia_logistics/models/services/launch_url.dart';
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
   @override
@@ -65,7 +65,11 @@ class LoginPageState extends State<LoginPage> {
                               ),
                               onPressed: () => context.go('/home'),
                             ),
-                            Container(
+                            GestureDetector(
+                              onTap: () {
+                                launchURL('https://camelia-logistics.vercel.app/legal.html', context);
+                              },
+                              child: Container(
                               width: 40,
                               height: 40,
                               decoration: BoxDecoration(
@@ -76,8 +80,9 @@ class LoginPageState extends State<LoginPage> {
                                 Icons.help_outline_rounded,
                                 color: Colors.white,
                                 size: 20,
+
                               ),
-                            ),
+                            ),)
                           ],
                         ),
                       ),
@@ -531,92 +536,92 @@ class _LoginTabContentState extends State<LoginTabContent> {
                 ),
                 const SizedBox(height: 30),
 
-                // // Séparateur
-                // Row(
-                //   children: [
-                //     Expanded(
-                //       child: Divider(
-                //         color: Colors.grey.shade300,
-                //         thickness: 1,
-                //       ),
-                //     ),
-                //     Padding(
-                //       padding: const EdgeInsets.symmetric(horizontal: 15),
-                //       child: Text(
-                //         l10n.continueWith,
-                //         style: GoogleFonts.poppins(
-                //           color: Colors.grey.shade600,
-                //           fontSize: 13,
-                //           fontWeight: FontWeight.w500,
-                //         ),
-                //       ),
-                //     ),
-                //     Expanded(
-                //       child: Divider(
-                //         color: Colors.grey.shade300,
-                //         thickness: 1,
-                //       ),
-                //     ),
-                //   ],
-                // ),
-                // const SizedBox(height: 25),
+                // Séparateur
+                Row(
+                  children: [
+                    Expanded(
+                      child: Divider(
+                        color: Colors.grey.shade300,
+                        thickness: 1,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 15),
+                      child: Text(
+                        l10n.continueWith,
+                        style: GoogleFonts.poppins(
+                          color: Colors.grey.shade600,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Divider(
+                        color: Colors.grey.shade300,
+                        thickness: 1,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 25),
 
-                // // Bouton Google
-                // Container(
-                //   decoration: BoxDecoration(
-                //     borderRadius: BorderRadius.circular(16),
-                //     border: Border.all(
-                //       color: Colors.grey.shade300,
-                //       width: 1.5,
-                //     ),
-                //     boxShadow: [
-                //       BoxShadow(
-                //         color: Colors.grey.withValues(alpha:0.05),
-                //         blurRadius: 10,
-                //         spreadRadius: 2,
-                //       ),
-                //     ],
-                //   ),
-                //   child: Material(
-                //     color: Colors.white,
-                //     borderRadius: BorderRadius.circular(16),
-                //     child: InkWell(
-                //       onTap: () => AuthService().signInWithGoogle(context),
-                //       borderRadius: BorderRadius.circular(16),
-                //       child: Container(
-                //         padding: const EdgeInsets.symmetric(
-                //           vertical: 16,
-                //           horizontal: 20,
-                //         ),
-                //         child: Row(
-                //           mainAxisAlignment: MainAxisAlignment.center,
-                //           children: [
-                //             Container(
-                //               width: 24,
-                //               height: 24,
-                //               decoration: const BoxDecoration(
-                //                 image: DecorationImage(
-                //                   image: AssetImage('assets/log.webp'),
-                //                   fit: BoxFit.contain,
-                //                 ),
-                //               ),
-                //             ),
-                //             const SizedBox(width: 15),
-                //             Text(
-                //               l10n.continueWithGoogle,
-                //               style: GoogleFonts.poppins(
-                //                 fontSize: 15,
-                //                 fontWeight: FontWeight.w600,
-                //                 color: Colors.grey.shade800,
-                //               ),
-                //             ),
-                //           ],
-                //         ),
-                //       ),
-                //     ),
-                //   ),
-                // ),
-                // const SizedBox(height: 30),
+                // Bouton Google
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: Colors.grey.shade300,
+                      width: 1.5,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withValues(alpha:0.05),
+                        blurRadius: 10,
+                        spreadRadius: 2,
+                      ),
+                    ],
+                  ),
+                  child: Material(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    child: InkWell(
+                      onTap: () => AuthService().signInWithGoogle(context),
+                      borderRadius: BorderRadius.circular(16),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 16,
+                          horizontal: 20,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              width: 24,
+                              height: 24,
+                              decoration: const BoxDecoration(
+                                image: DecorationImage(
+                                  image: AssetImage('assets/log.webp'),
+                                  fit: BoxFit.contain,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 15),
+                            Text(
+                              l10n.continueWithGoogle,
+                              style: GoogleFonts.poppins(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.grey.shade800,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 30),
 
                 // Lien d'inscription
                 Row(

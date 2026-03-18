@@ -7,7 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:camelia_logistics/screens/help_center.dart';
-
+import 'package:camelia_logistics/models/services/launch_url.dart';
+import 'package:camelia_logistics/screens/change_informations.dart';
 class AdminSettings extends StatefulWidget {
   const AdminSettings({super.key});
   @override
@@ -406,7 +407,11 @@ class _AdminSettingsState extends State<AdminSettings> {
                 icon: Icons.person_outline_rounded,
                 title: 'Profil Utilisateur',
                 subtitle: 'Modifier vos informations personnelles',
-                onTap: () {},
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const ChangeInformations()),
+                ),
+
               ),
               _buildDivider(),
               _buildSettingItem(
@@ -435,7 +440,7 @@ class _AdminSettingsState extends State<AdminSettings> {
                 icon: Icons.privacy_tip_outlined,
                 title: 'Politique et Confidentialité',
                 subtitle: 'Consulter nos conditions',
-                onTap: () {},
+                onTap: () =>launchURL("https://camelia-logistics.vercel.app/legal.html", context),
                 showChevron: true,
               ),
              
