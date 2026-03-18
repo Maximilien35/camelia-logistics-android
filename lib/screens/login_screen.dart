@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:camelia_logistics/l10n/app_localizations.dart';
-
+import 'package:camelia_logistics/models/services/launch_url.dart';
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
   @override
@@ -65,7 +65,11 @@ class LoginPageState extends State<LoginPage> {
                               ),
                               onPressed: () => context.go('/home'),
                             ),
-                            Container(
+                            GestureDetector(
+                              onTap: () {
+                                launchURL('https://camelia-logistics.vercel.app/legal.html', context);
+                              },
+                              child: Container(
                               width: 40,
                               height: 40,
                               decoration: BoxDecoration(
@@ -76,8 +80,9 @@ class LoginPageState extends State<LoginPage> {
                                 Icons.help_outline_rounded,
                                 color: Colors.white,
                                 size: 20,
+
                               ),
-                            ),
+                            ),)
                           ],
                         ),
                       ),

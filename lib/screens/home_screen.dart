@@ -3,7 +3,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:async';
 import 'package:camelia_logistics/l10n/app_localizations.dart';
-import 'dart:ui';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -17,25 +16,32 @@ class _HomeScreenState extends State<HomeScreen> {
   int _currentPage = 0;
   Timer? _timer;
 
- late List<Map<String, dynamic>> _cards; 
+  final List<Map<String, String>> _services = [
+    {'name': 'Livraisons', 'image': 'assets/delivery.webp'},
+    {'name': 'Expédition', 'image': 'assets/shipment.webp'},
+    {'name': 'Stockage collecte', 'image': 'assets/stockage.webp'},
+    {'name': 'Déménagement', 'image': 'assets/moving.webp'},
+    {'name': 'Livraison gaz', 'image': 'assets/gas_delivery.webp'},
+  ];
+
+  final Color primaryColor = const Color(0xFF6C63FF);
 
   @override
   void initState() {
     super.initState();
-    // Animation automatique du carrousel
     _startAutoPlay();
   }
 
   void _startAutoPlay() {
-    _timer = Timer.periodic(const Duration(seconds: 4), (timer) {
-      if (!mounted) return;
-      if (_currentPage < _cards.length - 1) {
-        _pageController.nextPage(
-          duration: const Duration(milliseconds: 500),
-          curve: Curves.easeInOut,
+    _timer?.cancel();
+    _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
+      if (_pageController.hasClients) {
+        int nextPage = (_currentPage + 1) % _services.length;
+        _pageController.animateToPage(
+          nextPage,
+          duration: const Duration(milliseconds: 800),
+          curve: Curves.fastOutSlowIn,
         );
-      } else {
-        _pageController.jumpToPage(0);
       }
     });
   }
@@ -49,652 +55,197 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-    _cards = [
-      {
-        'title': l10n.pointAtoB,
-        'subtitle': l10n.simplifiedDelivery,
-        'description': l10n.pointAtoBDesc,
-        'icon': Icons.location_on_rounded,
-        'color': const Color(0xFF6C63FF),
-        'illustration': Icons.map_rounded,
-      },
-      {
-        'title': l10n.chooseVehicle,
-        'subtitle': l10n.adaptedToNeeds,
-        'description': l10n.chooseVehicleDesc,
-        'icon': Icons.local_shipping_rounded,
-        'color': const Color(0xFFFF9800),
-        'illustration': Icons.directions_car_filled_rounded,
-      },
-      {
-        'title': l10n.describePackage,
-        'subtitle': l10n.preciseInfo,
-        'description': l10n.describePackageDesc,
-        'icon': Icons.inventory_rounded,
-        'color': const Color(0xFF4CAF50),
-        'illustration': Icons.widgets_rounded,
-      },
-      {
-        'title': l10n.driverOnWay,
-        'subtitle': l10n.fastService,
-        'description': l10n.driverOnWayDesc,
-        'icon': Icons.person_pin_circle_rounded,
-        'color': const Color(0xFF2196F3),
-        'illustration': Icons.emoji_people_rounded,
-      },
-    ];
+    final l10n = AppLocalizations.of(context);
+    if (l10n == null) return const Scaffold(body: Center(child: CircularProgressIndicator()));
+
     final screenHeight = MediaQuery.of(context).size.height;
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isSmallScreen = screenWidth < 380;
+    final isSmallScreen = MediaQuery.of(context).size.width < 380;
 
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              const Color(0xFF6C63FF).withValues(alpha: 0.95),
-              const Color(0xFF8B84FF).withValues(alpha: 0.95),
-              const Color(0xFF6C63FF),
-            ],
+      backgroundColor: Colors.black,
+      body: Stack(
+        children: [
+          PageView.builder(
+            controller: _pageController,
+            physics: const BouncingScrollPhysics(), 
+            onPageChanged: (index) {
+              setState(() => _currentPage = index);
+              _startAutoPlay(); 
+            },
+            itemCount: _services.length,
+            itemBuilder: (context, index) {
+              return Image.asset(
+                _services[index]['image']!,
+                fit: BoxFit.cover,
+                width: double.infinity,
+                height: double.infinity,
+                color: Colors.black.withValues(alpha: 0.3),
+                colorBlendMode: BlendMode.darken,
+                errorBuilder: (context, error, stackTrace) => Container(color: Colors.grey[900]),
+              );
+            },
           ),
-        ),
-        child: Stack(
-          children: [
-            // Éléments décoratifs en fond
-            Positioned(
-              top: -screenWidth * 0.15,
-              left: -screenWidth * 0.15,
-              child: Container(
-                width: screenWidth * 0.4,
-                height: screenWidth * 0.4,
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha:0.15),
-                  shape: BoxShape.circle,
-                ),
-              ),
-            ),
-            Positioned(
-              bottom: screenHeight * 0.3,
-              right: -screenWidth * 0.1,
-              child: Container(
-                width: screenWidth * 0.3,
-                height: screenWidth * 0.3,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFFFFFF).withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                ),
-              ),
-            ),
 
-            // Contenu principal
-            SafeArea(
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: screenHeight * 0.65,
+            child: IgnorePointer(
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.transparent,
+                      Colors.black.withValues(alpha: 0.8),
+                      Colors.black,
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Header (logo + titre)
-                  Padding(
-                    padding: EdgeInsets.only(
-                      top: screenHeight * 0.05,
-                      left: 24,
-                      right: 24,
-                    ),
-                    child: Column(
-                      children: [
-                        Container(
-                          width: isSmallScreen ? 80 : 100,
-                          height: isSmallScreen ? 80 : 100,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha:0.2),
-                                blurRadius: 30,
-                                spreadRadius: 5,
-                              ),
-                            ],
-                          ),
-                          child: ClipOval(
-                            child: Image.asset(
-                              "assets/log.webp",
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: screenHeight * 0.02),
-                        Text(
-                         l10n.appName,
-                          style: GoogleFonts.poppins(
-                            fontSize: isSmallScreen ? 26 : 30,
-                            fontWeight: FontWeight.w800,
-                            color: Colors.white,
-                            letterSpacing: -0.5,
-                          ),
-                        ),
-                        SizedBox(height: screenHeight * 0.01),
-                        Text(
-                          l10n.transportSimply,
-                          style: GoogleFonts.poppins(
-                            fontSize: isSmallScreen ? 14 : 15,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.white.withValues(alpha:0.9),
-                          ),
-                        ),
-                      ],
+                  // Badge Service
+                  _buildAnimatedBadge(),
+                  const SizedBox(height: 16),
+
+                  // Titre
+                  Text(
+                    l10n.appName,
+                    style: GoogleFonts.poppins(
+                      fontSize: isSmallScreen ? 36 : 42,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.white,
+                      height: 1.1,
+                      letterSpacing: -1.0,
                     ),
                   ),
+                  const SizedBox(height: 16),
+
+                  // Sous-titre
+                  Text(
+                    l10n.transportSimply,
+                    style: GoogleFonts.poppins(
+                      fontSize: isSmallScreen ? 14 : 16,
+                      fontWeight: FontWeight.w400,
+                      color: Colors.white.withValues(alpha: 0.7),
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+
+                  _buildPrimaryButton(l10n, isSmallScreen, context),
                   
-                  // Carrousel principal
-                  Expanded(
-                    child: Column(
-                      children: [
-                        SizedBox(height: screenHeight * 0.03),
-                        
-                        // Indicateurs de page
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: List.generate(_cards.length, (index) {
-                            return Container(
-                              width: _currentPage == index ? 20 : 8,
-                              height: 8,
-                              margin: const EdgeInsets.symmetric(horizontal: 4),
-                              decoration: BoxDecoration(
-                                color: _currentPage == index 
-                                    ? Colors.white 
-                                    : Colors.white.withValues(alpha:0.4),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                            );
-                          }),
-                        ),
-                        
-                        SizedBox(height: screenHeight * 0.02),
-                        
-                        // PageView pour le carrousel
-                        Expanded(
-                          child: PageView.builder(
-                            controller: _pageController,
-                            onPageChanged: (index) {
-                              setState(() {
-                                _currentPage = index;
-                              });
-                            },
-                            itemCount: _cards.length,
-                            itemBuilder: (context, index) {
-                              final card = _cards[index];
-                              return _buildCarouselCard(
-                                context: context,
-                                title: card['title'],
-                                subtitle: card['subtitle'],
-                                description: card['description'],
-                                icon: card['icon'],
-                                color: card['color'],
-                                illustration: card['illustration'],
-                                isSmallScreen: isSmallScreen,
-                              );
-                            },
-                          ),
-                        ),
-                        
-                        SizedBox(height: screenHeight * 0.02),
-                      ],
-                    ),
-                  ),
-                  
-                  // Bouton Commencer (toujours visible)
-                  Padding(
-                    padding: EdgeInsets.only(
-                      bottom: screenHeight * 0.05,
-                      left: 24,
-                      right: 24,
-                    ),
-                    child: Column(
-                      children: [
-                        // Statistiques
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha:0.1),
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(
-                              color: Colors.white.withValues(alpha:0.2),
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              _buildStatItem(
-                                value: '1000+',
-                                label: l10n.deliveries,
-                                isSmallScreen: isSmallScreen,
-                              ),
-                              Container(
-                                width: 1,
-                                height: 30,
-                                color: Colors.white.withValues(alpha:0.3),
-                              ),
-                              _buildStatItem(
-                                value: '50+',
-                                label: l10n.activeDrivers,
-                                isSmallScreen: isSmallScreen,
-                              ),
-                              Container(
-                                width: 1,
-                                height: 30,
-                                color: Colors.white.withValues(alpha:0.3),
-                              ),
-                              _buildStatItem(
-                                value: '24/7',
-                                label: l10n.service,
-                                isSmallScreen: isSmallScreen,
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(height: screenHeight * 0.03),
-                        
-                        // Bouton principal
-                        Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha:0.3),
-                                blurRadius: 25,
-                                spreadRadius: 5,
-                                offset: const Offset(0, 10),
-                              ),
-                            ],
-                          ),
-                          child: Material(
-                            borderRadius: BorderRadius.circular(20),
-                            child: InkWell(
-                              onTap: () {
-                                context.go('/login');
-                              },
-                              borderRadius: BorderRadius.circular(20),
-                              child: Ink(
-                                width: double.infinity,
-                                padding: EdgeInsets.symmetric(
-                                  vertical: isSmallScreen ? 18 : 20,
-                                ),
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    colors: [
-                                      Colors.white,
-                                      Colors.white.withValues(alpha:0.95),
-                                    ],
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                  ),
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: Center(
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        l10n.startNow,
-                                        style: GoogleFonts.poppins(
-                                          fontSize: isSmallScreen ? 16 : 18,
-                                          fontWeight: FontWeight.w700,
-                                          color: const Color(0xFF6C63FF),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 12),
-                                      Icon(
-                                        Icons.arrow_forward_rounded,
-                                        color: const Color(0xFF6C63FF),
-                                        size: isSmallScreen ? 20 : 22,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                  const SizedBox(height: 24),
+
+                  _buildPageIndicators(),
                 ],
               ),
             ),
-          ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAnimatedBadge() {
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 300),
+      child: Container(
+        key: ValueKey<int>(_currentPage),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: primaryColor.withValues(alpha: 0.25),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: primaryColor.withValues(alpha: 0.5)),
+        ),
+        child: Text(
+          _services[_currentPage]['name']!.toUpperCase(),
+          style: GoogleFonts.poppins(
+            color: Colors.white,
+            fontSize: 10,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 1.2,
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildCarouselCard({
-  required BuildContext context,
-  required String title,
-  required String subtitle,
-  required String description,
-  required IconData icon,
-  required Color color,
-  required IconData illustration,
-  required bool isSmallScreen,
-}) {
-  return Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 5),
-    child: Container(
+  Widget _buildPageIndicators() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(_services.length, (index) {
+        bool isActive = _currentPage == index;
+        return GestureDetector(
+          onTap: () => _pageController.animateToPage(index, duration: const Duration(milliseconds: 500), curve: Curves.easeInOut),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            margin: const EdgeInsets.symmetric(horizontal: 4),
+            width: isActive ? 28 : 8,
+            height: 4,
+            decoration: BoxDecoration(
+              color: isActive ? primaryColor : Colors.white.withValues(alpha: 0.3),
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+        );
+      }),
+    );
+  }
+
+  Widget _buildPrimaryButton(AppLocalizations l10n, bool isSmallScreen, BuildContext context) {
+    return Container(
+      height: 64,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(40),
+        color: primaryColor,
+        borderRadius: BorderRadius.circular(32),
         boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 30,
-            offset: const Offset(0, 15),
-          ),
-          BoxShadow(
-            color: color.withValues(alpha: 0.15),
-            blurRadius: 20,
-            spreadRadius: -5,
-            offset: const Offset(0, 10),
-          ),
+          BoxShadow(color: primaryColor.withValues(alpha: 0.3), blurRadius: 20, offset: const Offset(0, 10)),
         ],
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(40),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-          child: Container(
-            padding: EdgeInsets.all(isSmallScreen ? 10 : 18),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Colors.white.withValues(alpha: 0.25),
-                  Colors.white.withValues(alpha: 0.15),
-                  Colors.white.withValues(alpha: 0.1),
-                ],
-                stops: const [0.0, 0.5, 1.0],
-              ),
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.4),
-                width: 1.5,
-              ),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(32),
+          onTap: () => context.go('/login'),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Row(
               children: [
-                // Badge "Fonctionnalité"
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: color.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(30),
-                    border: Border.all(
-                      color: color.withValues(alpha: 0.4),
-                      width: 1,
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        width: 6,
-                        height: 6,
-                        decoration: BoxDecoration(
-                          color: color,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        'NOUVEAU',
-                        style: GoogleFonts.poppins(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w700,
-                          color: color,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                    ],
-                  ),
+                  width: 48,
+                  height: 48,
+                  decoration: const BoxDecoration(color: Colors.white24, shape: BoxShape.circle),
+                  child: const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white, size: 18),
                 ),
-
-                const SizedBox(height: 3),
-
-                // Icône principale avec animation
-                Container(
-                  width: isSmallScreen ? 80 : 90,
-                  height: isSmallScreen ? 80 : 90,
-                  decoration: BoxDecoration(
-                    gradient: RadialGradient(
-                      colors: [
-                        color.withValues(alpha: 0.4),
-                        color.withValues(alpha: 0.1),
-                        Colors.transparent,
-                      ],
-                      stops: const [0.4, 0.7, 1.0],
-                    ),
-                    shape: BoxShape.circle,
-                  ),
+                Expanded(
                   child: Center(
-                    child: Container(
-                      width: isSmallScreen ? 60 : 70,
-                      height: isSmallScreen ? 60 : 70,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.2),
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.3),
-                          width: 2,
-                        ),
-                      ),
-                      child: Icon(
-                        icon,
-                        color: Colors.white,
-                        size: isSmallScreen ? 26 : 30,
-                      ),
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 3),
-
-                // Titre
-                Text(
-                  title,
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.poppins(
-                    fontSize: isSmallScreen ? 24 : 26,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
-                    height: 1.2,
-                  ),
-                ),
-
-                const SizedBox(height: 8),
-
-                // Sous-titre avec ligne décorative
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      width: 30,
-                      height: 2,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            Colors.transparent,
-                            color,
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 5),
-                    Text(
-                      subtitle.toUpperCase(),
+                    child: Text(
+                      l10n.startNow,
                       style: GoogleFonts.poppins(
-                        fontSize: 10,
+                        fontSize: 18,
                         fontWeight: FontWeight.w600,
-                        color: color,
-                        letterSpacing: 0.8,
+                        color: Colors.white,
                       ),
-                    ),
-                    const SizedBox(width: 12),
-                    Container(
-                      width: 30,
-                      height: 2,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            color,
-                            Colors.transparent,
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 8),
-
-                // Description avec puce
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: Text(
-                    description,
-                    textAlign: TextAlign.center,
-                    style: GoogleFonts.poppins(
-                      fontSize: isSmallScreen ? 13 : 14,
-                      color: Colors.white.withValues(alpha: 0.9),
-                      height: 1.6,
-                      fontWeight: FontWeight.w400,
                     ),
                   ),
                 ),
-
-                const SizedBox(height: 8),
-
-                // Carte de fonctionnalités
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.2),
-                      width: 1,
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      _buildFeatureChip(
-                        icon: Icons.timer_rounded,
-                        label: 'Rapide',
-                        color: color,
-                      ),
-                      Container(
-                        width: 1,
-                        height: 20,
-                        color: Colors.white.withValues(alpha: 0.2),
-                      ),
-                      _buildFeatureChip(
-                        icon: Icons.verified_rounded,
-                        label: 'Sécurisé',
-                        color: color,
-                      ),
-                      Container(
-                        width: 1,
-                        height: 20,
-                        color: Colors.white.withValues(alpha: 0.2),
-                      ),
-                      _buildFeatureChip(
-                        icon: Icons.support_agent_rounded,
-                        label: 'Support',
-                        color: color,
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 8),
-
-                // Indicateur de page
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    ...List.generate(4, (index) {
-                      return Container(
-                        width: 4,
-                        height: 4,
-                        margin: const EdgeInsets.symmetric(horizontal: 2),
-                        decoration: BoxDecoration(
-                          color: index == 0 ? color : Colors.white.withValues(alpha: 0.3),
-                          shape: BoxShape.circle,
-                        ),
-                      );
-                    }),
-                  ],
-                ),
+                const SizedBox(width: 48), 
               ],
             ),
           ),
         ),
       ),
-    ),
-  );
-}
-
-// Nouveau widget pour les chips de fonctionnalités
-Widget _buildFeatureChip({
-  required IconData icon,
-  required String label,
-  required Color color,
-}) {
-  return Row(
-    children: [
-      Icon(
-        icon,
-        size: 14,
-        color: color,
-      ),
-      const SizedBox(width: 4),
-      Text(
-        label,
-        style: GoogleFonts.poppins(
-          fontSize: 11,
-          fontWeight: FontWeight.w500,
-          color: Colors.white.withValues(alpha: 0.9),
-        ),
-      ),
-    ],
-  );
-}
-
-  Widget _buildStatItem({
-    required String value,
-    required String label,
-    required bool isSmallScreen,
-  }) {
-    return Column(
-      children: [
-        Text(
-          value,
-          style: GoogleFonts.poppins(
-            fontSize: isSmallScreen ? 14 : 16,
-            fontWeight: FontWeight.w800,
-            color: Colors.white,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: GoogleFonts.poppins(
-            fontSize: isSmallScreen ? 10 : 11,
-            color: Colors.white.withValues(alpha:0.8),
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-      ],
     );
   }
 }

@@ -510,7 +510,10 @@
     "policyContent": "Your privacy policy here...",
     "@policyContent": {},
     "conditionsContent": "Your terms of service here...",
-    "@conditionsContent": {}
+    "@conditionsContent": {},
+    "notificationsEnabled":"notifications Enabled",
+    "notificationsDisabled":"notifications Disabled",
+     "@notificationsDisabled": {}
     
 
 

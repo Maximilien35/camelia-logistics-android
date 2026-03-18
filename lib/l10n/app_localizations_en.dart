@@ -798,4 +798,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get conditionsContent => 'Your terms of service here...';
+
+  @override
+  String get notificationsEnabled => 'notifications Enabled';
+
+  @override
+  String get notificationsDisabled => 'notifications Disabled';
 }

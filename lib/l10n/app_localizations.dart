@@ -1615,6 +1615,18 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Vos conditions d\'utilisation ici...'**
   String get conditionsContent;
+
+  /// No description provided for @notificationsEnabled.
+  ///
+  /// In fr, this message translates to:
+  /// **'Notifications activées'**
+  String get notificationsEnabled;
+
+  /// No description provided for @notificationsDisabled.
+  ///
+  /// In fr, this message translates to:
+  /// **'Notifications désactivées'**
+  String get notificationsDisabled;
 }
 
 class _AppLocalizationsDelegate

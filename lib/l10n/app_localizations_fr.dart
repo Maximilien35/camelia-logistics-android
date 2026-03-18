@@ -804,4 +804,10 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get conditionsContent => 'Vos conditions d\'utilisation ici...';
+
+  @override
+  String get notificationsEnabled => 'Notifications activées';
+
+  @override
+  String get notificationsDisabled => 'Notifications désactivées';
 }
