@@ -167,7 +167,7 @@ abstract class AppLocalizations {
   /// No description provided for @memberSince.
   ///
   /// In fr, this message translates to:
-  /// **'Membre depuis le Cameroun'**
+  /// **'Membre depuis 2026'**
   String get memberSince;
 
   /// No description provided for @deliveries.
@@ -185,7 +185,7 @@ abstract class AppLocalizations {
   /// No description provided for @successRate.
   ///
   /// In fr, this message translates to:
-  /// **'Réussite'**
+  /// **'statut'**
   String get successRate;
 
   /// No description provided for @beginner.
@@ -365,13 +365,13 @@ abstract class AppLocalizations {
   /// No description provided for @searchingDriverDesc.
   ///
   /// In fr, this message translates to:
-  /// **'Cela ne devrait pas prendre plus de quelques minutes'**
+  /// **'Cela ne devrait pas prendre plus de quelques instants.'**
   String get searchingDriverDesc;
 
   /// No description provided for @driverNotification.
   ///
   /// In fr, this message translates to:
-  /// **'Vous recevrez une notification dès qu\'un chauffeur acceptera votre commande'**
+  /// **'Vous recevrez une notification dès que le devis sera prêt'**
   String get driverNotification;
 
   /// No description provided for @driverContactSoon.
@@ -437,7 +437,7 @@ abstract class AppLocalizations {
   /// No description provided for @waitingForDriver.
   ///
   /// In fr, this message translates to:
-  /// **'En attente d\'un chauffeur...'**
+  /// **'En attente d\'un devis...'**
   String get waitingForDriver;
 
   /// No description provided for @welcomeBack.
@@ -722,6 +722,12 @@ abstract class AppLocalizations {
   /// **'Voir tout'**
   String get seeAll;
 
+  /// No description provided for @inventoryOptional.
+  ///
+  /// In fr, this message translates to:
+  /// **'Inventaire (optionnel)'**
+  String get inventoryOptional;
+
   /// No description provided for @noOrdersFound.
   ///
   /// In fr, this message translates to:
@@ -743,13 +749,13 @@ abstract class AppLocalizations {
   /// No description provided for @statusAccepted.
   ///
   /// In fr, this message translates to:
-  /// **'Validée'**
+  /// **'En cours'**
   String get statusAccepted;
 
   /// No description provided for @statusAssigned.
   ///
   /// In fr, this message translates to:
-  /// **'En cours'**
+  /// **'Validée'**
   String get statusAssigned;
 
   /// No description provided for @statusCompleted.
@@ -1627,6 +1633,450 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Notifications désactivées'**
   String get notificationsDisabled;
+
+  /// No description provided for @estimatedPrice.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prix estimé'**
+  String get estimatedPrice;
+
+  /// No description provided for @priceBreakdown.
+  ///
+  /// In fr, this message translates to:
+  /// **'Détail du tarif'**
+  String get priceBreakdown;
+
+  /// No description provided for @train.
+  ///
+  /// In fr, this message translates to:
+  /// **'train'**
+  String get train;
+
+  /// No description provided for @trainDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Idéal pour les colis volumineux sur de longues distances'**
+  String get trainDesc;
+
+  /// No description provided for @needed.
+  ///
+  /// In fr, this message translates to:
+  /// **'De quoi avez vous besoin ?'**
+  String get needed;
+
+  /// No description provided for @moto.
+  ///
+  /// In fr, this message translates to:
+  /// **'Moto'**
+  String get moto;
+
+  /// No description provided for @selectServiceType.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sélectionner le type de service'**
+  String get selectServiceType;
+
+  /// No description provided for @chooseYourServiceType.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisissez votre type de service'**
+  String get chooseYourServiceType;
+
+  /// No description provided for @selectServiceTypeDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sélectionnez le service qui correspond à vos besoins'**
+  String get selectServiceTypeDescription;
+
+  /// No description provided for @deliveryService.
+  ///
+  /// In fr, this message translates to:
+  /// **'Livraison'**
+  String get deliveryService;
+
+  /// No description provided for @deliveryServiceDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Livraison rapide et à prix fixe du point A au point B'**
+  String get deliveryServiceDescription;
+
+  /// No description provided for @movingService.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déménagement'**
+  String get movingService;
+
+  /// No description provided for @movingServiceDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Service complet de déménagement et de relocalisation avec devis'**
+  String get movingServiceDescription;
+
+  /// No description provided for @shipmentService.
+  ///
+  /// In fr, this message translates to:
+  /// **'Expédition'**
+  String get shipmentService;
+
+  /// No description provided for @shipmentServiceDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoyez des colis à l\'échelle nationale avec suivi'**
+  String get shipmentServiceDescription;
+
+  /// No description provided for @storageService.
+  ///
+  /// In fr, this message translates to:
+  /// **'Stockage'**
+  String get storageService;
+
+  /// No description provided for @storageServiceDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Solutions de stockage à court et long terme'**
+  String get storageServiceDescription;
+
+  /// No description provided for @photosRecommended.
+  ///
+  /// In fr, this message translates to:
+  /// **'Photos recommandées'**
+  String get photosRecommended;
+
+  /// No description provided for @photosHelpsEstimate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les photos nous aident à vous fournir un devis précis'**
+  String get photosHelpsEstimate;
+
+  /// No description provided for @delivererDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nb:ce service est pour la livraions des objets de petite taille et de poids léger, pour les colis plus volumineux ou lourds veuillez utiliser le service de déménagement ou d\'expédition'**
+  String get delivererDescription;
+
+  /// No description provided for @addPhotos.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter des photos'**
+  String get addPhotos;
+
+  /// No description provided for @estimatedVolume.
+  ///
+  /// In fr, this message translates to:
+  /// **'Volume estimé'**
+  String get estimatedVolume;
+
+  /// No description provided for @volumeInCubicMetersHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Volume en m³'**
+  String get volumeInCubicMetersHint;
+
+  /// No description provided for @departureFloors.
+  ///
+  /// In fr, this message translates to:
+  /// **'Étages au départ'**
+  String get departureFloors;
+
+  /// No description provided for @destinationFloors.
+  ///
+  /// In fr, this message translates to:
+  /// **'Étages à la destination'**
+  String get destinationFloors;
+
+  /// No description provided for @elevatorAtDeparture.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ascenseur au départ'**
+  String get elevatorAtDeparture;
+
+  /// No description provided for @elevatorAtDestination.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ascenseur à la destination'**
+  String get elevatorAtDestination;
+
+  /// No description provided for @inventoryDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Description de l\'inventaire'**
+  String get inventoryDescription;
+
+  /// No description provided for @inventoryHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Listez les articles que vous souhaitez déplacer...'**
+  String get inventoryHint;
+
+  /// No description provided for @shipmentDetails.
+  ///
+  /// In fr, this message translates to:
+  /// **'Détails de l\'expédition'**
+  String get shipmentDetails;
+
+  /// No description provided for @provideShipmentInfo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fournissez des informations détaillées sur votre expédition'**
+  String get provideShipmentInfo;
+
+  /// No description provided for @recipientName.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom du destinataire'**
+  String get recipientName;
+
+  /// No description provided for @fullNameHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jean Dupont'**
+  String get fullNameHint;
+
+  /// No description provided for @recipientPhone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Téléphone du destinataire'**
+  String get recipientPhone;
+
+  /// No description provided for @estimatedWeight.
+  ///
+  /// In fr, this message translates to:
+  /// **'Poids estimé'**
+  String get estimatedWeight;
+
+  /// No description provided for @weightInKgHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Poids en kg'**
+  String get weightInKgHint;
+
+  /// No description provided for @packageNatureOfItem.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nature de l\'article'**
+  String get packageNatureOfItem;
+
+  /// No description provided for @describeWhat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Décrivez ce que vous envoyez'**
+  String get describeWhat;
+
+  /// No description provided for @photosOptional.
+  ///
+  /// In fr, this message translates to:
+  /// **'Photos (Facultatif)'**
+  String get photosOptional;
+
+  /// No description provided for @addPhoto.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter une photo'**
+  String get addPhoto;
+
+  /// No description provided for @additionalNotes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Notes supplémentaires'**
+  String get additionalNotes;
+
+  /// No description provided for @addAnySpecialInstructions.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajoutez des instructions spéciales...'**
+  String get addAnySpecialInstructions;
+
+  /// No description provided for @storageDetails.
+  ///
+  /// In fr, this message translates to:
+  /// **'Détails du stockage'**
+  String get storageDetails;
+
+  /// No description provided for @provideStorageInfo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce service est pour tout les commerçants qui veulent bénéficier de solutions de stockage à court et long terme.et de livraison à la demande pour leurs clients. Fournissez des informations détaillées sur vos besoins de stockage et de livraison'**
+  String get provideStorageInfo;
+
+  /// No description provided for @startDate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Date de début'**
+  String get startDate;
+
+  /// No description provided for @selectADate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sélectionner une date'**
+  String get selectADate;
+
+  /// No description provided for @dateSelected.
+  ///
+  /// In fr, this message translates to:
+  /// **'{day}/{month}/{year}'**
+  String dateSelected(Object day, Object month, Object year);
+
+  /// No description provided for @estimatedDuration.
+  ///
+  /// In fr, this message translates to:
+  /// **'Durée estimée'**
+  String get estimatedDuration;
+
+  /// No description provided for @months.
+  ///
+  /// In fr, this message translates to:
+  /// **'mois'**
+  String get months;
+
+  /// No description provided for @spaceRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Espace requis'**
+  String get spaceRequired;
+
+  /// No description provided for @spaceInSquareMetersHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Espace en m²'**
+  String get spaceInSquareMetersHint;
+
+  /// No description provided for @quoteRequestSubmitted.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demande de devis soumise avec succès !'**
+  String get quoteRequestSubmitted;
+
+  /// No description provided for @inventoryPlaceholder.
+  ///
+  /// In fr, this message translates to:
+  /// **'Exemple : 1 canapé, 2 chaises, 1 table basse...'**
+  String get inventoryPlaceholder;
+
+  /// No description provided for @movingDetails.
+  ///
+  /// In fr, this message translates to:
+  /// **'Détails du déménagement'**
+  String get movingDetails;
+
+  /// No description provided for @provideMovingInfo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce service est pour les particuliers ou les entreprises qui souhaitent déménager ou relocaliser leurs biens.et aussi le transport de leurs biens d\'un point A à un point B. Fournissez des informations détaillées sur votre déménagement ou transport pour obtenir un devis précis'**
+  String get provideMovingInfo;
+
+  /// No description provided for @selectPackageTypeHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Type de colis'**
+  String get selectPackageTypeHint;
+
+  /// No description provided for @specialInstructionsHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Instructions spéciales'**
+  String get specialInstructionsHint;
+
+  /// No description provided for @packagePhotoDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une photo claire de votre colis nous aide à estimer le prix et à assurer une livraison en toute sécurité.'**
+  String get packagePhotoDescription;
+
+  /// No description provided for @photosRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Photos requises'**
+  String get photosRequired;
+
+  /// No description provided for @photosHelpsStorage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Des photos de vos biens à stocker nous aident à évaluer l\'espace nécessaire et à fournir un devis précis.'**
+  String get photosHelpsStorage;
+
+  /// No description provided for @photosHelpsIdentify.
+  ///
+  /// In fr, this message translates to:
+  /// **'Des photos claires de votre colis nous aident à identifier les articles et à assurer une livraison en toute sécurité.'**
+  String get photosHelpsIdentify;
+
+  /// No description provided for @photosRequiredHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Veuillez ajouter au moins une photo de votre colis pour continuer.'**
+  String get photosRequiredHint;
+
+  /// No description provided for @verifyPhone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifier le numéro'**
+  String get verifyPhone;
+
+  /// No description provided for @enterOtp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entrez le code OTP'**
+  String get enterOtp;
+
+  /// No description provided for @resendIn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Renvoyer dans'**
+  String get resendIn;
+
+  /// No description provided for @resend.
+  ///
+  /// In fr, this message translates to:
+  /// **'Renvoyer'**
+  String get resend;
+
+  /// No description provided for @verifyPhoneFirst.
+  ///
+  /// In fr, this message translates to:
+  /// **'Veuillez vérifier votre numéro de téléphone d\'abord'**
+  String get verifyPhoneFirst;
+
+  /// No description provided for @phoneVerified.
+  ///
+  /// In fr, this message translates to:
+  /// **'Numéro vérifié'**
+  String get phoneVerified;
+
+  /// No description provided for @sendingCode.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoi du code...'**
+  String get sendingCode;
+
+  /// No description provided for @invalidOtp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Code OTP invalide'**
+  String get invalidOtp;
+
+  /// No description provided for @resendCode.
+  ///
+  /// In fr, this message translates to:
+  /// **'Renvoyer le code'**
+  String get resendCode;
+
+  /// No description provided for @packageTypeRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Veuillez sélectionner un type de colis pour continuer.'**
+  String get packageTypeRequired;
+
+  /// No description provided for @internationalTransportService.
+  ///
+  /// In fr, this message translates to:
+  /// **'Transport international'**
+  String get internationalTransportService;
+
+  /// No description provided for @internationalTransportServiceDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoyez vos colis à l\'international avec notre service de transport fiable et sécurisé. Contactez sur ce numero 237 657519744'**
+  String get internationalTransportServiceDescription;
 }
 
 class _AppLocalizationsDelegate

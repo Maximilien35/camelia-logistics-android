@@ -1,17 +1,17 @@
-import 'package:camelia_logistics/models/services/order_service.dart';
-import 'package:camelia_logistics/models/services/user_profile_service.dart';
-import 'package:camelia_logistics/models/user_profile.dart';
-import 'package:camelia_logistics/screens/change_informations.dart';
-import 'package:camelia_logistics/models/services/firebase_service.dart';
+import 'package:camelia/models/services/order_service.dart';
+import 'package:camelia/models/services/user_profile_service.dart';
+import 'package:camelia/models/user_profile.dart';
+import 'package:camelia/screens/change_informations.dart';
+import 'package:camelia/models/services/firebase_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:camelia_logistics/l10n/app_localizations.dart';
+import 'package:camelia/l10n/app_localizations.dart';
 import '../providers/language_provider.dart';
-import 'package:camelia_logistics/screens/help_center.dart';
-import 'package:camelia_logistics/models/services/launch_url.dart';
+import 'package:camelia/screens/help_center.dart';
+import 'package:camelia/models/services/launch_url.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -61,10 +61,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               Navigator.of(context).pop();
               try {
-                _userSer.deleteUserAccount();
+                await _userSer.deleteUserAccount();
                 if (mounted) {
                   context.go('/home');
                 }
@@ -229,11 +229,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               children: [
                                 GestureDetector(
                                   onTap: () {
-                                    if (Navigator.of(context).canPop()) {
-                                      Navigator.of(context).pop();
-                                    } else {
-                                      context.go('/home_custom');
-                                    }
                                   },
                                   child: Container(
                                     width: 44,
@@ -245,7 +240,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       borderRadius: BorderRadius.circular(14),
                                     ),
                                     child: const Icon(
-                                      Icons.arrow_back_ios_new_rounded,
+                                      Icons.person_outline_rounded,
                                       color: Colors.white,
                                       size: 20,
                                     ),
@@ -371,7 +366,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     );
                                   },
                                 ),
-                                _buildStatColumn('98%', l10n.successRate),
+                                _buildStatColumn('Actif', l10n.successRate),
                               ],
                             ),
                           ],
@@ -422,13 +417,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   items: [
                     _buildPerformanceItem(
                       title: l10n.averageRating,
-                      value: '4.8/5',
+                      value: '🙂',
                       color: Colors.blue.shade700,
                     ),
                     _buildDivider(),
                     _buildPerformanceItem(
-                      title: l10n.successRateLabel,
-                      value: '98%',
+                      title: l10n.successRate,
+                      value: 'actif',
                       color: Colors.green.shade700,
                     ),
                     _buildDivider(),
@@ -501,7 +496,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       title: l10n.policy,
                       subtitle: l10n.policyContent,
                       onTap: () => launchURL(
-                        "https://camelia-logistics.vercel.app/legal.html#mentions-legales",context
+                        "https://camelia-website.onrender.com/legal.html#mentions-legales",context
                       ),
                     ),
                     _buildDivider(),
@@ -510,7 +505,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       title: l10n.conditions,
                       subtitle: l10n.conditionsContent,
                       onTap: () => launchURL(
-                        "https://camelia-logistics.vercel.app/legal.html#confidentialite",context
+                        "https://camelia-website.onrender.com/legal.html#confidentialite",context
+                      ),
+                    ),
+                    _buildDivider(),
+                    _buildInfoItem(
+                      icon: Icons.contact_support_outlined,
+                      title: l10n.contactSupport,
+                      subtitle: l10n.avis,
+                      onTap: () => launchURL(
+                        "https://wa.me/+237698209152?text=${Uri.encodeComponent("Bonjour, j'ai une question.")}",context
                       ),
                     ),
                   ],

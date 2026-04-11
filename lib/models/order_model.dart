@@ -3,20 +3,24 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class Order {
   final String? id;
   final String userId;
+  final String serviceType; 
   final String pickupAddress;
   final String dropoffAddress;
   final String packageNature;
-  final List<String> photoUrls; // URLs de Firebase Storage
+  final List<String> photoUrls;
   final String vehicleType;
   final String status;
   final DateTime timestamp;
   final double? priceQuote;
+  final bool isQuote;
+  final Map<String, dynamic> additionalDetails;
   final String? description;
   final String? delivererId;
 
   Order({
     this.id,
     required this.userId,
+    required this.serviceType,
     required this.pickupAddress,
     required this.dropoffAddress,
     required this.packageNature,
@@ -25,6 +29,8 @@ class Order {
     required this.status,
     required this.timestamp,
     required this.priceQuote,
+    required this.isQuote,
+    required this.additionalDetails,
     required this.description,
     this.delivererId,
   });
@@ -32,6 +38,7 @@ class Order {
   Map<String, dynamic> toJson() {
     return {
       'userId': userId,
+      'serviceType': serviceType,
       'pickupAddress': pickupAddress,
       'dropoffAddress': dropoffAddress,
       'packageNature': packageNature,
@@ -39,6 +46,8 @@ class Order {
       'vehicleType': vehicleType,
       'status': status,
       'priceQuote': priceQuote,
+      'isQuote': isQuote,
+      'additionalDetails': additionalDetails,
       'description': description,
       'timestamp': Timestamp.fromDate(timestamp),
       'delivererId': delivererId,
@@ -47,9 +56,11 @@ class Order {
 
   factory Order.fromJson(Map<String, dynamic> json, {String? id}) {
     final priceQuoteValue = json['priceQuote'];
+
     return Order(
       id: id,
       userId: json['userId'] as String,
+      serviceType: json['serviceType'] as String? ?? 'Transport',
       pickupAddress: json['pickupAddress'] as String,
       dropoffAddress: json['dropoffAddress'] as String,
       packageNature: json['packageNature'] as String,
@@ -61,6 +72,8 @@ class Order {
       priceQuote: priceQuoteValue != null
           ? (priceQuoteValue as num).toDouble()
           : 0.0,
+      isQuote: json['isQuote'] as bool? ?? false,
+      additionalDetails: Map<String, dynamic>.from(json['additionalDetails'] ?? {}),
       timestamp: (json['timestamp'] as Timestamp).toDate(),
     );
   }

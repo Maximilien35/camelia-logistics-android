@@ -1,7 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
-import 'package:camelia_logistics/models/services/user_profile_service.dart';
-import 'package:camelia_logistics/models/user_profile.dart';
+import 'package:camelia/models/services/user_profile_service.dart';
+import 'package:camelia/models/user_profile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
@@ -62,61 +62,138 @@ class AuthService {
 
   Future<User?> signUp({
     required String name,
-    required String password,
-    required String email,
     required String phoneNumber,
+    required String email,
   }) async {
     try {
-      UserCredential userCredential = await _auth
-          .createUserWithEmailAndPassword(email: email, password: password);
-
-      final user = userCredential.user;
-      if (user == null) {
+      // Vérifier unicité du numéro de téléphone
+      final existingPhoneProfile = await _storeService.getProfileByPhone(
+        phoneNumber.trim(),
+      );
+      if (existingPhoneProfile != null) {
+        if (!existingPhoneProfile.isActive) {
+          throw FirebaseAuthException(
+            code: 'phone-account-disabled',
+            message:
+                'Ce numéro de téléphone est associé à un compte désactivé. Veuillez contacter le support.',
+          );
+        }
         throw FirebaseAuthException(
-          code: 'user-not-created',
-          message: "L'utilisateur Firebase n'a pas été créé.",
+          code: 'phone-already-in-use',
+          message:
+              'Un compte existe déjà avec ce numéro de téléphone. Connectez-vous ou utilisez un autre numéro.',
         );
       }
-      final UserProfile profile = UserProfile(
-        uid: user.uid,
+
+      final currentUser = _auth.currentUser;
+      if (currentUser == null) {
+        throw FirebaseAuthException(
+          code: 'user-not-authenticated',
+          message:
+              'L’utilisateur n’est pas authentifié. Complétez la vérification OTP d’abord.',
+        );
+      }
+
+      final profile = UserProfile(
+        uid: currentUser.uid,
         name: name,
         phoneNumber: phoneNumber,
-        email: email,
+        email: email.trim(),
         role: 'client',
+        isActive: true,
       );
 
       await _storeService.saveProfile(profile);
-      return user;
+      return currentUser;
     } on FirebaseAuthException catch (e) {
-      if (kDebugMode) print('SignUp FirebaseAuthException: ${e.code}');
-
-      return null;
+      if (kDebugMode) {
+        print('SignUp FirebaseAuthException: ${e.code} - ${e.message}');
+      }
+      throw Exception(_getFriendlySignUpError(e));
     } catch (e) {
       if (kDebugMode) print('SignUp error: $e');
-      return null;
+      throw Exception('Erreur lors de l\'inscription : $e');
     }
   }
 
   Future<User?> signIn({
-    required String email,
-    required String password,
+    required String phoneNumber,
   }) async {
     try {
-      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-      return userCredential.user;
+      
+      final userProfile = await _storeService.getProfileByPhone(phoneNumber.trim());
+      if (userProfile == null) {
+        throw FirebaseAuthException(
+          code: 'profile-not-found',
+          message:
+              'Profil utilisateur introuvable. Veuillez vous inscrire.',
+        );
+      }
+      final currentUser = _auth.currentUser;
+      if (currentUser == null) {
+        throw FirebaseAuthException(
+          code: 'user-not-authenticated',
+          message:
+              'L’utilisateur n’est pas authentifié. Complétez la vérification OTP d’abord.',
+        );
+      }
+
+
+      if (!userProfile.isActive) {
+        await _auth.signOut();
+        throw FirebaseAuthException(
+          code: 'account-disabled',
+          message:
+              'Votre compte a été désactivé. Contactez le support pour le réactiver.',
+        );
+      }
+
+      return currentUser;
     } on FirebaseAuthException catch (e) {
-      if (kDebugMode) print('SignIn FirebaseAuthException: ${e.code}');
-      return null;
+      if (kDebugMode) {
+        print('SignIn FirebaseAuthException: ${e.code} - ${e.message}');
+      }
+      throw Exception(_getFriendlySignInError(e));
     } catch (e) {
       if (kDebugMode) print('SignIn error: $e');
-      return null;
+      throw Exception('Erreur lors de la connexion: $e');
+    }
+  }
+
+  String _getFriendlySignUpError(FirebaseAuthException e) {
+    switch (e.code) {
+      case 'invalid-email':
+        return 'Adresse e-mail invalide. Veuillez vérifier le format.';
+      case 'weak-password':
+        return 'Mot de passe trop faible (minimum 6 caractères).';
+      case 'email-already-in-use':
+        return 'Cette adresse e-mail est déjà utilisée.';
+      case 'account-disabled':
+        return e.message ?? 'Compte désactivé.';
+      default:
+        return 'Erreur de traitement : ${e.message ?? e.code}';
+    }
+  }
+
+  String _getFriendlySignInError(FirebaseAuthException e) {
+    switch (e.code) {
+      case 'user-not-found':
+        return 'Aucun compte trouvé avec cette adresse e-mail.';
+      case 'wrong-password':
+        return 'Mot de passe incorrect.';
+      case 'invalid-email':
+        return 'Adresse e-mail invalide.';
+      case 'user-disabled':
+        return 'Ce compte a été temporairement désactivé.';
+      case 'account-disabled':
+        return e.message ?? 'Compte désactivé. Contactez le support.';
+      default:
+        return 'Erreur de connexion: ${e.message ?? e.code}';
     }
   }
 
   Future<void> signOut() async {
+    await _storeService.clearMemoryCache();
     await _auth.signOut();
   }
 
@@ -169,12 +246,13 @@ class AuthService {
               ),
             );
             context.go('/welcome');
-          }
-          else {
+          } else {
             await firebaseUser.delete();
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
-                content: Text('Aucun compte associé. Veuillez vous inscrire d\'abord.'),
+                content: Text(
+                  'Aucun compte associé. Veuillez vous inscrire d\'abord.',
+                ),
                 backgroundColor: Colors.red,
               ),
             );
@@ -190,14 +268,22 @@ class AuthService {
       }
     } on GoogleSignInException catch (e) {
       Navigator.of(context).pop();
-      ScaffoldMessenger(child :SnackBar(content: Text('Erreur de connexion: ${e.code}')));
+      ScaffoldMessenger(
+        child: SnackBar(content: Text('Erreur de connexion: ${e.code}')),
+      );
     } on FirebaseAuthException catch (e) {
       Navigator.of(context).pop();
-      ScaffoldMessenger(child:SnackBar(content: Text('Erreur de connexion: ${e.code}')));
+      ScaffoldMessenger(
+        child: SnackBar(content: Text('Erreur de connexion: ${e.code}')),
+      );
     } catch (e) {
       Navigator.of(context).pop();
       if (kDebugMode) print('Google sign-in error: $e');
-      ScaffoldMessenger(child: SnackBar(content: const Text('Erreur inattendue lors de la connexion Google')));
+      ScaffoldMessenger(
+        child: SnackBar(
+          content: const Text('Erreur inattendue lors de la connexion Google'),
+        ),
+      );
     }
   }
 }

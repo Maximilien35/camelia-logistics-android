@@ -1,6 +1,6 @@
 // Importations nécessaires
-import 'package:camelia_logistics/models/services/order_service.dart';
-import 'package:camelia_logistics/l10n/app_localizations.dart';
+import 'package:camelia/models/services/order_service.dart';
+import 'package:camelia/l10n/app_localizations.dart';
 import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 import '../screens/waiting_screen.dart';
@@ -194,9 +194,9 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
 
   Widget _buildInterface(BuildContext context, Order order, String id) {
     final l10n = AppLocalizations.of(context)!;
-    if (order.priceQuote == 0.0) {
+    if (order.priceQuote == 0.0 && order.isQuote==true && order.status == "PENDING") {
       return WaitingScreen(orderId: widget.orderId);
-    } else {
+    } else if(order.isQuote==true && order.status == "ASSIGNED") {
       return Scaffold(
           appBar: AppBar(title: Text(l10n.confirmYourOrder)),
           body: SingleChildScrollView(
@@ -286,6 +286,11 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
             ),
           ),
       );
+      
     }
+    return Scaffold(
+      appBar: AppBar(title: Text(l10n.orderSummary)),
+      body: Center(child: Text(l10n.orderNotFound)),
+    );
   }
 }

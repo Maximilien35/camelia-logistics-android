@@ -1,4 +1,4 @@
-import 'package:camelia_logistics/models/services/firebase_service.dart';
+import 'package:camelia/models/services/firebase_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -155,7 +155,11 @@ class _ResetPasswordScreenState extends State<ResetPassword> {
               color: Colors.grey.shade700,
             ),
           ),
-          onPressed: () => context.go('/login'),
+          onPressed: () {if (Navigator.canPop(context)) {
+            Navigator.pop(context);
+          } else {
+            context.go('/login');
+          }}
         ),
       ),
       body: _isLoading
@@ -336,20 +340,7 @@ class _ResetPasswordScreenState extends State<ResetPassword> {
                                 color: Colors.grey.shade600,
                               ),
                             ),
-                            const SizedBox(width: 8),
-                            GestureDetector(
-                              onTap: () => context.go('/login'),
-                              child: const Text(
-                                'Se connecter',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: Color(0xFF6C63FF),
-                                  fontWeight: FontWeight.w600,
-                                  decoration: TextDecoration.underline,
-                                  decorationColor: Color(0xFF6C63FF),
-                                ),
-                              ),
-                            ),
+                         
                           ],
                         ),
                       ],

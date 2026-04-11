@@ -48,7 +48,7 @@ class _SplashScreenState extends State<SplashScreen> {
                   shape: BoxShape.circle,
                 ),
                 child: ClipOval(
-                  child: Image.asset("assets/log.webp", fit: BoxFit.cover),
+                  child: Image.asset("assets/logo2.webp", fit: BoxFit.cover),
                 ),
               ),
               const SizedBox(height: 20), // Utilisation de const

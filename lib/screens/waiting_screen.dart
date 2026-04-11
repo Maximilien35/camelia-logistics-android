@@ -1,10 +1,10 @@
-import 'package:camelia_logistics/models/services/order_service.dart';
+import 'package:camelia/models/services/order_service.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-import 'package:camelia_logistics/models/order_model.dart';
+import 'package:camelia/models/order_model.dart';
 import 'package:go_router/go_router.dart';
-import 'package:camelia_logistics/l10n/app_localizations.dart';
-
+import 'package:camelia/l10n/app_localizations.dart';
+import 'package:camelia/models/services/launch_url.dart';
 
 class WaitingScreen extends StatefulWidget {
   final String orderId;
@@ -346,6 +346,7 @@ class _WaitingScreenState extends State<WaitingScreen>
                             Expanded(
                               child: OutlinedButton.icon(
                                 onPressed: () {
+                                 launchURL("mailto:camelialogisticss@gmail.com",context);
                                 },
                                 icon: const Icon(
                                   Icons.phone_rounded,
@@ -375,6 +376,7 @@ class _WaitingScreenState extends State<WaitingScreen>
                             Expanded(
                               child: OutlinedButton.icon(
                                 onPressed: () {
+                                 launchURL("https://wa.me/+237698209152?text=${Uri.encodeComponent("Bonjour, j'ai une question.")}",context);
                                 },
                                 icon: const Icon(
                                   Icons.chat_bubble_outline_rounded,
@@ -526,4 +528,5 @@ class _WaitingScreenState extends State<WaitingScreen>
       ],
     );
   }
-}
+
+    }

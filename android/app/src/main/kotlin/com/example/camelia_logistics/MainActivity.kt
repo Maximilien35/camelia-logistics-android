@@ -1,4 +1,4 @@
-package com.example.camelia_logistics
+package com.camelia.logistics
 
 import io.flutter.embedding.android.FlutterActivity
 
