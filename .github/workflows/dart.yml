@@ -1,10 +1,10 @@
-name: iOS-ipa-build
+name: Dart
 
 on:
   push:
-    branches: [ "ios" ]
+    branches: [ "main" ]
   pull_request:
-    branches: [ "ios" ]
+    branches: [ "main" ]
 
 jobs:
   build-ios:
