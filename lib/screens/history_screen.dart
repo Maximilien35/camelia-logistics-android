@@ -1,11 +1,11 @@
-import 'package:camelia_logistics/models/services/user_profile_service.dart';
+import 'package:camelia/models/order_model.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../models/services/order_service.dart';
-import 'package:camelia_logistics/l10n/app_localizations.dart';
+import 'package:camelia/l10n/app_localizations.dart';
 
 // Définition de l'écran d'historique
 class HistoryScreen extends StatefulWidget {
@@ -18,16 +18,13 @@ class HistoryScreen extends StatefulWidget {
 class _HistoryScreenState extends State<HistoryScreen> {
   final String userId = FirebaseAuth.instance.currentUser!.uid;
   final OrderService _orderService = OrderService();
-  final UserProfileService _userService = UserProfileService();
 
-  late Future<int?> _deliveredCountFuture;
-  late Future<double> _totalSpentFuture;
+  late final Stream<List<Order>> _ordersStream;
 
   @override
   void initState() {
     super.initState();
-    _deliveredCountFuture = _userService.calculateAndSetClientRank(uid: userId, stat: 'COMPLETED');
-    _totalSpentFuture = _orderService.calculateTotalSpent(userId);
+    _ordersStream = _orderService.streamUserOrders(userId, limit: 50);
   }
 
   @override
@@ -35,7 +32,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     final l10n = AppLocalizations.of(context)!;
     return PopScope(
       canPop: false,
-      onPopInvokedWithResult: (didPop,result) {
+      onPopInvokedWithResult: (didPop, result) {
         if (didPop) return;
         if (Navigator.of(context).canPop()) {
           Navigator.of(context).pop();
@@ -44,139 +41,133 @@ class _HistoryScreenState extends State<HistoryScreen> {
         }
       },
       child: Scaffold(
-      appBar: AppBar(
-        title: Text(
-          l10n.history,
-          style: GoogleFonts.pacifico(fontWeight: FontWeight.bold),
-        ),
-        centerTitle: true,
-        leading: IconButton(
-          onPressed: () {
-            context.push('/home_custom');
-          },
-          icon:const Icon(Icons.arrow_back),
-        ),
-        actions: [
-          IconButton(
-            onPressed: () {
-            },
-            icon: const Icon(Icons.history_toggle_off_rounded),
+        appBar: AppBar(
+          title: Text(
+            l10n.history,
+            style: GoogleFonts.pacifico(fontWeight: FontWeight.bold),
           ),
-        ],
-      ),
-      
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            FutureBuilder(
-              future: _deliveredCountFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                return Padding(
-                  padding:const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: _CardHistory(
-                          icon: Icons.inventory_2,
-                          value: (snapshot.data ?? 0).toString(),
-                          label: l10n.packagesDelivered,
-                        ),
-                      ),
-                      const SizedBox(width: 20),
-                      FutureBuilder(
-                        future: _totalSpentFuture,
-                        builder: (context, snapshots) {
-                          if (snapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return const Center(
-                              child: CircularProgressIndicator(),
-                            );
-                          }
-
-                          return Expanded(
-                            child: _CardHistory(
-                              icon: Icons.monetization_on,
-                              value: (snapshots.data ?? 0.0).toStringAsFixed(0),
-                              label: l10n.totalSpent,
-                            ),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
-
-            StreamBuilder(
-              stream: _orderService.streamUserOrders(userId, limit: 50),
-
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(
-                    child: Padding(
-                      padding: EdgeInsets.only(top: 50.0),
-                      child: CircularProgressIndicator(),
-                    ),
-                  );
-                }
-
-                if (snapshot.hasError) {
-                  return Center(
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 50.0),
-                      child: Text(l10n.historyError(snapshot.error.toString())),
-                    ),
-                  );
-                }
-
-                // 3. État sans Données
-                final orders = snapshot.data;
-                if (orders == null || orders.isEmpty) {
-                  return Center(
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 50.0),
-                      child: Text(l10n.noOrdersFound),
-                    ),
-                  );
-                }
-
-                // 4. État de Succès (Affichage de la liste)
-                return ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: orders.length,
-                  itemBuilder: (context, index) {
-                    final order = orders[index];
-
-                    return _CardInventory(
-                      type: order
-                          .packageNature, 
-                      depart: order.pickupAddress, 
-                      destination:
-                          order.dropoffAddress, 
-                      date: order.timestamp.toString().substring(0, 10),
-
-                      prix: order.priceQuote?.toInt() ?? 0,
-                      status: order.status,
-                      onTap: () {
-                        if (order.status == "PENDING" ||
-                            order.status == "ASSIGNED") {
-                          context.push('/waiting/${order.id!}');
-                        }
-                      },
-                      l10n: l10n,
-                    );
-                  },
-                );
-              },
+          centerTitle: true,
+          leading: IconButton(
+            onPressed: () {
+              context.push('/home_custom');
+            },
+            icon: const Icon(Icons.arrow_back),
+          ),
+          actions: [
+            IconButton(
+              onPressed: () {},
+              icon: const Icon(Icons.history_toggle_off_rounded),
             ),
           ],
         ),
-      ),
+
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              StreamBuilder<List<Order>>(
+                stream: _ordersStream,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(
+                      child: Padding(
+                        padding: EdgeInsets.only(top: 50.0),
+                        child: CircularProgressIndicator(),
+                      ),
+                    );
+                  }
+
+                  if (snapshot.hasError) {
+                    return Center(
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 50.0),
+                        child: Text(
+                          l10n.historyError(snapshot.error.toString()),
+                        ),
+                      ),
+                    );
+                  }
+
+                  final orders = snapshot.data ?? [];
+                  final completedOrders = orders
+                      .where((order) => order.status == 'COMPLETED')
+                      .toList();
+                  final totalSpent = completedOrders.fold<double>(
+                    0.0,
+                    (sum, order) => sum + (order.priceQuote ?? 0.0),
+                  );
+                  final deliveredCount = completedOrders.length;
+
+                  return Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 20,
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: _CardHistory(
+                                icon: Icons.inventory_2,
+                                value: deliveredCount.toString(),
+                                label: l10n.packagesDelivered,
+                              ),
+                            ),
+                            const SizedBox(width: 20),
+                            Expanded(
+                              child: _CardHistory(
+                                icon: Icons.monetization_on,
+                                value: totalSpent.toStringAsFixed(0),
+                                label: l10n.totalSpent,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (orders.isEmpty)
+                        Center(
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 50.0),
+                            child: Text(l10n.noOrdersFound),
+                          ),
+                        )
+                      else
+                        ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: orders.length,
+                          itemBuilder: (context, index) {
+                            final order = orders[index];
+
+                            return _CardInventory(
+                              type: order.packageNature != 'Non spécifié'
+                                  ? order.packageNature
+                                  : order.serviceType,
+                              depart: order.pickupAddress,
+                              destination: order.dropoffAddress,
+                              date: order.timestamp.toString().substring(0, 10),
+                              prix: order.priceQuote != 0.0
+                                  ? '${order.priceQuote} FCFA'
+                                  : 'Devis en cours ...',
+                              status: order.status,
+                              onTap: () {
+                                if ((order.status == "PENDING" ||
+                                        order.status == "ASSIGNED") &&
+                                    order.isQuote == true) {
+                                  context.push('/waiting/${order.id!}');
+                                }
+                              },
+                              l10n: l10n,
+                            );
+                          },
+                        ),
+                    ],
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -202,7 +193,7 @@ class _CardHistory extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withValues(alpha:0.2),
+            color: Colors.grey.withValues(alpha: 0.2),
             spreadRadius: 2,
             blurRadius: 5,
             offset: const Offset(0, 3),
@@ -234,13 +225,12 @@ class _CardHistory extends StatelessWidget {
   }
 }
 
-
 class _CardInventory extends StatelessWidget {
   final String type;
   final String depart;
   final String destination;
   final String date;
-  final int prix;
+  final String prix;
   final String status;
   final VoidCallback onTap; // Ajouté pour gérer le clic
   final AppLocalizations l10n;
@@ -258,12 +248,12 @@ class _CardInventory extends StatelessWidget {
   Color _getStatusColor(String status) {
     switch (status.toUpperCase()) {
       case 'PENDING':
-        return  Colors.green.shade700;
-      case 'ACCEPTED': // Correspond à Validée
-        return  const Color.fromARGB(255, 129, 7, 229);
+        return Colors.green.shade700;
+      case 'ACCEPTED': 
+        return const Color.fromARGB(255, 129, 7, 229);
       case 'ASSIGNED':
         return Colors.blue.shade700;
-      case 'COMPLETED': // Correspond à Livrée
+      case 'COMPLETED': 
         return Colors.indigo.shade700;
       case 'CANCELLED':
         return Colors.red.shade700;
@@ -303,7 +293,7 @@ class _CardInventory extends StatelessWidget {
           borderRadius: BorderRadius.circular(15),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withValues(alpha:0.2),
+              color: Colors.grey.withValues(alpha: 0.2),
               spreadRadius: 2,
               blurRadius: 5,
               offset: const Offset(0, 3),
@@ -329,7 +319,7 @@ class _CardInventory extends StatelessWidget {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: statusColor.withValues(alpha:0.2),
+                    color: statusColor.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -348,9 +338,12 @@ class _CardInventory extends StatelessWidget {
               children: [
                 const Icon(Icons.my_location, color: Colors.blue, size: 10),
                 const SizedBox(width: 10),
-               
+
                 AutoSizeText(
-                  depart.substring(0, depart.length > 30 ? depart.length ~/ 2 : depart.length),
+                  depart.substring(
+                    0,
+                    depart.length > 30 ? depart.length ~/ 2 : depart.length,
+                  ),
                   style: GoogleFonts.montserrat(
                     fontSize: 14,
                     color: Colors.grey,
@@ -359,8 +352,6 @@ class _CardInventory extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-              
-                          
               ],
             ),
             const SizedBox(height: 5),
@@ -394,7 +385,7 @@ class _CardInventory extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  '$prix FCFA',
+                  prix,
                   style: GoogleFonts.ubuntu(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,

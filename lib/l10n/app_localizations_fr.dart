@@ -42,7 +42,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get profileLoadingError => 'Erreur de chargement du profil';
 
   @override
-  String get memberSince => 'Membre depuis le Cameroun';
+  String get memberSince => 'Membre depuis 2026';
 
   @override
   String get deliveries => 'Livraisons';
@@ -51,7 +51,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get level => 'Niveau';
 
   @override
-  String get successRate => 'Réussite';
+  String get successRate => 'statut';
 
   @override
   String get beginner => 'Débutant';
@@ -145,11 +145,11 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get searchingDriverDesc =>
-      'Cela ne devrait pas prendre plus de quelques minutes';
+      'Cela ne devrait pas prendre plus de quelques instants.';
 
   @override
   String get driverNotification =>
-      'Vous recevrez une notification dès qu\'un chauffeur acceptera votre commande';
+      'Vous recevrez une notification dès que le devis sera prêt';
 
   @override
   String get driverContactSoon =>
@@ -184,7 +184,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get support => 'Support';
 
   @override
-  String get waitingForDriver => 'En attente d\'un chauffeur...';
+  String get waitingForDriver => 'En attente d\'un devis...';
 
   @override
   String get welcomeBack => 'Bon retour !';
@@ -328,6 +328,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get seeAll => 'Voir tout';
 
   @override
+  String get inventoryOptional => 'Inventaire (optionnel)';
+
+  @override
   String get noOrdersFound => 'Aucune commande trouvée.';
 
   @override
@@ -339,10 +342,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get statusPending => 'En Attente';
 
   @override
-  String get statusAccepted => 'Validée';
+  String get statusAccepted => 'En cours';
 
   @override
-  String get statusAssigned => 'En cours';
+  String get statusAssigned => 'Validée';
 
   @override
   String get statusCompleted => 'Livrée';
@@ -810,4 +813,249 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get notificationsDisabled => 'Notifications désactivées';
+
+  @override
+  String get estimatedPrice => 'Prix estimé';
+
+  @override
+  String get priceBreakdown => 'Détail du tarif';
+
+  @override
+  String get train => 'train';
+
+  @override
+  String get trainDesc =>
+      'Idéal pour les colis volumineux sur de longues distances';
+
+  @override
+  String get needed => 'De quoi avez vous besoin ?';
+
+  @override
+  String get moto => 'Moto';
+
+  @override
+  String get selectServiceType => 'Sélectionner le type de service';
+
+  @override
+  String get chooseYourServiceType => 'Choisissez votre type de service';
+
+  @override
+  String get selectServiceTypeDescription =>
+      'Sélectionnez le service qui correspond à vos besoins';
+
+  @override
+  String get deliveryService => 'Livraison';
+
+  @override
+  String get deliveryServiceDescription =>
+      'Livraison rapide et à prix fixe du point A au point B';
+
+  @override
+  String get movingService => 'Déménagement';
+
+  @override
+  String get movingServiceDescription =>
+      'Service complet de déménagement et de relocalisation avec devis';
+
+  @override
+  String get shipmentService => 'Expédition';
+
+  @override
+  String get shipmentServiceDescription =>
+      'Envoyez des colis à l\'échelle nationale avec suivi';
+
+  @override
+  String get storageService => 'Stockage';
+
+  @override
+  String get storageServiceDescription =>
+      'Solutions de stockage à court et long terme';
+
+  @override
+  String get photosRecommended => 'Photos recommandées';
+
+  @override
+  String get photosHelpsEstimate =>
+      'Les photos nous aident à vous fournir un devis précis';
+
+  @override
+  String get delivererDescription =>
+      'Nb:ce service est pour la livraions des objets de petite taille et de poids léger, pour les colis plus volumineux ou lourds veuillez utiliser le service de déménagement ou d\'expédition';
+
+  @override
+  String get addPhotos => 'Ajouter des photos';
+
+  @override
+  String get estimatedVolume => 'Volume estimé';
+
+  @override
+  String get volumeInCubicMetersHint => 'Volume en m³';
+
+  @override
+  String get departureFloors => 'Étages au départ';
+
+  @override
+  String get destinationFloors => 'Étages à la destination';
+
+  @override
+  String get elevatorAtDeparture => 'Ascenseur au départ';
+
+  @override
+  String get elevatorAtDestination => 'Ascenseur à la destination';
+
+  @override
+  String get inventoryDescription => 'Description de l\'inventaire';
+
+  @override
+  String get inventoryHint =>
+      'Listez les articles que vous souhaitez déplacer...';
+
+  @override
+  String get shipmentDetails => 'Détails de l\'expédition';
+
+  @override
+  String get provideShipmentInfo =>
+      'Fournissez des informations détaillées sur votre expédition';
+
+  @override
+  String get recipientName => 'Nom du destinataire';
+
+  @override
+  String get fullNameHint => 'Jean Dupont';
+
+  @override
+  String get recipientPhone => 'Téléphone du destinataire';
+
+  @override
+  String get estimatedWeight => 'Poids estimé';
+
+  @override
+  String get weightInKgHint => 'Poids en kg';
+
+  @override
+  String get packageNatureOfItem => 'Nature de l\'article';
+
+  @override
+  String get describeWhat => 'Décrivez ce que vous envoyez';
+
+  @override
+  String get photosOptional => 'Photos (Facultatif)';
+
+  @override
+  String get addPhoto => 'Ajouter une photo';
+
+  @override
+  String get additionalNotes => 'Notes supplémentaires';
+
+  @override
+  String get addAnySpecialInstructions =>
+      'Ajoutez des instructions spéciales...';
+
+  @override
+  String get storageDetails => 'Détails du stockage';
+
+  @override
+  String get provideStorageInfo =>
+      'Ce service est pour tout les commerçants qui veulent bénéficier de solutions de stockage à court et long terme.et de livraison à la demande pour leurs clients. Fournissez des informations détaillées sur vos besoins de stockage et de livraison';
+
+  @override
+  String get startDate => 'Date de début';
+
+  @override
+  String get selectADate => 'Sélectionner une date';
+
+  @override
+  String dateSelected(Object day, Object month, Object year) {
+    return '$day/$month/$year';
+  }
+
+  @override
+  String get estimatedDuration => 'Durée estimée';
+
+  @override
+  String get months => 'mois';
+
+  @override
+  String get spaceRequired => 'Espace requis';
+
+  @override
+  String get spaceInSquareMetersHint => 'Espace en m²';
+
+  @override
+  String get quoteRequestSubmitted => 'Demande de devis soumise avec succès !';
+
+  @override
+  String get inventoryPlaceholder =>
+      'Exemple : 1 canapé, 2 chaises, 1 table basse...';
+
+  @override
+  String get movingDetails => 'Détails du déménagement';
+
+  @override
+  String get provideMovingInfo =>
+      'Ce service est pour les particuliers ou les entreprises qui souhaitent déménager ou relocaliser leurs biens.et aussi le transport de leurs biens d\'un point A à un point B. Fournissez des informations détaillées sur votre déménagement ou transport pour obtenir un devis précis';
+
+  @override
+  String get selectPackageTypeHint => 'Type de colis';
+
+  @override
+  String get specialInstructionsHint => 'Instructions spéciales';
+
+  @override
+  String get packagePhotoDescription =>
+      'Une photo claire de votre colis nous aide à estimer le prix et à assurer une livraison en toute sécurité.';
+
+  @override
+  String get photosRequired => 'Photos requises';
+
+  @override
+  String get photosHelpsStorage =>
+      'Des photos de vos biens à stocker nous aident à évaluer l\'espace nécessaire et à fournir un devis précis.';
+
+  @override
+  String get photosHelpsIdentify =>
+      'Des photos claires de votre colis nous aident à identifier les articles et à assurer une livraison en toute sécurité.';
+
+  @override
+  String get photosRequiredHint =>
+      'Veuillez ajouter au moins une photo de votre colis pour continuer.';
+
+  @override
+  String get verifyPhone => 'Vérifier le numéro';
+
+  @override
+  String get enterOtp => 'Entrez le code OTP';
+
+  @override
+  String get resendIn => 'Renvoyer dans';
+
+  @override
+  String get resend => 'Renvoyer';
+
+  @override
+  String get verifyPhoneFirst =>
+      'Veuillez vérifier votre numéro de téléphone d\'abord';
+
+  @override
+  String get phoneVerified => 'Numéro vérifié';
+
+  @override
+  String get sendingCode => 'Envoi du code...';
+
+  @override
+  String get invalidOtp => 'Code OTP invalide';
+
+  @override
+  String get resendCode => 'Renvoyer le code';
+
+  @override
+  String get packageTypeRequired =>
+      'Veuillez sélectionner un type de colis pour continuer.';
+
+  @override
+  String get internationalTransportService => 'Transport international';
+
+  @override
+  String get internationalTransportServiceDescription =>
+      'Envoyez vos colis à l\'international avec notre service de transport fiable et sécurisé. Contactez sur ce numero 237 657519744';
 }

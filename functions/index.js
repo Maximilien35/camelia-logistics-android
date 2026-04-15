@@ -84,6 +84,30 @@ exports.setDelivererRol = onCall(async (request) => {
     }
 });
 
+exports.setCollabRol = onCall(async (request) => {
+    const targetUid = request.data.uid;
+
+    if (!request.auth) {
+        throw new Error('L\'appelant doit être authentifié.');
+    }
+
+    if (!targetUid) {
+        throw new Error('L\'UID est manquant.');
+    }
+
+    try {
+        // 1. Définition du Custom Claim
+        await admin.auth().setCustomUserClaims(targetUid, { role: 'collaborator' });
+
+        // 2. MISE À JOUR DANS FIRESTORE (Interface Utilisateur)
+        await db.collection('users').doc(targetUid).update({ role: 'collaborator' });
+
+        return { message: 'Rôle Collaborateur attribué.', success: true };
+    } catch (error) {
+        console.error("Erreur lors de l'attribution du rôle collaborateur:", error);
+        throw new Error('Échec de l\'attribution du rôle collaborateur.');
+    }
+});
 
 // --- 2. FONCTIONS DE NOTIFICATION (FIRESTORE V2) ---
 
@@ -214,11 +238,19 @@ exports.notifyClientOnOrderUpdate = firestoreFunc.onDocumentUpdated(
 
     // Liste des statuts nécessitant une notification
     const statusChanged = after.status !== before.status;
-    const importantStatuses = ['ASSIGNED', 'COMPLETED', 'CANCELLED'];
+    const importantStatuses = ['ACCEPTED', 'ASSIGNED', 'COMPLETED', 'CANCELLED'];
 
-    if (statusChanged && importantStatuses.includes(after.status)) {
-      const userId = after.userId;
-      const orderId = event.params.orderId;
+    if (!statusChanged) {
+      // Aucun changement de statut : on stoppe immédiatement pour économiser des Go-secondes.
+      return;
+    }
+
+    if (!importantStatuses.includes(after.status)) {
+      return;
+    }
+
+    const userId = after.userId;
+    const orderId = event.params.orderId;
 
       const userDoc = await db.collection('users').doc(userId).get();
       const userData = userDoc.data();
@@ -266,7 +298,6 @@ exports.notifyClientOnOrderUpdate = firestoreFunc.onDocumentUpdated(
       } catch (error) {
         console.error('Erreur lors de l\'envoi au client (V2):', error);
       }
-    }
   });
 
 // --- 3. FONCTIONS MARKETING & RAPPELS (AUTOMATISATION) ---
@@ -289,10 +320,38 @@ exports.sendMarketingCampaign = onCall(async (request) => {
     }
 
     try {
-        // 2. Récupération de tous les tokens utilisateurs
-        // Note: Pour une très grande base de données, il faudrait utiliser les "Topics" FCM ou diviser en lots via TaskQueue.
+        // 2. Priorité à la route Topic (moins de lectures, moins d'impact sur le budget). 
+        // Appel client possible : FirebaseMessaging.instance.subscribeToTopic('marketing')
+        // ou au niveau backend : `topic` dans request.data.
+        const marketingTopic = request.data.topic || 'global_marketing';
+        const useTopic = request.data.useTopic !== false; // default true
+
+        if (useTopic) {
+            const message = {
+                notification: {
+                    title: title,
+                    body: body,
+                    ...(imageUrl && { imageUrl: imageUrl })
+                },
+                data: {
+                    screen: 'home_custom',
+                    type: 'MARKETING',
+                },
+                topic: marketingTopic,
+            };
+
+            const response = await messaging.send(message);
+            console.log(`Campagne marketing envoyée sur topic ${marketingTopic} : ${response}`);
+            return {
+                success: true,
+                topic: marketingTopic,
+                message: 'Campagne envoyée via topic',
+                response: response,
+            };
+        }
+
+        // 3. Fallback token-based (legacy, plus coûteux)
         const usersSnapshot = await db.collection('users').where('fcmToken', '!=', null).get();
-        
         if (usersSnapshot.empty) {
             return { success: true, message: "Aucun utilisateur avec token trouvé." };
         }
@@ -303,30 +362,34 @@ exports.sendMarketingCampaign = onCall(async (request) => {
             if (data.fcmToken) tokens.push(data.fcmToken);
         });
 
-        // 3. Préparation du message
-        const message = {
-            notification: {
-                title: title,
-                body: body,
-                ...(imageUrl && { imageUrl: imageUrl }) // Ajoute l'image si présente
-            },
-            data: {
-                screen: 'home_custom', // Redirige vers l'accueil client
-                type: 'MARKETING'
-            },
-            tokens: tokens
-        };
+        if (tokens.length === 0) {
+            return { success: true, message: 'Aucun token FCM valide trouvé.' };
+        }
 
-        // 4. Envoi en masse (Multicast gère jusqu'à 500 tokens par appel, ici on simplifie pour l'exemple)
-        // Pour la prod : découper le tableau `tokens` en chunks de 500.
-        const response = await messaging.sendEachForMulticast(message);
+        const chunkedTokens = [];
+        for (let i = 0; i < tokens.length; i += 500) {
+            chunkedTokens.push(tokens.slice(i, i + 500));
+        }
 
-        console.log(`Campagne marketing envoyée : ${response.successCount} succès.`);
+        let totalSuccess = 0;
+        let totalFailure = 0;
 
-        return { 
-            success: true, 
-            sentCount: response.successCount, 
-            failureCount: response.failureCount 
+        for (const tokenChunk of chunkedTokens) {
+            const message = {
+                notification: { title, body, ...(imageUrl && { imageUrl }) },
+                data: { screen: 'home_custom', type: 'MARKETING' },
+                tokens: tokenChunk,
+            };
+            const response = await messaging.sendEachForMulticast(message);
+            totalSuccess += response.successCount;
+            totalFailure += response.failureCount;
+        }
+
+        return {
+            success: true,
+            sentCount: totalSuccess,
+            failureCount: totalFailure,
+            fallback: true,
         };
 
     } catch (error) {

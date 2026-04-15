@@ -1,14 +1,16 @@
-import 'package:camelia_logistics/models/services/admin_service.dart';
-import 'package:camelia_logistics/models/services/firebase_service.dart';
-import 'package:camelia_logistics/models/services/firebase_service.dart'
+import 'package:camelia/models/services/admin_service.dart';
+import 'package:camelia/models/services/firebase_service.dart';
+import 'package:camelia/models/services/firebase_service.dart'
     hide CacheEntry;
+import 'package:camelia/screens/reset_password.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:camelia_logistics/screens/help_center.dart';
-import 'package:camelia_logistics/models/services/launch_url.dart';
-import 'package:camelia_logistics/screens/change_informations.dart';
+import 'package:camelia/screens/help_center.dart';
+import 'package:camelia/models/services/launch_url.dart';
+import 'package:camelia/models/services/user_profile_service.dart';
+import 'package:camelia/screens/change_informations.dart';
 class AdminSettings extends StatefulWidget {
   const AdminSettings({super.key});
   @override
@@ -17,6 +19,7 @@ class AdminSettings extends StatefulWidget {
 
 class _AdminSettingsState extends State<AdminSettings> {
   final AdminService _adminService = AdminService();
+  final UserProfileService _profileService = UserProfileService();
   final TextEditingController _uidController = TextEditingController();
   final uid = FirebaseAuth.instance.currentUser?.uid;
 
@@ -25,6 +28,9 @@ class _AdminSettingsState extends State<AdminSettings> {
       context: context,
       builder: (BuildContext context) {
         bool inProgress = false;
+        String selectedSearchType = 'uid';
+        String selectedRole = 'admin';
+        final GlobalKey<FormState> promoFormKey = GlobalKey<FormState>();
         return StatefulBuilder(
           builder: (context, setStateDialog) {
             return Dialog(
@@ -35,10 +41,11 @@ class _AdminSettingsState extends State<AdminSettings> {
               insetPadding: const EdgeInsets.all(24),
               child: Container(
                 padding: const EdgeInsets.all(28),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                     // Header
                     Row(
                       children: [
@@ -73,66 +80,104 @@ class _AdminSettingsState extends State<AdminSettings> {
                     ),
                     const SizedBox(height: 20),
                     
-                    // Description
-                    Text(
-                      'Entrez l\'UID de l\'utilisateur à promouvoir',
-                      style: GoogleFonts.poppins(
-                        color: Colors.grey.shade600,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
+                    Form(
+                      key: promoFormKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Rechercher par Email, Téléphone ou UID',
+                            style: GoogleFonts.poppins(
+                              color: Colors.grey.shade600,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          DropdownButtonFormField<String>(
+                            initialValue: selectedSearchType,
+                            onChanged: (value) {
+                              if (value != null) {
+                                setStateDialog(() {
+                                  selectedSearchType = value;
+                                });
+                              }
+                            },
+                            items: const [
+                              DropdownMenuItem(value: 'uid', child: Text('UID')),
+                              DropdownMenuItem(value: 'email', child: Text('Email')),
+                              DropdownMenuItem(value: 'phone', child: Text('Téléphone')),
+                            ],
+                            decoration: InputDecoration(
+                              labelText: 'Type d\'identifiant',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: BorderSide.none,
+                              ),
+                              filled: true,
+                              fillColor: Colors.grey.shade50,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          TextFormField(
+                            controller: _uidController,
+                            decoration: InputDecoration(
+                              hintText:
+                                  selectedSearchType == 'email'
+                                      ? 'exemple@domaine.com'
+                                      : selectedSearchType == 'phone'
+                                          ? '+237612345678'
+                                          : 'UID utilisateur',
+                              prefixIcon: const Icon(Icons.search_rounded),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                borderSide: BorderSide.none,
+                              ),
+                              filled: true,
+                              fillColor: Colors.grey.shade50,
+                              contentPadding: const EdgeInsets.symmetric(
+                                vertical: 18,
+                                horizontal: 20,
+                              ),
+                              counterText: '',
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Ce champ est requis';
+                              }
+                              return null;
+                            },
+                            style: GoogleFonts.poppins(fontSize: 15),
+                          ),
+                          const SizedBox(height: 12),
+                          DropdownButtonFormField<String>(
+                            initialValue: selectedRole,
+                            onChanged: (value) {
+                              if (value != null) {
+                                setStateDialog(() {
+                                  selectedRole = value;
+                                });
+                              }
+                            },
+                            items: const [
+                              DropdownMenuItem(value: 'admin', child: Text('Admin')),
+                              DropdownMenuItem(value: 'collaborator', child: Text('Collaborateur')),
+                              DropdownMenuItem(value: 'deliverer', child: Text('Livreur')),
+                            ],
+                            decoration: InputDecoration(
+                              labelText: 'Rôle à attribuer',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(14),
+                                borderSide: BorderSide.none,
+                              ),
+                              filled: true,
+                              fillColor: Colors.grey.shade50,
+                            ),
+                          ),
+                          const SizedBox(height: 18),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 20),
-                    
-                    // Champ de saisie
-                    TextFormField(
-                      controller: _uidController,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'L\'UID est obligatoire';
-                        }
-                        if (value.length < 20) {
-                          return 'UID invalide';
-                        }
-                        return null;
-                      },
-                      maxLength: 50,
-                      decoration: InputDecoration(
-                        hintText: 'Ex: 1234567890abcdef1234',
-                        hintStyle: GoogleFonts.poppins(
-                          color: Colors.grey.shade400,
-                        ),
-                        prefixIcon: Container(
-                          margin: const EdgeInsets.all(12),
-                          child: Icon(
-                            Icons.person_search_rounded,
-                            color: Colors.grey.shade500,
-                          ),
-                        ),
-                        filled: true,
-                        fillColor: Colors.grey.shade50,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16),
-                          borderSide: BorderSide.none,
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16),
-                          borderSide: const BorderSide(
-                            color: Color(0xFF6C63FF),
-                            width: 2,
-                          ),
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          vertical: 18,
-                          horizontal: 20,
-                        ),
-                        counterText: '',
-                      ),
-                      style: GoogleFonts.poppins(
-                        fontSize: 15,
-                      ),
-                    ),
-                    const SizedBox(height: 28),
                     
                     // Actions
                     Row(
@@ -181,17 +226,66 @@ class _AdminSettingsState extends State<AdminSettings> {
                               onTap: inProgress
                                   ? null
                                   : () async {
+                                      if (!promoFormKey.currentState!.validate()) {
+                                        return;
+                                      }
+
                                       setStateDialog(() => inProgress = true);
                                       try {
+                                        final inputValue = _uidController.text.trim();
+                                        String targetUid = inputValue;
+
+                                        if (selectedSearchType == 'email') {
+                                          final profile = await _profileService.getProfileByEmail(inputValue);
+                                          if (profile == null) {
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              const SnackBar(
+                                                content: Text('Utilisateur introuvable pour cet email.'),
+                                                backgroundColor: Colors.red,
+                                              ),
+                                            );
+                                            setStateDialog(() => inProgress = false);
+                                            return;
+                                          }
+                                          targetUid = profile.uid;
+                                        } else if (selectedSearchType == 'phone') {
+                                          String normalized = inputValue;
+                                          if (!normalized.startsWith('+')) {
+                                            normalized = '+$normalized';
+                                          }
+                                          final profile = await _profileService.getProfileByPhone(normalized);
+                                          if (profile == null) {
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              const SnackBar(
+                                                content: Text('Utilisateur introuvable pour ce numéro.'),
+                                                backgroundColor: Colors.red,
+                                              ),
+                                            );
+                                            setStateDialog(() => inProgress = false);
+                                            return;
+                                          }
+                                          targetUid = profile.uid;
+                                        } else if (targetUid.length < 20) {
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            const SnackBar(
+                                              content: Text('UID invalide.'),
+                                              backgroundColor: Colors.red,
+                                            ),
+                                          );
+                                          setStateDialog(() => inProgress = false);
+                                          return;
+                                        }
+
                                         await _adminService.setRole(
                                           context: context,
-                                          targetUid: _uidController.text.trim(),
-                                          role: 'Admin',
+                                          targetUid: targetUid,
+                                          role: selectedRole,
                                           region: 'us-central1',
                                         );
+
                                         setStateDialog(() => inProgress = false);
                                         CacheManager.instance.invalidate(
-                                          'userRole_${_uidController.text.trim()}',
+                                          'userRole_$targetUid',
                                         );
                                         Navigator.of(context).pop();
                                       } on Exception catch (_) {
@@ -201,8 +295,8 @@ class _AdminSettingsState extends State<AdminSettings> {
                               borderRadius: BorderRadius.circular(14),
                               child: Ink(
                                 padding: const EdgeInsets.symmetric(
-                                  horizontal: 28,
-                                  vertical: 14,
+                                  horizontal: 18,
+                                  vertical: 10,
                                 ),
                                 decoration: BoxDecoration(
                                   gradient: const LinearGradient(
@@ -229,7 +323,7 @@ class _AdminSettingsState extends State<AdminSettings> {
                                             size: 20,
                                             color: Colors.white,
                                           ),
-                                          const SizedBox(width: 10),
+                                          const SizedBox(width: 5),
                                           Text(
                                             'Promouvoir',
                                             style: GoogleFonts.poppins(
@@ -246,8 +340,10 @@ class _AdminSettingsState extends State<AdminSettings> {
                         ),
                       ],
                     ),
+                    const SizedBox(height: 20),
                   ],
                 ),
+              ),
               ),
             );
           },
@@ -343,31 +439,17 @@ class _AdminSettingsState extends State<AdminSettings> {
                           ),
                           const Spacer(),
                           Container(
-                            width: 44,
-                            height: 44,
                             decoration: BoxDecoration(
                               color: Colors.white.withValues(alpha:0.2),
                               borderRadius: BorderRadius.circular(14),
                             ),
-                            child: Stack(
+                            child: const Stack(
                               children: [
-                                const Icon(
-                                  Icons.notifications_outlined,
+                                Icon(
+                                  Icons.admin_panel_settings_rounded,
                                   color: Colors.white,
                                   size: 24,
-                                ),
-                                Positioned(
-                                  right: 10,
-                                  top: 10,
-                                  child: Container(
-                                    width: 10,
-                                    height: 10,
-                                    decoration: const BoxDecoration(
-                                      color: Colors.red,
-                                      shape: BoxShape.circle,
-                                    ),
-                                  ),
-                                ),
+                                ),                              
                               ],
                             ),
                           ),
@@ -418,7 +500,12 @@ class _AdminSettingsState extends State<AdminSettings> {
                 icon: Icons.lock_outline_rounded,
                 title: 'Changer le mot de passe',
                 subtitle: 'Mettre à jour vos identifiants',
-                onTap: () {},
+                onTap: () { 
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const ResetPassword()),
+                  );
+                },
               ),
             ],
           ),
@@ -440,7 +527,7 @@ class _AdminSettingsState extends State<AdminSettings> {
                 icon: Icons.privacy_tip_outlined,
                 title: 'Politique et Confidentialité',
                 subtitle: 'Consulter nos conditions',
-                onTap: () =>launchURL("https://camelia-logistics.vercel.app/legal.html", context),
+                onTap: () =>launchURL("https://camelia-website.onrender.com/legal.html#mentions-legales", context),
                 showChevron: true,
               ),
              
@@ -464,14 +551,14 @@ class _AdminSettingsState extends State<AdminSettings> {
                 },
                 showChevron: true,
               ),
-              _buildDivider(),
-              _buildSettingItem(
-                icon: Icons.feedback_outlined,
-                title: 'Donner votre avis',
-                subtitle: 'Partagez vos suggestions',
-                onTap: () {},
-                showChevron: true,
-              ),
+              // _buildDivider(),
+              // _buildSettingItem(
+              //   icon: Icons.feedback_outlined,
+              //   title: 'Donner votre avis',
+              //   subtitle: 'Partagez vos suggestions',
+              //   onTap: () {},
+              //   showChevron: true,
+              // ),
             ],
           ),
           

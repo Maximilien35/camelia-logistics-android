@@ -1,8 +1,8 @@
-import 'package:camelia_logistics/models/services/user_profile_service.dart';
+import 'package:camelia/models/services/user_profile_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:camelia_logistics/l10n/app_localizations.dart';
+import 'package:camelia/l10n/app_localizations.dart';
 
 class ChangeInformations extends StatefulWidget {
   const ChangeInformations({super.key});
@@ -260,6 +260,7 @@ class _ChangeInformationsState extends State<ChangeInformations> {
                           const SizedBox(height: 8),
                           TextFormField(
                             controller: _telController,
+                            readOnly: true,
                             keyboardType: TextInputType.phone,
                             decoration: InputDecoration(
                               hintText: l10n.phoneHint,
@@ -307,7 +308,6 @@ class _ChangeInformationsState extends State<ChangeInformations> {
                           ),
                           const SizedBox(height: 8),
                           TextFormField(
-                            readOnly: true,
                             controller: _emailController,
                             keyboardType: TextInputType.emailAddress,
                             decoration: InputDecoration(

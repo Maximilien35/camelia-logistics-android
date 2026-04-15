@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
@@ -7,40 +9,67 @@ class UserProfileService {
   final CollectionReference _usersCollection = FirebaseFirestore.instance
       .collection('users');
 
-  Future<void> saveDeliverer(
-    String name,
-    String phoneNumber,
-    String vehicle,
-    String location,
-  ) async {
+  // Cache locale agressive pour la durée de la session
+  static final Map<String, UserProfile> _inMemoryUserCache = {};
+
+  Future<void> clearMemoryCache() async {
+    _inMemoryUserCache.clear();
+  }
+
+  Future<String> createDeliverer({
+    required String name,
+    required String phoneNumber,
+    required String email,
+    String? vehicle,
+    String? location,
+  }) async {
     try {
-      final docRef = _usersCollection.doc();
-      final id = docRef.id;
+      final existing = await _usersCollection
+          .where('email', isEqualTo: email.trim())
+          .limit(1)
+          .get();
+
+      if (existing.docs.isNotEmpty) {
+        throw Exception('Un utilisateur existe déjà avec cet email.');
+      }
+
+      // Générer un UID unique au lieu de créer un compte Firebase Auth
+      final uid = '${DateTime.now().millisecondsSinceEpoch}_${Random().nextInt(999999)}';
+
       final newDeliverer = UserProfile(
-        uid: id,
+        uid: uid,
         name: name,
         phoneNumber: phoneNumber,
-        vehicle: vehicle,
-        email: '',
-        location: location,
+        email: email.trim(),
         role: 'deliverer',
+        isCollaborator: false,
+        isActive: true,
+        vehicle: vehicle,
+        location: location,
       );
-      await docRef.set(newDeliverer.toJson());
+
+      await _usersCollection.doc(uid).set(newDeliverer.toJson());
+
       if (kDebugMode) {
-        print("chauffeur enregistrer avec succes");
+        print('Chauffeur créé avec succès: $uid');
       }
+
+      return uid;
+    } on FirebaseAuthException catch (e) {
+      if (kDebugMode) {
+        print('FirebaseAuth error: ${e.code} - ${e.message}');
+      }
+      throw Exception('Erreur d\'authentification : ${e.message}');
     } on FirebaseException catch (e) {
       if (kDebugMode) {
-        print(
-          'Erreur Firebase lors de l\'enregistrement du chauffeur : ${e.code} - ${e.message}',
-        );
+        print('Firebase error: ${e.code} - ${e.message}');
       }
-      throw Exception("Impossible d'enregistrer le chauffeur. Vérifiez les droits d'accès ou la connexion.");
+      throw Exception('Erreur Firebase : ${e.message}');
     } catch (e) {
       if (kDebugMode) {
-        print('Erreur inconnue lors de l\'enregistrement du chauffeur : $e');
+        print('Erreur lors de la création du chauffeur : $e');
       }
-      throw Exception("Une erreur inattendue est survenue lors de l'enregistrement.");
+      throw Exception('Erreur lors de la création du chauffeur : $e');
     }
   }
 
@@ -50,23 +79,55 @@ class UserProfileService {
         .set(profile.toJson(), SetOptions(merge: true));
   }
 
-
   Future<UserProfile?> getProfile(String uid) async {
-    try {
-      final doc = await _usersCollection.doc(uid).get(const GetOptions(source: Source.cache));
-      if (doc.exists && doc.data() != null) {
-        return UserProfile.fromJson(doc.data() as Map<String, dynamic>);
-      }
-    } catch (_) {
+    // 1. Cache mémoire session (instantané)
+    if (_inMemoryUserCache.containsKey(uid)) {
+      return _inMemoryUserCache[uid];
     }
-    
+
+    // 2. Cache Firestore local
     try {
-      final docServer = await _usersCollection.doc(uid).get(const GetOptions(source: Source.server));
+      final doc = await _usersCollection
+          .doc(uid)
+          .get(const GetOptions(source: Source.cache));
+      if (doc.exists && doc.data() != null) {
+        final profile = UserProfile.fromJson(
+          doc.data() as Map<String, dynamic>,
+        );
+        _inMemoryUserCache[uid] = profile;
+        return profile;
+      }
+    } catch (_) {}
+
+    // 3. Serveur (chapel main) pour données fraîches si manquant
+    try {
+      final docServer = await _usersCollection.doc(uid).get();
       if (docServer.exists && docServer.data() != null) {
-        return UserProfile.fromJson(docServer.data() as Map<String, dynamic>);
+        final profile = UserProfile.fromJson(
+          docServer.data() as Map<String, dynamic>,
+        );
+        _inMemoryUserCache[uid] = profile;
+        return profile;
       }
     } catch (_) {
       // En cas d'erreur serveur (ex: hors ligne), on retourne null proprement
+    }
+    return null;
+  }
+
+  Future<UserProfile?> getProfileFresh(String uid) async {
+    // Force fetch from server, ignore cache
+    try {
+      final docServer = await _usersCollection.doc(uid).get();
+      if (docServer.exists && docServer.data() != null) {
+        final profile = UserProfile.fromJson(
+          docServer.data() as Map<String, dynamic>,
+        );
+        _inMemoryUserCache[uid] = profile; // Update cache
+        return profile;
+      }
+    } catch (_) {
+      // En cas d'erreur serveur, on retourne null
     }
     return null;
   }
@@ -75,8 +136,7 @@ class UserProfileService {
     try {
       await _usersCollection.doc(userId).set({
         'fcmToken': token,
-        'lastActive':
-            FieldValue.serverTimestamp(),
+        'lastActive': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
     } catch (e) {
       if (kDebugMode) {
@@ -114,11 +174,7 @@ class UserProfileService {
     try {
       DocumentReference docRef = _usersCollection.doc(uid);
 
-      await docRef.update({
-        'name': name,
-        'phoneNumber': phone,
-        'email': email,
-      });
+      await docRef.update({'name': name, 'phoneNumber': phone, 'email': email});
     } catch (e) {
       if (kDebugMode) {
         print("Erreur lors de la mise à jour du statut de la commande : $e");
@@ -148,25 +204,107 @@ class UserProfileService {
     return null;
   }
 
-  Stream<List<UserProfile>>? getDeliverersStream() {
+  Stream<List<UserProfile>>? getDeliverersStream({int limit = 50}) {
     return _usersCollection
         .where('role', isEqualTo: 'deliverer')
+        .limit(
+          limit,
+        ) // OPTIMISATION: Limiter les résultats pour éviter surcharge
         .snapshots()
         .map((QuerySnapshot snapshot) {
           if (snapshot.docs.isEmpty) {
-            return []; 
+            return [];
           }
           return snapshot.docs.map((doc) {
             final data = doc.data() as Map<String, dynamic>;
-            return UserProfile.fromJson(
-              data,
-            ); 
+            return UserProfile.fromJson(data);
           }).toList();
         });
   }
 
+  Future<List<UserProfile>> getStaff({
+    String group = 'all',
+    String? zone,
+    int limit = 50,
+  }) async {
+    Query query = _usersCollection.where('isActive', isEqualTo: true);
+
+    if (group == 'deliverer') {
+      query = query.where('role', isEqualTo: 'deliverer');
+    } else if (group == 'collaborator') {
+      query = query.where('role', isEqualTo: 'collaborator');
+    } else {
+      query = query.where('role', whereIn: ['deliverer', 'collaborator']);
+    }
+
+    if (zone != null && zone.isNotEmpty) {
+      query = query.where('serviceZone', isEqualTo: zone);
+    }
+
+    final snapshot = await query
+        .limit(limit)
+        .get();
+    return snapshot.docs.map((doc) {
+      final data = doc.data() as Map<String, dynamic>;
+      return UserProfile.fromJson(data);
+    }).toList();
+  }
+
+  List<String>? _serviceZoneCache;
+
+  Future<List<String>> getServiceZones({
+    bool forceRefresh = false,
+    int limit = 100,
+  }) async {
+    if (_serviceZoneCache != null && !forceRefresh) {
+      return _serviceZoneCache!;
+    }
+
+    try {
+      final QuerySnapshot snapshot = await _usersCollection
+          .where('role', isEqualTo: 'collaborator')
+          .limit(limit) // OPTIMISATION: Limiter pour éviter surcharge
+          .get(const GetOptions(source: Source.cache));
+
+      List<String> zones = snapshot.docs
+          .map(
+            (doc) =>
+                (doc.data() as Map<String, dynamic>)['serviceZone'] as String?,
+          )
+          .whereType<String>()
+          .where((zone) => zone.trim().isNotEmpty)
+          .toSet()
+          .toList();
+
+      if (zones.isEmpty) {
+        final serverSnapshot = await _usersCollection
+            .where('role', isEqualTo: 'collaborator')
+            .limit(limit) // OPTIMISATION: Limiter
+            .get();
+
+        zones = serverSnapshot.docs
+            .map(
+              (doc) =>
+                  (doc.data() as Map<String, dynamic>)['serviceZone']
+                      as String?,
+            )
+            .whereType<String>()
+            .where((zone) => zone.trim().isNotEmpty)
+            .toSet()
+            .toList();
+      }
+
+      _serviceZoneCache = zones;
+      return zones;
+    } catch (e) {
+      if (kDebugMode) {
+        print('Erreur getServiceZones: $e');
+      }
+      return _serviceZoneCache ?? [];
+    }
+  }
+
   Stream<List<UserProfile>>? getUserStream() {
-    // 1. Configure la requête : filtre par rôle et trie (timestamp doit exister en BD)
     return _usersCollection.where('role', isEqualTo: 'client').snapshots().map((
       QuerySnapshot snapshot,
     ) {
@@ -182,39 +320,60 @@ class UserProfileService {
     });
   }
 
- Future<void> deleteUserAccount() async {
+  Future<UserProfile?> getProfileByEmail(String email) async {
+    final querySnapshot = await _usersCollection
+        .where('email', isEqualTo: email)
+        .where('isActive', isEqualTo: true)
+        .limit(1)
+        .get();
+
+    if (querySnapshot.docs.isEmpty) {
+      return null;
+    }
+
+    final data = querySnapshot.docs.first.data() as Map<String, dynamic>;
+    return UserProfile.fromJson(data);
+  }
+
+  Future<UserProfile?> getProfileByPhone(String phoneNumber) async {
+    final querySnapshot = await _usersCollection
+        .where('phoneNumber', isEqualTo: phoneNumber)
+        .where('isActive', isEqualTo: true)
+        .limit(1)
+        .get();
+
+    if (querySnapshot.docs.isEmpty) {
+      return null;
+    }
+
+    final data = querySnapshot.docs.first.data() as Map<String, dynamic>;
+    return UserProfile.fromJson(data);
+  }
+
+  Future<bool> isPhoneNumberTaken(String phoneNumber) async {
+    final result = await getProfileByPhone(phoneNumber);
+    return result != null;
+  }
+
+  Future<void> deleteUserAccount() async {
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) return;
       final String uid = user.uid;
 
-      // 1. Récupérer et supprimer les commandes associées (Nettoyage client)
-      final ordersRef = FirebaseFirestore.instance.collection('orders');
-      final ordersSnapshot =
-          await ordersRef.where('userId', isEqualTo: uid).get();
+      await _usersCollection.doc(uid).update({
+        'isActive': false,
+        'deletedAt': FieldValue.serverTimestamp(),
+      });
 
-      WriteBatch batch = FirebaseFirestore.instance.batch();
-      int count = 0;
+      await FirebaseAuth.instance.signOut();
 
-      for (var doc in ordersSnapshot.docs) {
-        batch.delete(doc.reference);
-        count++;
-        if (count >= 450) {
-          await batch.commit();
-          batch = FirebaseFirestore.instance.batch();
-          count = 0;
-        }
+      if (kDebugMode) {
+        print("Compte désactivé avec succès (soft delete)");
       }
-
-      // 2. Supprimer le document utilisateur dans le batch final
-      batch.delete(_usersCollection.doc(uid));
-      await batch.commit();
-
-      // 3. Supprimer le compte d'authentification
-      await user.delete();
     } catch (e) {
       if (kDebugMode) {
-        print("Erreur lors de la suppression du compte : $e");
+        print("Erreur lors de la désactivation du compte : $e");
       }
       rethrow;
     }

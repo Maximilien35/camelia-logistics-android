@@ -1,11 +1,12 @@
-import 'package:camelia_logistics/models/services/chart.dart';
-import 'package:camelia_logistics/models/services/graph_service.dart';
-import 'package:camelia_logistics/models/services/order_service.dart';
-import 'package:camelia_logistics/models/services/user_profile_service.dart';
-import 'package:camelia_logistics/models/user_profile.dart';
+import 'package:camelia/models/services/chart.dart';
+import 'package:camelia/models/services/graph_service.dart';
+import 'package:camelia/models/services/order_service.dart';
+import 'package:camelia/models/services/user_profile_service.dart';
+import 'package:camelia/models/services/collaborator_service.dart';
+import 'package:camelia/models/user_profile.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:camelia_logistics/l10n/app_localizations.dart';
+import 'package:camelia/l10n/app_localizations.dart';
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
@@ -18,10 +19,12 @@ class _AdminDashboardState extends State<AdminDashboard> {
   final MetricsService metricsService = MetricsService();
   final String? idUser = FirebaseAuth.instance.currentUser?.uid;
   final UserProfileService _delivererService = UserProfileService();
+  final CollaboratorService _collaboratorService = CollaboratorService();
   final OrderService _orderService = OrderService();
 
   late Stream<List<UserProfile>>? _usersStream;
   late Stream<List<UserProfile>>? _deliverersStream;
+  late Stream<List<UserProfile>>? _collaboratorsStream;
   late Future<int?> _ordersTodayFuture;
   late Future<double> _revenueFuture;
   late Future<Map<String, int>> _ordersByStatusFuture;
@@ -33,6 +36,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
     super.initState();
     _usersStream = _delivererService.getUserStream();
     _deliverersStream = _delivererService.getDeliverersStream();
+    _collaboratorsStream = _collaboratorService.getCollaboratorsStream();
     _ordersTodayFuture = _orderService.getOrderForToday();
     _revenueFuture = _orderService.chiffreAffaire();
     _ordersByStatusFuture = metricsService.calculateOrdersByStatus();
@@ -272,6 +276,21 @@ class _AdminDashboardState extends State<AdminDashboard> {
                               title: l10n.drivers,
                               color: const Color(0xFF4CAF50),
                               stream: _deliverersStream,
+                              builder: (data) => data.length.toString(),
+                              loadingWidget: '...',
+                              l10n: l10n,
+                            ),
+                          ),
+
+                          // Collaborateurs
+                          SizedBox(
+                            height: cardHeight,
+                            child: _buildStatCard(
+                              context: context,
+                              icon: Icons.work_outline_rounded,
+                              title: 'Collaborateurs',
+                              color: const Color(0xFF3F51B5),
+                              stream: _collaboratorsStream,
                               builder: (data) => data.length.toString(),
                               loadingWidget: '...',
                               l10n: l10n,

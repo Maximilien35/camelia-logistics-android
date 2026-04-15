@@ -1,17 +1,20 @@
-import 'package:camelia_logistics/models/services/user_profile_service.dart';
-import 'package:camelia_logistics/models/user_profile.dart';
-import 'package:camelia_logistics/screens/admin_dashboard.dart';
-import 'package:camelia_logistics/screens/admin_deliverers.dart';
-import 'package:camelia_logistics/screens/admin_settings.dart';
+import 'package:camelia/models/services/user_profile_service.dart';
+import 'package:camelia/models/user_profile.dart';
+import 'package:camelia/screens/admin_assign_staff.dart';
+import 'package:camelia/screens/admin_dashboard.dart';
+import 'package:camelia/screens/admin_deliverers.dart';
+import 'package:camelia/screens/admin_settings.dart';
+import 'package:camelia/screens/admin_collaborators.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:camelia_logistics/models/services/order_service.dart';
-import 'package:camelia_logistics/models/order_model.dart';
+import 'package:camelia/models/services/order_service.dart';
+import 'package:camelia/models/order_model.dart';
 import 'dart:async';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:http/http.dart' as http;
@@ -43,7 +46,7 @@ class ImageCacheService {
       _addToCache(url, provider);
       return provider;
     } catch (e) {
-      return const AssetImage('assets/logo.webp');
+      return const AssetImage('assets/logo2.webp');
     }
   }
 
@@ -125,6 +128,7 @@ class _AdminPageState extends State<AdminPage> {
           AdminDashboard(),
           AdminOrdersScreen(),
           AdminDeliverersScreen(),
+          AdminCollaboratorsScreen(),
           AdminSettings(),
         ],
       ),
@@ -138,7 +142,7 @@ class _AdminPageState extends State<AdminPage> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withValues(alpha:0.08),
+            color: Colors.grey.withValues(alpha: 0.08),
             blurRadius: 20,
             spreadRadius: 2,
           ),
@@ -184,7 +188,9 @@ class _AdminPageState extends State<AdminPage> {
                 ),
                 child: Icon(
                   Icons.dashboard_rounded,
-                  color: _selectedIndex == 0 ? Colors.white : Colors.grey.shade500,
+                  color: _selectedIndex == 0
+                      ? Colors.white
+                      : Colors.grey.shade500,
                   size: 20,
                 ),
               ),
@@ -204,7 +210,9 @@ class _AdminPageState extends State<AdminPage> {
                 ),
                 child: Icon(
                   Icons.list_alt_rounded,
-                  color: _selectedIndex == 1 ? Colors.white : Colors.grey.shade500,
+                  color: _selectedIndex == 1
+                      ? Colors.white
+                      : Colors.grey.shade500,
                   size: 20,
                 ),
               ),
@@ -224,7 +232,9 @@ class _AdminPageState extends State<AdminPage> {
                 ),
                 child: Icon(
                   Icons.local_shipping_rounded,
-                  color: _selectedIndex == 2 ? Colors.white : Colors.grey.shade500,
+                  color: _selectedIndex == 2
+                      ? Colors.white
+                      : Colors.grey.shade500,
                   size: 20,
                 ),
               ),
@@ -243,8 +253,32 @@ class _AdminPageState extends State<AdminPage> {
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
+                  Icons.groups_rounded,
+                  color: _selectedIndex == 3
+                      ? Colors.white
+                      : Colors.grey.shade500,
+                  size: 20,
+                ),
+              ),
+              label: 'Collaborateurs',
+            ),
+            BottomNavigationBarItem(
+              icon: Container(
+                width: 24,
+                height: 24,
+                decoration: BoxDecoration(
+                  gradient: _selectedIndex == 4
+                      ? const LinearGradient(
+                          colors: [Color(0xFF6C63FF), Color(0xFF8B84FF)],
+                        )
+                      : null,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
                   Icons.settings_rounded,
-                  color: _selectedIndex == 3 ? Colors.white : Colors.grey.shade500,
+                  color: _selectedIndex == 4
+                      ? Colors.white
+                      : Colors.grey.shade500,
                   size: 20,
                 ),
               ),
@@ -276,7 +310,6 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
   final TextEditingController _searchController = TextEditingController();
   Timer? _searchDebounce;
 
-
   @override
   void dispose() {
     _searchDebounce?.cancel();
@@ -301,7 +334,12 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
         children: [
           // Header épuré
           Container(
-            padding: const EdgeInsets.only(top: 60, bottom: 30, left: 24, right: 24),
+            padding: const EdgeInsets.only(
+              top: 60,
+              bottom: 30,
+              left: 24,
+              right: 24,
+            ),
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [Colors.white, Colors.grey.shade50],
@@ -335,7 +373,7 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.grey.withValues(alpha:0.1),
+                            color: Colors.grey.withValues(alpha: 0.1),
                             blurRadius: 10,
                           ),
                         ],
@@ -355,7 +393,7 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.grey.withValues(alpha:0.05),
+                        color: Colors.grey.withValues(alpha: 0.05),
                         blurRadius: 20,
                       ),
                     ],
@@ -446,7 +484,7 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
             ),
           ),
 
-          // Liste des commandes
+          // Liste des commandes (lecture à la demande, pas de realtime)
           Expanded(
             child: StreamBuilder<List<Order>>(
               stream: _orderService.streamAllOrders(
@@ -457,7 +495,7 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(
                     child: CircularProgressIndicator(
-                      color:  Color(0xFF6C63FF),
+                      color: Color(0xFF6C63FF),
                       strokeWidth: 2,
                     ),
                   );
@@ -498,10 +536,12 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
 
                   final idMatch =
                       order.id?.toLowerCase().contains(query) ?? false;
-                  final pickupMatch =
-                      order.pickupAddress.toLowerCase().contains(query);
-                  final dropoffMatch =
-                      order.dropoffAddress.toLowerCase().contains(query);
+                  final pickupMatch = order.pickupAddress
+                      .toLowerCase()
+                      .contains(query);
+                  final dropoffMatch = order.dropoffAddress
+                      .toLowerCase()
+                      .contains(query);
 
                   return idMatch || pickupMatch || dropoffMatch;
                 }).toList();
@@ -573,23 +613,35 @@ class OrderAdminCard extends StatelessWidget {
 
   static Color _getStatusColor(String status) {
     switch (status.toUpperCase()) {
-      case 'PENDING': return const Color(0xFFFF9800);
-      case 'ACCEPTED': return const Color(0xFF4CAF50);
-      case 'ASSIGNED': return const Color(0xFF2196F3);
-      case 'COMPLETED': return const Color(0xFF6C63FF);
-      case 'CANCELLED': return const Color(0xFFF44336);
-      default: return Colors.grey;
+      case 'PENDING':
+        return const Color(0xFFFF9800);
+      case 'ACCEPTED':
+        return const Color(0xFF4CAF50);
+      case 'ASSIGNED':
+        return const Color(0xFF2196F3);
+      case 'COMPLETED':
+        return const Color(0xFF6C63FF);
+      case 'CANCELLED':
+        return const Color(0xFFF44336);
+      default:
+        return Colors.grey;
     }
   }
 
   static String _getDisplayStatus(String status) {
     switch (status.toUpperCase()) {
-      case 'PENDING': return 'En attente';
-      case 'ACCEPTED': return 'Validée';
-      case 'ASSIGNED': return 'Assignée';
-      case 'COMPLETED': return 'Livrée';
-      case 'CANCELLED': return 'Annulée';
-      default: return status;
+      case 'PENDING':
+        return 'En attente';
+      case 'ACCEPTED':
+        return 'Validée';
+      case 'ASSIGNED':
+        return 'Assignée';
+      case 'COMPLETED':
+        return 'Livrée';
+      case 'CANCELLED':
+        return 'Annulée';
+      default:
+        return status;
     }
   }
 
@@ -626,8 +678,8 @@ class OrderAdminCard extends StatelessWidget {
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               colors: [
-                                statusColor.withValues(alpha:0.2),
-                                statusColor.withValues(alpha:0.05),
+                                statusColor.withValues(alpha: 0.2),
+                                statusColor.withValues(alpha: 0.05),
                               ],
                             ),
                             borderRadius: BorderRadius.circular(10),
@@ -668,7 +720,7 @@ class OrderAdminCard extends StatelessWidget {
                         vertical: 6,
                       ),
                       decoration: BoxDecoration(
-                        color: statusColor.withValues(alpha:0.1),
+                        color: statusColor.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
@@ -715,7 +767,13 @@ class OrderAdminCard extends StatelessWidget {
                     Expanded(
                       child: OutlinedButton(
                         onPressed: () {
-                          context.go('/orderDetailsAdmin/${order.id}');
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  OrderDetailsAdminScreen(orderId: order.id!),
+                            ),
+                          );
                         },
                         style: OutlinedButton.styleFrom(
                           foregroundColor: const Color(0xFF6C63FF),
@@ -733,10 +791,40 @@ class OrderAdminCard extends StatelessWidget {
                       child: Material(
                         borderRadius: BorderRadius.circular(12),
                         child: InkWell(
-                          onTap: () {
-                            if (order.status.toUpperCase() == 'PENDING') {
-                              _showAssignDialog(context);
-                            } else if (order.status.toUpperCase() == 'ACCEPTED') {
+                          onTap: () async {
+                            final status = order.status.toUpperCase();
+                            if (status == 'PENDING') {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => AdminAssignStaffScreen(
+                                    orderId: order.id!,
+                                  ),
+                                ),
+                              );
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Commande acceptée.'),
+                                    backgroundColor: Colors.green,
+                                  ),
+                                );
+                              }
+                            }
+
+                            if (status == 'PENDING' ||
+                                status == 'ACCEPTED' ||
+                                status == 'ASSIGNED') {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => AdminAssignStaffScreen(
+                                    orderId: order.id!,
+                                  ),
+                                ),
+                              );
+                            } else if (status == 'COMPLETED' ||
+                                status == 'CANCELLED') {
                               _showManageDialog(context);
                             }
                           },
@@ -747,7 +835,7 @@ class OrderAdminCard extends StatelessWidget {
                               gradient: LinearGradient(
                                 colors: [
                                   statusColor,
-                                  statusColor.withValues(alpha:0.8),
+                                  statusColor.withValues(alpha: 0.8),
                                 ],
                               ),
                               borderRadius: BorderRadius.circular(12),
@@ -818,21 +906,30 @@ class OrderAdminCard extends StatelessWidget {
 
   String _getActionButtonText(String status) {
     switch (status.toUpperCase()) {
-      case 'PENDING': return 'Accepter';
+      case 'PENDING':
+        return 'Accepter';
       case 'ACCEPTED':
-      case 'ASSIGNED': return 'Gérer';
-      default: return 'Terminé';
+      case 'ASSIGNED':
+        return 'Gérer';
+      default:
+        return 'Terminé';
     }
   }
 
   IconData _getStatusIcon(String status) {
     switch (status.toUpperCase()) {
-      case 'PENDING': return Icons.access_time_rounded;
-      case 'ACCEPTED': return Icons.check_circle_outline_rounded;
-      case 'ASSIGNED': return Icons.local_shipping_rounded;
-      case 'COMPLETED': return Icons.done_all_rounded;
-      case 'CANCELLED': return Icons.cancel_outlined;
-      default: return Icons.info_outline_rounded;
+      case 'PENDING':
+        return Icons.access_time_rounded;
+      case 'ACCEPTED':
+        return Icons.check_circle_outline_rounded;
+      case 'ASSIGNED':
+        return Icons.local_shipping_rounded;
+      case 'COMPLETED':
+        return Icons.done_all_rounded;
+      case 'CANCELLED':
+        return Icons.cancel_outlined;
+      default:
+        return Icons.info_outline_rounded;
     }
   }
 
@@ -878,262 +975,6 @@ class OrderAdminCard extends StatelessWidget {
     );
   }
 
-  void _showAssignDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (ctx) {
-        String? selectedDelivererId;
-        final formKey = GlobalKey<FormState>();
-        final textFieldController = TextEditingController();
-
-        return StatefulBuilder(
-          builder: (builderContext, setDialogState) {
-            return Dialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(24),
-              ),
-              backgroundColor: Colors.white,
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFF6C63FF), Color(0xFF8B84FF)],
-                            ),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: const Icon(
-                            Icons.local_shipping_rounded,
-                            color: Colors.white,
-                            size: 22,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        const Text(
-                          'Assigner un livreur',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.black87,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-                    Form(
-                      key: formKey,
-                      child: Column(
-                        children: [
-                          TextFormField(
-                            controller: textFieldController,
-                            keyboardType: const TextInputType.numberWithOptions(
-                              decimal: true,
-                            ),
-                            decoration: InputDecoration(
-                              labelText: 'Prix final (FCFA)',
-                              labelStyle: TextStyle(
-                                color: Colors.grey.shade600,
-                              ),
-                              prefixIcon: Icon(
-                                Icons.attach_money_rounded,
-                                color: Colors.grey.shade500,
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(
-                                  color: Colors.grey.shade300,
-                                ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: const BorderSide(
-                                  color: Color(0xFF6C63FF),
-                                  width: 2,
-                                ),
-                              ),
-                            ),
-                            validator: (value) {
-                              if (value == null ||
-                                  value.isEmpty ||
-                                  double.tryParse(value) == null) {
-                                return 'Prix invalide';
-                              }
-                              return null;
-                            },
-                          ),
-                          const SizedBox(height: 20),
-                          StreamBuilder<List<UserProfile>>(
-                            stream: _userProfileService.getDeliverersStream(),
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return Container(
-                                  padding: const EdgeInsets.all(16),
-                                  child:const Center(
-                                    child: CircularProgressIndicator(
-                                      color: Color(0xFF6C63FF),
-                                      strokeWidth: 2,
-                                    ),
-                                  ),
-                                );
-                              }
-
-                              if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                                return Container(
-                                  padding: const EdgeInsets.all(16),
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey.shade50,
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: const Text(
-                                    'Aucun livreur disponible',
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(color: Colors.grey),
-                                  ),
-                                );
-                              }
-
-                              List<UserProfile> deliverers = snapshot.data!;
-                              return DropdownButtonFormField<String>(
-                                initialValue: selectedDelivererId,
-                                decoration: InputDecoration(
-                                  labelText: 'Livreur',
-                                  labelStyle: TextStyle(
-                                    color: Colors.grey.shade600,
-                                  ),
-                                  prefixIcon: Icon(
-                                    Icons.person_search_rounded,
-                                    color: Colors.grey.shade500,
-                                  ),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    borderSide: BorderSide(
-                                      color: Colors.grey.shade300,
-                                    ),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                    borderSide: const BorderSide(
-                                      color: Color(0xFF6C63FF),
-                                      width: 2,
-                                    ),
-                                  ),
-                                ),
-                                items: deliverers.map((deliverer) {
-                                  return DropdownMenuItem<String>(
-                                    value: deliverer.uid,
-                                    child: Text(deliverer.name),
-                                  );
-                                }).toList(),
-                                onChanged: (value) {
-                                  setDialogState(() {
-                                    selectedDelivererId = value;
-                                  });
-                                },
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Veuillez sélectionner un livreur';
-                                  }
-                                  return null;
-                                },
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 32),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        TextButton(
-                          onPressed: () => Navigator.of(builderContext).pop(),
-                          style: TextButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 24,
-                              vertical: 12,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          child: const Text('Annuler'),
-                        ),
-                        const SizedBox(width: 12),
-                        Material(
-                          borderRadius: BorderRadius.circular(12),
-                          child: InkWell(
-                            onTap: () {
-                              if (formKey.currentState!.validate()) {
-                                _submitForm(builderContext, selectedDelivererId, textFieldController);
-                              }
-                            },
-                            borderRadius: BorderRadius.circular(12),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 24,
-                                vertical: 12,
-                              ),
-                              decoration: BoxDecoration(
-                                gradient: const LinearGradient(
-                                  colors: [Color(0xFF6C63FF), Color(0xFF8B84FF)],
-                                ),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: const Text(
-                                'Assigner',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
-  void _submitForm(BuildContext context, String? selectedDelivererId, TextEditingController textFieldController) {
-    if (selectedDelivererId == null) return;
-
-    final priceQuote = textFieldController.text;
-    _service.updateFinalPrice(order.id!, double.parse(priceQuote));
-    _service.assignDeliverer(
-      orderId: order.id!,
-      delivererUid: selectedDelivererId,
-    );
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Commande assignée pour $priceQuote FCFA'),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        backgroundColor: const Color(0xFF6C63FF),
-      ),
-    );
-    textFieldController.clear();
-    Navigator.of(context).pop();
-  }
-
   void _showManageDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -1152,7 +993,7 @@ class OrderAdminCard extends StatelessWidget {
                   width: 60,
                   height: 60,
                   decoration: BoxDecoration(
-                    color: const Color(0xFF6C63FF).withValues(alpha:0.1),
+                    color: const Color(0xFF6C63FF).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: const Icon(
@@ -1173,10 +1014,7 @@ class OrderAdminCard extends StatelessWidget {
                 const SizedBox(height: 12),
                 Text(
                   '#${(order.id?.substring(0, 6) ?? '').toUpperCase()}',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey.shade600,
-                  ),
+                  style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
                 ),
                 const SizedBox(height: 32),
                 Row(
@@ -1257,41 +1095,132 @@ class OrderDetailsAdminScreen extends StatefulWidget {
   const OrderDetailsAdminScreen({super.key, required this.orderId});
 
   @override
-  State<OrderDetailsAdminScreen> createState() => _OrderDetailsAdminScreenState();
+  State<OrderDetailsAdminScreen> createState() =>
+      _OrderDetailsAdminScreenState();
 }
 
 class _OrderDetailsAdminScreenState extends State<OrderDetailsAdminScreen> {
   late Future<Order?> _orderFuture;
   final OrderService orderService = OrderService();
+  final UserProfileService _userProfileService = UserProfileService();
   List<LatLng> _routePoints = [];
   LatLng? _pickupCoords;
   LatLng? _dropoffCoords;
   bool _isLoadingMap = true;
+  String? _delivererName;
+
+  late TextEditingController _priceController;
+  bool _isSavingPrice = false;
+
+  void _initPriceController(double? price) {
+    _priceController = TextEditingController(
+      text: price != null && price > 0 ? price.toStringAsFixed(0) : '',
+    );
+  }
 
   @override
   void initState() {
     super.initState();
     _orderFuture = orderService.getOrdersById(widget.orderId).then((order) {
-      if (order != null) _loadMapData(order);
+      if (order != null) {
+        _loadMapData(order);
+        _loadDelivererName(order.delivererId);
+        _initPriceController(order.priceQuote);
+      }
       return order;
     });
   }
 
+  @override
+  void dispose() {
+    _priceController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadDelivererName(String? delivererId) async {
+    if (delivererId == null) return;
+    final profile = await _userProfileService.getProfile(delivererId);
+    if (mounted) {
+      setState(() {
+        _delivererName = '${profile?.name}-${profile?.phoneNumber ?? ''}';
+      });
+    }
+  }
+
+  Future<void> _setOrderPrice(String orderId) async {
+    final quoteValue = double.tryParse(_priceController.text);
+    if (quoteValue == null || quoteValue <= 0) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Veuillez saisir un prix de devis valide.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    setState(() => _isSavingPrice = true);
+    try {
+      await orderService.updateFinalPrice(orderId, quoteValue);
+      await orderService.updateOrderStatus(
+        orderId: orderId,
+        newStatus: 'ACCEPTED',
+      );
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Prix de devis mis à jour avec succès.'),
+          backgroundColor: Colors.green,
+        ),
+      );
+      if (mounted) setState(() {});
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erreur mise à jour devis: $e'),
+          backgroundColor: Colors.red.shade600,
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _isSavingPrice = false);
+    }
+  }
+
   Future<void> _loadMapData(Order order) async {
     try {
-      List<Location> pickupLocations = await locationFromAddress(order.pickupAddress);
-      List<Location> dropoffLocations = await locationFromAddress(order.dropoffAddress);
+      List<Location> pickupLocations = await locationFromAddress(
+        order.pickupAddress,
+      );
+      List<Location> dropoffLocations = await locationFromAddress(
+        order.dropoffAddress,
+      );
 
       if (pickupLocations.isNotEmpty && dropoffLocations.isNotEmpty) {
-        _pickupCoords = LatLng(pickupLocations.first.latitude, pickupLocations.first.longitude);
-        _dropoffCoords = LatLng(dropoffLocations.first.latitude, dropoffLocations.first.longitude);
+        _pickupCoords = LatLng(
+          pickupLocations.first.latitude,
+          pickupLocations.first.longitude,
+        );
+        _dropoffCoords = LatLng(
+          dropoffLocations.first.latitude,
+          dropoffLocations.first.longitude,
+        );
 
-        final url = Uri.parse('http://router.project-osrm.org/route/v1/driving/${_pickupCoords!.longitude},${_pickupCoords!.latitude};${_dropoffCoords!.longitude},${_dropoffCoords!.latitude}?overview=full&geometries=geojson');
+        final url = Uri.parse(
+          'https://router.project-osrm.org/route/v1/driving/${_pickupCoords!.longitude},${_pickupCoords!.latitude};${_dropoffCoords!.longitude},${_dropoffCoords!.latitude}?overview=full&geometries=geojson',
+        );
         final response = await http.get(url);
         if (response.statusCode == 200) {
           final data = json.decode(response.body);
           final geometry = data['routes'][0]['geometry']['coordinates'] as List;
-          if (mounted) setState(() => _routePoints = geometry.map((p) => LatLng(p[1].toDouble(), p[0].toDouble())).toList());
+          if (mounted) {
+            setState(
+              () => _routePoints = geometry
+                  .map((p) => LatLng(p[1].toDouble(), p[0].toDouble()))
+                  .toList(),
+            );
+          }
         }
       }
     } catch (e) {
@@ -1301,9 +1230,62 @@ class _OrderDetailsAdminScreenState extends State<OrderDetailsAdminScreen> {
     }
   }
 
+  void _showFullScreenImage(String imageUrl) {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.all(16),
+        child: Stack(
+          children: [
+            Center(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(24),
+                child: InteractiveViewer(
+                  minScale: 0.5,
+                  maxScale: 4.0,
+                  child: Image.network(
+                    imageUrl,
+                    fit: BoxFit.contain,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      width: 300,
+                      height: 300,
+                      color: Colors.grey.shade200,
+                      child: const Icon(
+                        Icons.broken_image_rounded,
+                        size: 64,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              top: 8,
+              right: 8,
+              child: IconButton(
+                icon: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.black54,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: const Icon(Icons.close_rounded, color: Colors.white),
+                ),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey.shade50,
       body: FutureBuilder<Order?>(
         future: _orderFuture,
         builder: (context, snapshot) {
@@ -1317,35 +1299,56 @@ class _OrderDetailsAdminScreenState extends State<OrderDetailsAdminScreen> {
           }
           if (snapshot.hasError || !snapshot.hasData || snapshot.data == null) {
             return Center(
-              child: Text(
-                'Erreur de chargement',
-                style: TextStyle(color: Colors.grey.shade600),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.error_outline_rounded,
+                    size: 64,
+                    color: Colors.grey.shade400,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Erreur de chargement',
+                    style: GoogleFonts.poppins(color: Colors.grey.shade600),
+                  ),
+                  const SizedBox(height: 24),
+                  ElevatedButton(
+                    onPressed: () => context.pop(),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF6C63FF),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text('Retour'),
+                  ),
+                ],
               ),
             );
           }
 
           final order = snapshot.data!;
-          final List<String> photoUrl = order.photoUrls;
-          final List<String> photos = photoUrl;
+          final List<String> photoUrls = order.photoUrls;
 
           return CustomScrollView(
             slivers: [
               SliverAppBar(
-                expandedHeight: 300,
+                expandedHeight: 350,
                 floating: false,
                 pinned: true,
                 backgroundColor: Colors.white,
                 surfaceTintColor: Colors.white,
                 leading: IconButton(
                   icon: Container(
-                    width: 36,
-                    height: 36,
+                    width: 40,
+                    height: 40,
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(12),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.grey.withValues(alpha:0.1),
+                          color: Colors.grey.withValues(alpha: 0.2),
                           blurRadius: 10,
                         ),
                       ],
@@ -1356,13 +1359,13 @@ class _OrderDetailsAdminScreenState extends State<OrderDetailsAdminScreen> {
                       size: 20,
                     ),
                   ),
-                  onPressed: () => context.go('/admin'),
+                  onPressed: () => context.pop(),
                 ),
                 flexibleSpace: FlexibleSpaceBar(
                   background: _buildMapSection(),
                   title: Text(
                     '#${(order.id?.substring(0, 6) ?? '').toUpperCase()}',
-                    style: const TextStyle(
+                    style: GoogleFonts.poppins(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                       color: Colors.black87,
@@ -1377,114 +1380,146 @@ class _OrderDetailsAdminScreenState extends State<OrderDetailsAdminScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Status
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: OrderAdminCard._getStatusColor(order.status)
-                              .withValues(alpha:0.05),
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: OrderAdminCard._getStatusColor(order.status)
-                                .withValues(alpha:0.2),
-                            width: 1,
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 40,
-                              height: 40,
-                              decoration: BoxDecoration(
-                                color: OrderAdminCard._getStatusColor(order.status)
-                                    .withValues(alpha:0.1),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Icon(
-                                _getStatusIcon(order.status),
-                                color: OrderAdminCard._getStatusColor(order.status),
-                                size: 22,
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Statut',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.grey.shade600,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    OrderAdminCard._getDisplayStatus(order.status),
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w700,
-                                      color: OrderAdminCard._getStatusColor(order.status),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                      _buildStatusCard(order.status),
                       const SizedBox(height: 24),
-
-                      // Informations
                       _buildSection(
-                        title: 'Informations',
+                        title: 'Informations de livraison',
                         children: [
                           _buildDetailRow(
                             icon: Icons.person_outline_rounded,
-                            label: 'Client ID',
-                            value: order.userId,
+                            label: 'Client',
+                            value: _buildClientNameWidget(order.userId),
                           ),
+
+                          _buildDetailRow(
+                            icon: Icons.local_shipping_rounded,
+                            label: 'Livreur assigné',
+                            value:
+                                _delivererName ??
+                                order.delivererId ??
+                                'Non assigné',
+                          ),
+                          if (order.status.toUpperCase() != 'CANCELLED')
+                            Padding(
+                              padding: const EdgeInsets.only(top: 8, bottom: 8),
+                              child: ElevatedButton.icon(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          AdminAssignStaffScreen(
+                                            orderId: order.id!,
+                                          ),
+                                    ),
+                                  );
+                                },
+                                icon: const Icon(Icons.sync_alt_rounded),
+                                label: const Text('Changer de prestataire'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF6C63FF),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                              ),
+                            ),
                           _buildDetailRow(
                             icon: Icons.attach_money_rounded,
-                            label: 'Prix final',
-                            value: '${order.priceQuote?.toStringAsFixed(2) ?? '0.00'} FCFA',
+                            label: 'Prix',
+                            value:
+                                '${order.priceQuote?.toStringAsFixed(2) ?? '0.00'} FCFA',
                           ),
-                          _buildDetailRow(
-                            icon: Icons.description_outlined,
-                            label: 'Description',
-                            value: order.description ?? 'Non spécifiée',
-                          ),
+                          if (order.isQuote)
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(height: 12),
+                                Text(
+                                  'Devis',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey.shade600,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: TextField(
+                                        controller: _priceController,
+                                        keyboardType: TextInputType.number,
+                                        decoration: InputDecoration(
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
+                                          ),
+                                          hintText: 'Saisir le prix final',
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    ElevatedButton(
+                                      onPressed: _isSavingPrice
+                                          ? null
+                                          : () => _setOrderPrice(order.id!),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: const Color(
+                                          0xFF6C63FF,
+                                        ),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                        ),
+                                      ),
+                                      child: _isSavingPrice
+                                          ? const SizedBox(
+                                              width: 18,
+                                              height: 18,
+                                              child: CircularProgressIndicator(
+                                                color: Colors.white,
+                                                strokeWidth: 2,
+                                              ),
+                                            )
+                                          : const Text('Valider'),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 12),
+                              ],
+                            ),
                           _buildDetailRow(
                             icon: Icons.calendar_today_rounded,
-                            label: 'Date',
+                            label: 'Date de création',
                             value: _formatDate(order.timestamp),
                           ),
+                          _buildDetailRow(icon: Icons.abc, label: "type", value: order.serviceType),
+                          if (order.description != null &&
+                              order.description!.isNotEmpty)
+                            _buildDetailRow(
+                              icon: Icons.description_outlined,
+                              label: 'Description',
+                              value: order.description!,
+                              isMultiLine: true,
+                            ),
+                          if (order.serviceType != 'LIVRAISON' &&
+                              order.additionalDetails.isNotEmpty)
+                            _buildDetailRow(
+                              icon: Icons.info_outline_rounded,
+                              label: 'Détails supplémentaires',
+                              value: order.additionalDetails.entries
+                                  .map((e) => '${e.key}: ${e.value}')
+                                  .join('\n'),
+                              isMultiLine: true,                 
+                              ),
                         ],
                       ),
                       const SizedBox(height: 24),
-
-                      // Adresses
-                      _buildSection(
-                        title: 'Adresses',
-                        children: [
-                          _buildDetailRow(
-                            icon: Icons.location_on_outlined,
-                            label: 'Départ',
-                            value: order.pickupAddress,
-                            isMultiLine: true,
-                          ),
-                          _buildDetailRow(
-                            icon: Icons.flag_outlined,
-                            label: 'Destination',
-                            value: order.dropoffAddress,
-                            isMultiLine: true,
-                          ),
-                        ],
-                      ),
+                      _buildAddressSection(order),
                       const SizedBox(height: 24),
-
-                      // Images
-                      if (photos.isNotEmpty) ...[
+                      if (photoUrls.isNotEmpty) ...[
                         _buildSection(
                           title: 'Photos',
                           children: [
@@ -1492,46 +1527,96 @@ class _OrderDetailsAdminScreenState extends State<OrderDetailsAdminScreen> {
                               height: 200,
                               child: ListView.builder(
                                 scrollDirection: Axis.horizontal,
-                                itemCount: photos.length,
+                                itemCount: photoUrls.length,
                                 itemBuilder: (context, index) {
+                                  final url = photoUrls[index];
                                   return Padding(
                                     padding: EdgeInsets.only(
-                                      right: index < photos.length - 1 ? 16 : 0,
+                                      right: index < photoUrls.length - 1
+                                          ? 16
+                                          : 0,
                                     ),
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(12),
-                                      child: FutureBuilder<ImageProvider>(
-                                        future: ImageCacheService.instance
-                                            .getImageProvider(photos[index], context),
-                                        builder: (context, snapshot) {
-                                          if (snapshot.connectionState ==
-                                              ConnectionState.waiting) {
-                                            return Container(
-                                              width: 150,
-                                              decoration: BoxDecoration(
-                                                color: Colors.grey.shade100,
-                                                borderRadius: BorderRadius.circular(12),
-                                              ),
-                                              child: const Center(
-                                                child: CircularProgressIndicator(
-                                                  color: Color(0xFF6C63FF),
-                                                  strokeWidth: 2,
+                                    child: GestureDetector(
+                                      onTap: () => _showFullScreenImage(url),
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(12),
+                                        child: FutureBuilder<ImageProvider>(
+                                          future: ImageCacheService.instance
+                                              .getImageProvider(url, context),
+                                          builder: (context, snapshot) {
+                                            if (snapshot.connectionState ==
+                                                ConnectionState.waiting) {
+                                              return Container(
+                                                width: 150,
+                                                decoration: BoxDecoration(
+                                                  color: Colors.grey.shade100,
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
                                                 ),
-                                              ),
+                                                child: const Center(
+                                                  child:
+                                                      CircularProgressIndicator(
+                                                        color: Color(
+                                                          0xFF6C63FF,
+                                                        ),
+                                                        strokeWidth: 2,
+                                                      ),
+                                                ),
+                                              );
+                                            }
+                                            if (snapshot.hasError ||
+                                                snapshot.data == null) {
+                                              return Container(
+                                                width: 150,
+                                                decoration: BoxDecoration(
+                                                  color: Colors.grey.shade100,
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
+                                                ),
+                                                child: const Column(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    Icon(
+                                                      Icons
+                                                          .broken_image_rounded,
+                                                      color: Colors.grey,
+                                                      size: 40,
+                                                    ),
+                                                    SizedBox(height: 8),
+                                                    Text(
+                                                      'Image non disponible',
+                                                      style: TextStyle(
+                                                        fontSize: 12,
+                                                        color: Colors.grey,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              );
+                                            }
+                                            return Image(
+                                              image: snapshot.data!,
+                                              width: 150,
+                                              height: 200,
+                                              fit: BoxFit.cover,
                                             );
-                                          }
-                                          return Image(
-                                            image: snapshot.data ??
-                                                const AssetImage('assets/logo.webp'),
-                                            width: 150,
-                                            height: 200,
-                                            fit: BoxFit.cover,
-                                          );
-                                        },
+                                          },
+                                        ),
                                       ),
                                     ),
                                   );
                                 },
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            Center(
+                              child: Text(
+                                'Appuyez sur une photo pour l\'agrandir',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 12,
+                                  color: Colors.grey.shade500,
+                                ),
                               ),
                             ),
                           ],
@@ -1545,6 +1630,58 @@ class _OrderDetailsAdminScreenState extends State<OrderDetailsAdminScreen> {
             ],
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildStatusCard(String status) {
+    final statusColor = OrderAdminCard._getStatusColor(status);
+    final displayStatus = OrderAdminCard._getDisplayStatus(status);
+    final statusIcon = _getStatusIcon(status);
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: statusColor.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: statusColor.withValues(alpha: 0.2), width: 1),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: statusColor.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Icon(statusIcon, color: statusColor, size: 24),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Statut actuel',
+                  style: GoogleFonts.poppins(
+                    fontSize: 12,
+                    color: Colors.grey.shade600,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  displayStatus,
+                  style: GoogleFonts.poppins(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                    color: statusColor,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -1564,87 +1701,235 @@ class _OrderDetailsAdminScreenState extends State<OrderDetailsAdminScreen> {
     if (_pickupCoords == null || _dropoffCoords == null) {
       return Container(
         color: Colors.grey.shade50,
-        child: const Center(
-          child: Icon(
-            Icons.location_off_rounded,
-            size: 48,
-            color: Colors.grey,
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.location_off_rounded,
+                size: 48,
+                color: Colors.grey.shade400,
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'Impossible de localiser les adresses',
+                style: GoogleFonts.poppins(color: Colors.grey.shade600),
+              ),
+            ],
           ),
         ),
       );
     }
 
-    return FlutterMap(
-      options: MapOptions(
-        initialCenter: _pickupCoords!,
-        initialZoom: 13,
-        initialCameraFit: CameraFit.bounds(
-          bounds: LatLngBounds(_pickupCoords!, _dropoffCoords!),
-          padding: const EdgeInsets.all(40),
-        ),
-      ),
+    return Stack(
       children: [
-        TileLayer(
-          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-          userAgentPackageName: 'com.camelia.logistics',
-        ),
-        if (_routePoints.isNotEmpty)
-          PolylineLayer(
-            polylines: [
-              Polyline(
-                points: _routePoints,
-                strokeWidth: 4.0,
-                color: const Color(0xFF6C63FF),
-              ),
-            ],
-          ),
-        MarkerLayer(
-          markers: [
-            Marker(
-              point: _pickupCoords!,
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withValues(alpha:0.3),
-                      blurRadius: 10,
-                    ),
-                  ],
-                ),
-                child: const Icon(
-                  Icons.location_on_rounded,
-                  color: Color(0xFF6C63FF),
-                  size: 24,
-                ),
-              ),
+        FlutterMap(
+          options: MapOptions(
+            initialCenter: _pickupCoords!,
+            initialZoom: 13,
+            initialCameraFit: CameraFit.bounds(
+              bounds: LatLngBounds(_pickupCoords!, _dropoffCoords!),
+              padding: const EdgeInsets.all(60),
             ),
-            Marker(
-              point: _dropoffCoords!,
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withValues(alpha:0.3),
-                      blurRadius: 10,
-                    ),
-                  ],
-                ),
-                child: const Icon(
-                  Icons.flag_rounded,
-                  color: Color(0xFF4CAF50),
-                  size: 24,
-                ),
+          ),
+          children: [
+            TileLayer(
+              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+              userAgentPackageName: 'com.camelia.logistics',
+            ),
+            if (_routePoints.isNotEmpty)
+              PolylineLayer(
+                polylines: [
+                  Polyline(
+                    points: _routePoints,
+                    strokeWidth: 4.0,
+                    color: const Color(0xFF6C63FF),
+                  ),
+                ],
               ),
+            MarkerLayer(
+              markers: [
+                Marker(
+                  point: _pickupCoords!,
+                  child: Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withValues(alpha: 0.3),
+                          blurRadius: 8,
+                        ),
+                      ],
+                    ),
+                    child: const Icon(
+                      Icons.location_on_rounded,
+                      color: Color(0xFF6C63FF),
+                      size: 28,
+                    ),
+                  ),
+                ),
+                Marker(
+                  point: _dropoffCoords!,
+                  child: Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withValues(alpha: 0.3),
+                          blurRadius: 8,
+                        ),
+                      ],
+                    ),
+                    child: const Icon(
+                      Icons.flag_rounded,
+                      color: Color(0xFF4CAF50),
+                      size: 28,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
+        Positioned(
+          bottom: 16,
+          left: 16,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withValues(alpha: 0.2),
+                  blurRadius: 8,
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.location_on_rounded,
+                  color: Color(0xFF6C63FF),
+                  size: 16,
+                ),
+                const SizedBox(width: 4),
+                Text('Départ', style: GoogleFonts.poppins(fontSize: 12)),
+                const SizedBox(width: 12),
+                const Icon(
+                  Icons.flag_rounded,
+                  color: Color(0xFF4CAF50),
+                  size: 16,
+                ),
+                const SizedBox(width: 4),
+                Text('Arrivée', style: GoogleFonts.poppins(fontSize: 12)),
+              ],
+            ),
+          ),
+        ),
       ],
+    );
+  }
+
+  Widget _buildAddressSection(Order order) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Adresses',
+          style: GoogleFonts.poppins(
+            fontSize: 18,
+            fontWeight: FontWeight.w700,
+            color: Colors.grey.shade900,
+          ),
+        ),
+        const SizedBox(height: 16),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: Colors.grey.shade100, width: 1),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withValues(alpha: 0.05),
+                blurRadius: 20,
+              ),
+            ],
+          ),
+          child: Column(
+            children: [
+              _buildAddressTile(
+                icon: Icons.location_on_rounded,
+                title: 'Point de départ',
+                address: order.pickupAddress,
+                color: const Color(0xFF6C63FF),
+              ),
+              Divider(height: 1, color: Colors.grey.shade100),
+              _buildAddressTile(
+                icon: Icons.flag_rounded,
+                title: 'Point de destination',
+                address: order.dropoffAddress,
+                color: const Color(0xFF4CAF50),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildAddressTile({
+    required IconData icon,
+    required String title,
+    required String address,
+    required Color color,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, color: color, size: 22),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.grey.shade700,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  address,
+                  style: GoogleFonts.poppins(
+                    fontSize: 15,
+                    color: Colors.grey.shade900,
+                    fontWeight: FontWeight.w500,
+                    height: 1.4,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -1657,39 +1942,47 @@ class _OrderDetailsAdminScreenState extends State<OrderDetailsAdminScreen> {
       children: [
         Text(
           title,
-          style: const TextStyle(
+          style: GoogleFonts.poppins(
             fontSize: 18,
             fontWeight: FontWeight.w700,
-            color: Colors.black87,
+            color: Colors.grey.shade900,
           ),
         ),
         const SizedBox(height: 16),
         Container(
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(18),
             border: Border.all(color: Colors.grey.shade100, width: 1),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withValues(alpha: 0.05),
+                blurRadius: 20,
+              ),
+            ],
           ),
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            children: children,
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(children: children),
           ),
         ),
       ],
     );
   }
 
+  // Modifié pour accepter soit un Widget soit une String
   Widget _buildDetailRow({
     required IconData icon,
     required String label,
-    required String value,
+    required dynamic value,
     bool isMultiLine = false,
   }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Row(
-        crossAxisAlignment:
-            isMultiLine ? CrossAxisAlignment.start : CrossAxisAlignment.center,
+        crossAxisAlignment: isMultiLine
+            ? CrossAxisAlignment.start
+            : CrossAxisAlignment.center,
         children: [
           Icon(icon, size: 20, color: Colors.grey.shade400),
           const SizedBox(width: 12),
@@ -1699,31 +1992,24 @@ class _OrderDetailsAdminScreenState extends State<OrderDetailsAdminScreen> {
               children: [
                 Text(
                   label,
-                  style: TextStyle(
+                  style: GoogleFonts.poppins(
                     fontSize: 12,
                     color: Colors.grey.shade600,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
                 const SizedBox(height: 4),
-                if (isMultiLine)
-                  Text(
-                    value,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: Colors.black87,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  )
-                else
-                  Text(
-                    value,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: Colors.black87,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
+                // Si value est un Widget, on l'affiche directement, sinon Text
+                value is Widget
+                    ? value
+                    : Text(
+                        value.toString(),
+                        style: GoogleFonts.poppins(
+                          fontSize: 14,
+                          color: Colors.grey.shade900,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
               ],
             ),
           ),
@@ -1732,14 +2018,49 @@ class _OrderDetailsAdminScreenState extends State<OrderDetailsAdminScreen> {
     );
   }
 
+  // Retourne un Widget (FutureBuilder) pour le nom du client
+  Widget _buildClientNameWidget(String userId) {
+    return FutureBuilder<UserProfile?>(
+      future: _userProfileService.getProfile(userId),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const SizedBox(
+            height: 20,
+            width: 20,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              color: Color(0xFF6C63FF),
+            ),
+          );
+        }
+        final name = snapshot.data?.name ?? userId;
+        final phone = snapshot.data?.phoneNumber ?? 'N/A';
+        return Text(
+          '$name\n$phone',
+          style: GoogleFonts.poppins(
+            fontSize: 14,
+            color: Colors.grey.shade900,
+            fontWeight: FontWeight.w500,
+          ),
+        );
+      },
+    );
+  }
+
   IconData _getStatusIcon(String status) {
     switch (status.toUpperCase()) {
-      case 'PENDING': return Icons.access_time_rounded;
-      case 'ACCEPTED': return Icons.check_circle_outline_rounded;
-      case 'ASSIGNED': return Icons.local_shipping_rounded;
-      case 'COMPLETED': return Icons.done_all_rounded;
-      case 'CANCELLED': return Icons.cancel_outlined;
-      default: return Icons.info_outline_rounded;
+      case 'PENDING':
+        return Icons.access_time_rounded;
+      case 'ACCEPTED':
+        return Icons.check_circle_outline_rounded;
+      case 'ASSIGNED':
+        return Icons.local_shipping_rounded;
+      case 'COMPLETED':
+        return Icons.done_all_rounded;
+      case 'CANCELLED':
+        return Icons.cancel_outlined;
+      default:
+        return Icons.info_outline_rounded;
     }
   }
 

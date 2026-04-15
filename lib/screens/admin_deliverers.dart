@@ -1,7 +1,7 @@
-import 'package:camelia_logistics/models/order_model.dart';
-import 'package:camelia_logistics/models/services/user_profile_service.dart';
-import 'package:camelia_logistics/models/services/order_service.dart';
-import 'package:camelia_logistics/models/user_profile.dart';
+import 'package:camelia/models/order_model.dart';
+import 'package:camelia/models/services/order_service.dart';
+import 'package:camelia/models/services/user_profile_service.dart';
+import 'package:camelia/models/user_profile.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -15,21 +15,17 @@ class AdminDeliverersScreen extends StatefulWidget {
 
 class _DeliverersScreenState extends State<AdminDeliverersScreen> {
   final UserProfileService _delivererService = UserProfileService();
-  final OrderService _orderService = OrderService(); // Ajout du service de commande
+  final OrderService _orderService = OrderService();
+
+  final _formKey = GlobalKey<FormState>();
+  bool _isLoading = false;
+
   final TextEditingController _searchController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _vehicle = TextEditingController();
-  final TextEditingController _phone = TextEditingController();
-
-  Future<void> saveDeliver() async {
-    await _delivererService.saveDeliverer(
-      _nameController.text,
-      _phone.text,
-      _vehicle.text,
-      _locationController.text,
-    );
-  }
+  final TextEditingController _vehicleController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
 
   String _searchQuery = '';
 
@@ -37,202 +33,363 @@ class _DeliverersScreenState extends State<AdminDeliverersScreen> {
   void initState() {
     super.initState();
     _searchController.addListener(() {
-      setState(() {
-        _searchQuery = _searchController.text.toLowerCase();
-      });
+      if (mounted) {
+        setState(() {
+          _searchQuery = _searchController.text.toLowerCase();
+        });
+      }
     });
   }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _locationController.dispose();
+    _nameController.dispose();
+    _vehicleController.dispose();
+    _phoneController.dispose();
+    _emailController.dispose();
     super.dispose();
+  }
+
+  Future<void> _saveDeliverer() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isLoading = true);
+    try {
+      await _delivererService.createDeliverer(
+        name: _nameController.text.trim(),
+        phoneNumber: _phoneController.text.trim(),
+        email: _emailController.text.trim(),
+        vehicle: _vehicleController.text.trim().isEmpty
+            ? null
+            : _vehicleController.text.trim(),
+        location: _locationController.text.trim().isEmpty
+            ? null
+            : _locationController.text.trim(),
+      );
+      if (mounted) {
+        Navigator.of(context).pop(); // ferme le dialogue
+        _clearAddForm(); // réinitialise les champs
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Chauffeur créé avec succès'),
+            backgroundColor: Color(0xFF4CAF50),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(12)),
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erreur création chauffeur : $e'),
+            backgroundColor: Colors.red.shade600,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  void _clearAddForm() {
+    _nameController.clear();
+    _phoneController.clear();
+    _emailController.clear();
+    _vehicleController.clear();
+    _locationController.clear();
   }
 
   void addDeliverDialog(BuildContext context) {
     showDialog(
+      barrierDismissible: false,
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Row(
-            children: [
-              const Icon(Icons.add, color: Color(0xFF6C63FF)),
-              const SizedBox(width: 8),
-              Text(
-                'Ajouter un chauffeur',
-                style: GoogleFonts.poppins(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                  color: Colors.grey.shade900,
-                ),
-              ),
-            ],
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(28),
           ),
-          content: SingleChildScrollView(
-            child: Column(
-              children: [
-                TextFormField(
-                  controller: _nameController,
-                  validator: (value) {
-                    if (value!.isEmpty) return 'Le nom est obligatoire.';
-                    return null;
-                  },
-                  decoration: InputDecoration(
-                    labelText: 'Nom complet',
-                    hintText: 'Entrer le nom du chauffeur',
-                    labelStyle: GoogleFonts.poppins(
-                      color: Colors.grey.shade600,
-                      fontSize: 13,
-                    ),
-                    hintStyle: GoogleFonts.poppins(
-                      color: Colors.grey.shade400,
-                      fontSize: 12,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide(color: Colors.grey.shade300),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: const BorderSide(color: Color(0xFF6C63FF), width: 2),
-                    ),
+          backgroundColor: Colors.white,
+          insetPadding: const EdgeInsets.all(24),
+          child: SingleChildScrollView(
+            child: StatefulBuilder(
+              builder: (context, setStateDialog) {
+                return Container(
+                  padding: const EdgeInsets.all(28),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // En‑tête
+                      Row(
+                        children: [
+                          Container(
+                            width: 52,
+                            height: 52,
+                            decoration: BoxDecoration(
+                              gradient: const LinearGradient(
+                                colors: [Color(0xFF6C63FF), Color(0xFF8B84FF)],
+                              ),
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                            child: const Icon(
+                              Icons.person_add_alt_1_rounded,
+                              color: Colors.white,
+                              size: 26,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Text(
+                              'Ajouter un chauffeur',
+                              style: GoogleFonts.poppins(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.grey.shade900,
+                                letterSpacing: -0.5,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      // Formulaire
+                      Form(
+                        key: _formKey,
+                        child: SingleChildScrollView(
+                          child: Column(
+                            children: [
+                              _buildTextField(
+                                controller: _nameController,
+                                label: 'Nom complet',
+                                hint: 'Jean Dupont',
+                                icon: Icons.person_outline_rounded,
+                                validator: (value) =>
+                                    value?.trim().isEmpty ?? true
+                                    ? 'Le nom est requis'
+                                    : null,
+                              ),
+                              const SizedBox(height: 16),
+                              _buildTextField(
+                                controller: _phoneController,
+                                label: 'Téléphone',
+                                hint: '+2376XXXXXXXX',
+                                icon: Icons.phone_rounded,
+                                keyboardType: TextInputType.phone,
+                                validator: (value) =>
+                                    value?.trim().isEmpty ?? true
+                                    ? 'Le téléphone est requis'
+                                    : null,
+                              ),
+                              const SizedBox(height: 16),
+                              _buildTextField(
+                                controller: _emailController,
+                                label: 'Email',
+                                hint: 'jean@example.com',
+                                icon: Icons.email_rounded,
+                                keyboardType: TextInputType.emailAddress,
+                                validator: (value) {
+                                  if (value?.trim().isEmpty ?? true) {
+                                    return 'L\'email est requis';
+                                  }
+                                  final emailRegex = RegExp(
+                                    r'^[^@]+@[^@]+\.[^@]+',
+                                  );
+                                  if (!emailRegex.hasMatch(value!)) {
+                                    return 'Email invalide';
+                                  }
+                                  return null;
+                                },
+                              ),
+
+                              const SizedBox(height: 16),
+                              _buildTextField(
+                                controller: _vehicleController,
+                                label: 'Véhicule',
+                                hint: 'Toyota Hilux',
+                                icon: Icons.directions_car_rounded,
+                              ),
+                              const SizedBox(height: 16),
+                              _buildTextField(
+                                controller: _locationController,
+                                label: 'Localisation',
+                                hint: 'Akwa, Douala',
+                                icon: Icons.location_on_rounded,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 28),
+                      // Actions
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          OutlinedButton(
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                              _clearAddForm(); // réinitialise les champs à la fermeture
+                            },
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 24,
+                                vertical: 14,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                              side: const BorderSide(color: Color(0xFF6C63FF)),
+                            ),
+                            child: Text(
+                              'Annuler',
+                              style: GoogleFonts.poppins(
+                                color: const Color(0xFF6C63FF),
+                                fontWeight: FontWeight.w600,
+                                fontSize: 15,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(14),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: const Color(
+                                    0xFF6C63FF,
+                                  ).withValues(alpha: 0.3),
+                                  blurRadius: 15,
+                                  spreadRadius: 2,
+                                ),
+                              ],
+                            ),
+                            child: Material(
+                              borderRadius: BorderRadius.circular(14),
+                              child: InkWell(
+                                onTap: _isLoading ? null : _saveDeliverer,
+                                borderRadius: BorderRadius.circular(14),
+                                child: Ink(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 28,
+                                    vertical: 14,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    gradient: const LinearGradient(
+                                      colors: [
+                                        Color(0xFF6C63FF),
+                                        Color(0xFF8B84FF),
+                                      ],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    ),
+                                    borderRadius: BorderRadius.circular(14),
+                                  ),
+                                  child: _isLoading
+                                      ? const SizedBox(
+                                          height: 22,
+                                          width: 22,
+                                          child: CircularProgressIndicator(
+                                            color: Colors.white,
+                                            strokeWidth: 2.5,
+                                          ),
+                                        )
+                                      : Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            const Icon(
+                                              Icons.save_rounded,
+                                              size: 20,
+                                              color: Colors.white,
+                                            ),
+                                            const SizedBox(width: 10),
+                                            Text(
+                                              'Enregistrer',
+                                              style: GoogleFonts.poppins(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.w700,
+                                                fontSize: 15,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                ),
-                const SizedBox(height: 14),
-                TextFormField(
-                  controller: _vehicle,
-                  validator: (value) {
-                    if (value!.isEmpty) {
-                      return 'Le type du véhicule est obligatoire.';
-                    }
-                    return null;
-                  },
-                  decoration: InputDecoration(
-                    labelText: 'Type de véhicule',
-                    hintText: 'Ex: Camion, Fourgon, Moto...',
-                    labelStyle: GoogleFonts.poppins(
-                      color: Colors.grey.shade600,
-                      fontSize: 13,
-                    ),
-                    hintStyle: GoogleFonts.poppins(
-                      color: Colors.grey.shade400,
-                      fontSize: 12,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide(color: Colors.grey.shade300),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: const BorderSide(color: Color(0xFF6C63FF), width: 2),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 13),
-                TextFormField(
-                  controller: _phone,
-                  validator: (value) {
-                    if (value!.isEmpty) return 'Le numéro est obligatoire.';
-                    return null;
-                  },
-                  keyboardType: TextInputType.phone,
-                  decoration: InputDecoration(
-                    labelText: 'Téléphone',
-                    hintText: 'Entrer le numéro de téléphone',
-                    labelStyle: GoogleFonts.poppins(
-                      color: Colors.grey.shade600,
-                      fontSize: 13,
-                    ),
-                    hintStyle: GoogleFonts.poppins(
-                      color: Colors.grey.shade400,
-                      fontSize: 12,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide(color: Colors.grey.shade300),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: const BorderSide(color: Color(0xFF6C63FF), width: 2),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 13),
-                TextFormField(
-                  controller: _locationController,
-                  validator: (value) {
-                    if (value!.isEmpty) {
-                      return 'La localisation est obligatoire.';
-                    }
-                    return null;
-                  },
-                  keyboardType: TextInputType.text,
-                  decoration: InputDecoration(
-                    labelText: 'Localisation',
-                    hintText: 'Entrer la localisation',
-                    labelStyle: GoogleFonts.poppins(
-                      color: Colors.grey.shade600,
-                      fontSize: 13,
-                    ),
-                    hintStyle: GoogleFonts.poppins(
-                      color: Colors.grey.shade400,
-                      fontSize: 12,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide(color: Colors.grey.shade300),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: const BorderSide(color: Color(0xFF6C63FF), width: 2),
-                    ),
-                  ),
-                ),
-              ],
+                );
+              },
             ),
           ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text(
-                'Retour',
-                style: GoogleFonts.poppins(
-                  color: Colors.grey.shade700,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                saveDeliver();
-                Navigator.of(context).pop();
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF6C63FF),
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: Text(
-                'Confirmer',
-                style: GoogleFonts.poppins(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ],
         );
       },
+    ).then((_) => _clearAddForm()); // au cas où le dialog est fermé autrement
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required String hint,
+    required IconData icon,
+    TextInputType keyboardType = TextInputType.text,
+    bool obscureText = false,
+    String? Function(String?)? validator,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: GoogleFonts.poppins(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: Colors.grey.shade800,
+          ),
+        ),
+        const SizedBox(height: 8),
+        TextFormField(
+          controller: controller,
+          obscureText: obscureText,
+          keyboardType: keyboardType,
+          validator: validator,
+          style: GoogleFonts.poppins(),
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle: GoogleFonts.poppins(color: Colors.grey.shade400),
+            prefixIcon: Icon(icon, color: Colors.grey.shade500),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey.shade300),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Color(0xFF6C63FF), width: 2),
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 14,
+            ),
+          ),
+        ),
+      ],
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey.shade50,
       appBar: AppBar(
         title: Text(
           'Chauffeurs',
@@ -268,7 +425,10 @@ class _DeliverersScreenState extends State<AdminDeliverersScreen> {
                     color: Colors.grey.shade400,
                     fontSize: 13,
                   ),
-                  prefixIcon: const Icon(Icons.search_rounded, color: Color(0xFF6C63FF)),
+                  prefixIcon: const Icon(
+                    Icons.search_rounded,
+                    color: Color(0xFF6C63FF),
+                  ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(16),
                     borderSide: BorderSide.none,
@@ -281,44 +441,26 @@ class _DeliverersScreenState extends State<AdminDeliverersScreen> {
             ),
           ),
           Expanded(
-            // 1. Premier Stream : Récupérer les commandes actives (ASSIGNED)
             child: StreamBuilder<List<Order>>(
               stream: _orderService.streamActiveOrdersForDrivers(),
               builder: (context, orderSnapshot) {
-                // On prépare la liste des IDs occupés
                 final Set<String> busyDriverIds = {};
                 if (orderSnapshot.hasData) {
                   for (var order in orderSnapshot.data!) {
-                    // On suppose que le modèle Order a un champ delivererId
-                    // Si ce n'est pas le cas, assurez-vous de l'ajouter au modèle Order
                     if (order.delivererId != null) {
                       busyDriverIds.add(order.delivererId!);
                     }
                   }
                 }
 
-                // 2. Deuxième Stream : Récupérer les chauffeurs
                 return StreamBuilder<List<UserProfile>>(
                   stream: _delivererService.getDeliverersStream(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const CircularProgressIndicator(
-                              color: Color(0xFF6C63FF),
-                              strokeWidth: 2,
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              'Chargement des chauffeurs...',
-                              style: GoogleFonts.poppins(
-                                color: Colors.grey.shade600,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ],
+                      return const Center(
+                        child: CircularProgressIndicator(
+                          color: Color(0xFF6C63FF),
+                          strokeWidth: 2,
                         ),
                       );
                     }
@@ -327,12 +469,17 @@ class _DeliverersScreenState extends State<AdminDeliverersScreen> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.error_outline_rounded, size: 48, color: Colors.red.shade400),
+                            Icon(
+                              Icons.error_outline_rounded,
+                              size: 48,
+                              color: Colors.red.shade400,
+                            ),
                             const SizedBox(height: 12),
                             Text(
                               'Erreur : ${snapshot.error}',
-                              style: GoogleFonts.poppins(color: Colors.grey.shade700),
-                              textAlign: TextAlign.center,
+                              style: GoogleFonts.poppins(
+                                color: Colors.grey.shade700,
+                              ),
                             ),
                           ],
                         ),
@@ -340,7 +487,6 @@ class _DeliverersScreenState extends State<AdminDeliverersScreen> {
                     }
 
                     final allDeliverers = snapshot.data ?? [];
-
                     final filteredDeliverers = allDeliverers.where((d) {
                       final name = d.name.toLowerCase();
                       final phone = d.phoneNumber.toLowerCase();
@@ -362,7 +508,11 @@ class _DeliverersScreenState extends State<AdminDeliverersScreen> {
                                 color: Colors.grey.shade100,
                                 shape: BoxShape.circle,
                               ),
-                              child: Icon(Icons.person_outline_rounded, size: 40, color: Colors.grey.shade400),
+                              child: Icon(
+                                Icons.person_outline_rounded,
+                                size: 40,
+                                color: Colors.grey.shade400,
+                              ),
                             ),
                             const SizedBox(height: 16),
                             Text(
@@ -387,13 +537,14 @@ class _DeliverersScreenState extends State<AdminDeliverersScreen> {
                     }
 
                     return ListView.builder(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
                       itemCount: filteredDeliverers.length,
                       itemBuilder: (context, index) {
                         final deliverer = filteredDeliverers[index];
-                        // Vérification optimisée O(1) grâce au Set
                         final isBusy = busyDriverIds.contains(deliverer.uid);
-                        
                         return DelivererCard(
                           deliverer: deliverer,
                           isBusy: isBusy,
@@ -408,14 +559,11 @@ class _DeliverersScreenState extends State<AdminDeliverersScreen> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          addDeliverDialog(context);
-        },
+        heroTag: 'add_deliverer',
+        onPressed: () => addDeliverDialog(context),
         backgroundColor: const Color(0xFF6C63FF),
         elevation: 4,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: const Icon(Icons.add_rounded, color: Colors.white),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
@@ -433,12 +581,8 @@ class DelivererCard extends StatelessWidget {
     required this.isBusy,
   });
 
-  // Logique d'appel
   Future<void> _makePhoneCall(String phoneNumber) async {
-    final Uri launchUri = Uri(
-      scheme: 'tel',
-      path: phoneNumber,
-    );
+    final Uri launchUri = Uri(scheme: 'tel', path: phoneNumber);
     try {
       await launchUrl(launchUri);
     } catch (e) {
@@ -446,12 +590,8 @@ class DelivererCard extends StatelessWidget {
     }
   }
 
-  // Logique d'envoi SMS
   Future<void> _sendSms(String phoneNumber) async {
-    final Uri launchUri = Uri(
-      scheme: 'sms',
-      path: phoneNumber,
-    );
+    final Uri launchUri = Uri(scheme: 'sms', path: phoneNumber);
     try {
       await launchUrl(launchUri);
     } catch (e) {
@@ -459,7 +599,6 @@ class DelivererCard extends StatelessWidget {
     }
   }
 
-  // Logique de localisation
   Future<void> _openLocation(String location) async {
     final Uri googleMapsUri = Uri.parse(
       'https://www.google.com/maps/search/?api=1&query=${Uri.encodeComponent(location)}',
@@ -471,7 +610,6 @@ class DelivererCard extends StatelessWidget {
     }
   }
 
-  // Logique des détails
   void _showDetails(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -484,266 +622,246 @@ class DelivererCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final status = isBusy ? 'EN COURSE' : 'DISPONIBLE';
-    final bool isAvailable = status == 'DISPONIBLE';
-    final statusColor = isAvailable ? const Color(0xFF4CAF50) : const Color(0xFFFF9800);
-    
+    final isAvailable = status == 'DISPONIBLE';
+    final statusColor = isAvailable
+        ? const Color(0xFF4CAF50)
+        : const Color(0xFFFF9800);
+
     final initials = deliverer.name.isNotEmpty
         ? deliverer.name
-            .split(' ')
-            .where((s) => s.isNotEmpty)
-            .map((s) => s[0])
-            .take(2)
-            .join()
-            .toUpperCase()
+              .split(' ')
+              .where((s) => s.isNotEmpty)
+              .map((s) => s[0])
+              .take(2)
+              .join()
+              .toUpperCase()
         : '?';
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(24),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.grey.shade100, width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.08),
-            blurRadius: 16,
-            offset: const Offset(0, 4),
+            color: Colors.grey.withValues(alpha: 0.05),
+            blurRadius: 20,
+            spreadRadius: 2,
           ),
         ],
       ),
-      child: Material(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        elevation: 0,
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // En-tête avec avatar et infos
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Avatar moderne
-                  Container(
-                    width: 64,
-                    height: 64,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: isAvailable
-                            ? [const Color(0xFF6C63FF).withValues(alpha: 0.2), const Color(0xFF6C63FF).withValues(alpha: 0.4)]
-                            : [Colors.grey.shade200, Colors.grey.shade300],
-                      ),
-                      border: Border.all(
-                        color: isAvailable ? const Color(0xFF6C63FF) : Colors.grey.shade400,
-                        width: 2,
-                      ),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Ligne avatar + infos principales
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Avatar
+                Container(
+                  width: 56,
+                  height: 56,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: LinearGradient(
+                      colors: isAvailable
+                          ? [
+                              const Color(0xFF6C63FF).withValues(alpha: 0.2),
+                              const Color(0xFF6C63FF).withValues(alpha: 0.4),
+                            ]
+                          : [Colors.grey.shade200, Colors.grey.shade300],
                     ),
-                    child: Center(
-                      child: Text(
-                        initials,
-                        style: GoogleFonts.poppins(
-                          color: isAvailable ? const Color(0xFF6C63FF) : Colors.grey.shade700,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 22,
-                        ),
+                    border: Border.all(
+                      color: isAvailable
+                          ? const Color(0xFF6C63FF)
+                          : Colors.grey.shade400,
+                      width: 2,
+                    ),
+                  ),
+                  child: Center(
+                    child: Text(
+                      initials,
+                      style: GoogleFonts.poppins(
+                        color: isAvailable
+                            ? const Color(0xFF6C63FF)
+                            : Colors.grey.shade700,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 20,
                       ),
                     ),
                   ),
-                  const SizedBox(width: 16),
-                  
-                  // Infos principales
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                deliverer.name,
-                                style: GoogleFonts.poppins(
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 18,
-                                  color: Colors.grey.shade900,
-                                  letterSpacing: 0.2,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ],
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        deliverer.name,
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 18,
+                          color: Colors.grey.shade900,
                         ),
-                        const SizedBox(height: 4),
-                        Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF6C63FF).withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Text(
-                                deliverer.vehicle ?? 'Véhicule non spécifié',
-                                style: GoogleFonts.poppins(
-                                  color: const Color(0xFF6C63FF),
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color(
+                                0xFF6C63FF,
+                              ).withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              deliverer.vehicle ?? 'Véhicule non spécifié',
+                              style: GoogleFonts.poppins(
+                                color: const Color(0xFF6C63FF),
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
-                            const SizedBox(width: 8),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'ID: ${deliverer.uid.substring(0, 6)}...',
+                              style: GoogleFonts.poppins(
+                                color: Colors.grey.shade500,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      // Badge statut
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: statusColor.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: statusColor.withValues(alpha: 0.3),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
                             Container(
-                              width: 6,
-                              height: 6,
+                              width: 8,
+                              height: 8,
                               decoration: BoxDecoration(
-                                color: Colors.grey.shade300,
+                                color: statusColor,
                                 shape: BoxShape.circle,
                               ),
                             ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                'ID: ${deliverer.uid.substring(0, 6)}...',
-                                style: GoogleFonts.poppins(
-                                  color: Colors.grey.shade500,
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
+                            const SizedBox(width: 6),
+                            Text(
+                              deliverer.isActive ? 'Actif' : 'Inactif',
+                              style: GoogleFonts.poppins(
+                                color: statusColor,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 11,
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 12),
-                        // Badge de statut
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: statusColor.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(
-                              color: statusColor.withValues(alpha: 0.3),
-                              width: 1,
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Container(
-                                width: 8,
-                                height: 8,
-                                decoration: BoxDecoration(
-                                  color: statusColor,
-                                  shape: BoxShape.circle,
-                                ),
-                              ),
-                              const SizedBox(width: 6),
-                              Text(
-                                status,
-                                style: GoogleFonts.poppins(
-                                  color: statusColor,
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 11,
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+
+            // Bloc d'infos secondaires
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade50,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.grey.shade200),
+              ),
+              child: Column(
+                children: [
+                  _buildInfoRow(
+                    icon: Icons.phone_rounded,
+                    iconColor: const Color(0xFF6C63FF),
+                    label: 'Téléphone',
+                    value: deliverer.phoneNumber,
+                    onTap: () => _makePhoneCall(deliverer.phoneNumber),
+                  ),
+                  const Divider(height: 24),
+                  _buildInfoRow(
+                    icon: Icons.location_on_rounded,
+                    iconColor: const Color(0xFF4CAF50),
+                    label: 'Localisation',
+                    value: deliverer.location ?? 'Non spécifiée',
+                    onTap: () => _openLocation(deliverer.location ?? ''),
                   ),
                 ],
               ),
-              
-              const SizedBox(height: 20),
-              
-              // Carte d'informations modernisée
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade50,
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: Colors.grey.shade200,
-                    width: 1,
-                  ),
-                ),
-                child: Column(
-                  children: [
-                    _buildInfoRow(
-                      icon: Icons.phone_rounded,
-                      iconColor: const Color(0xFF6C63FF),
-                      label: 'Téléphone',
-                      value: deliverer.phoneNumber,
-                      onTap: () => _makePhoneCall(deliverer.phoneNumber),
-                    ),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 12),
-                      child: Divider(height: 1),
-                    ),
-                    _buildInfoRow(
-                      icon: Icons.location_on_rounded,
-                      iconColor: const Color(0xFF4CAF50),
-                      label: 'Localisation',
-                      value: deliverer.location ?? 'Non spécifiée',
-                      onTap: () => _openLocation(deliverer.location ?? ''),
-                    ),
-                  ],
-                ),
+            ),
+            const SizedBox(height: 20),
+
+            // Barre d'actions
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade50,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.grey.shade200),
               ),
-              
-              const SizedBox(height: 20),
-              
-              // Barre d'actions modernisée
-              Container(
-                height: 56,
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade50,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: Colors.grey.shade200,
-                    width: 1,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _buildActionButton(
+                    icon: Icons.phone_rounded,
+                    label: 'Appeler',
+                    color: const Color(0xFF6C63FF),
+                    onPressed: () => _makePhoneCall(deliverer.phoneNumber),
                   ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    _buildActionButton(
-                      icon: Icons.phone_rounded,
-                      label: 'Appeler',
-                      color: const Color(0xFF6C63FF),
-                      onPressed: () => _makePhoneCall(deliverer.phoneNumber),
-                    ),
-                    _buildVerticalDivider(),
-                    _buildActionButton(
-                      icon: Icons.chat_bubble_rounded,
-                      label: 'Message',
-                      color: const Color(0xFF4CAF50),
-                      onPressed: () => _sendSms(deliverer.phoneNumber),
-                    ),
-                    _buildVerticalDivider(),
-                    _buildActionButton(
-                      icon: Icons.location_on_rounded,
-                      label: 'Localiser',
-                      color: const Color(0xFFFF9800),
-                      onPressed: () => _openLocation(deliverer.location ?? ''),
-                    ),
-                    _buildVerticalDivider(),
-                    _buildActionButton(
-                      icon: Icons.info_outline_rounded,
-                      label: 'Détails',
-                      color: Colors.grey.shade600,
-                      onPressed: () => _showDetails(context),
-                    ),
-                  ],
-                ),
+                  _buildVerticalDivider(),
+                  _buildActionButton(
+                    icon: Icons.chat_bubble_rounded,
+                    label: 'Message',
+                    color: const Color(0xFF4CAF50),
+                    onPressed: () => _sendSms(deliverer.phoneNumber),
+                  ),
+                  _buildVerticalDivider(),
+                  _buildActionButton(
+                    icon: Icons.location_on_rounded,
+                    label: 'Localiser',
+                    color: const Color(0xFFFF9800),
+                    onPressed: () => _openLocation(deliverer.location ?? ''),
+                  ),
+                  _buildVerticalDivider(),
+                  _buildActionButton(
+                    icon: Icons.info_outline_rounded,
+                    label: 'Détails',
+                    color: Colors.grey.shade600,
+                    onPressed: () => _showDetails(context),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -760,7 +878,7 @@ class DelivererCard extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+        padding: const EdgeInsets.symmetric(vertical: 4),
         child: Row(
           children: [
             Container(
@@ -769,11 +887,7 @@ class DelivererCard extends StatelessWidget {
                 color: iconColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(
-                icon,
-                size: 16,
-                color: iconColor,
-              ),
+              child: Icon(icon, size: 18, color: iconColor),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -827,22 +941,17 @@ class DelivererCard extends StatelessWidget {
           onTap: onPressed,
           borderRadius: BorderRadius.circular(16),
           child: Container(
-            height: 56,
-            padding: const EdgeInsets.symmetric(horizontal: 4),
+            padding: const EdgeInsets.symmetric(vertical: 8),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
-                  padding: const EdgeInsets.all(6),
+                  padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
                     color: color.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Icon(
-                    icon,
-                    size: 18,
-                    color: color,
-                  ),
+                  child: Icon(icon, size: 20, color: color),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -851,7 +960,6 @@ class DelivererCard extends StatelessWidget {
                     color: color,
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
-                    letterSpacing: 0.3,
                   ),
                 ),
               ],
@@ -863,15 +971,10 @@ class DelivererCard extends StatelessWidget {
   }
 
   Widget _buildVerticalDivider() {
-    return Container(
-      width: 1,
-      height: 30,
-      color: Colors.grey.shade200,
-    );
+    return Container(width: 1, height: 30, color: Colors.grey.shade200);
   }
 }
 
-// Bottom Sheet des détails
 class _DelivererDetailsSheet extends StatelessWidget {
   final UserProfile deliverer;
 
@@ -934,12 +1037,20 @@ class _DelivererDetailsSheet extends StatelessWidget {
                       _buildDetailCard(
                         title: 'Informations professionnelles',
                         children: [
-                          _buildDetailItem('Type de véhicule', deliverer.vehicle ?? 'Non spécifié'),
-                          _buildDetailItem('Localisation', deliverer.location ?? 'Non spécifiée'),
-                          _buildDetailItem('Statut', 'DISPONIBLE'),
+                          _buildDetailItem(
+                            'Type de véhicule',
+                            deliverer.vehicle ?? 'Non spécifié',
+                          ),
+                          _buildDetailItem(
+                            'Localisation',
+                            deliverer.location ?? 'Non spécifiée',
+                          ),
+                          _buildDetailItem(
+                            'Statut',
+                            deliverer.isActive ? 'Actif' : 'Inactif',
+                          ),
                         ],
                       ),
-                 
                     ],
                   ),
                 ),
@@ -951,7 +1062,10 @@ class _DelivererDetailsSheet extends StatelessWidget {
     );
   }
 
-  Widget _buildDetailCard({required String title, required List<Widget> children}) {
+  Widget _buildDetailCard({
+    required String title,
+    required List<Widget> children,
+  }) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(

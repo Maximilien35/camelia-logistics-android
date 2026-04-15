@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'dart:convert';
-import 'package:camelia_logistics/models/services/user_profile_service.dart';
-import 'package:camelia_logistics/models/user_profile.dart';
+import 'package:camelia/models/services/user_profile_service.dart';
+import 'package:camelia/models/user_profile.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -17,7 +17,12 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:http/http.dart' as http;
 import 'dart:async';
-import 'package:camelia_logistics/l10n/app_localizations.dart';
+import 'package:camelia/l10n/app_localizations.dart';
+import 'widgets/service_type_selector.dart';
+import 'widgets/delivery_form_widget.dart';
+import 'widgets/moving_form_widget.dart';
+import 'widgets/shipment_form_widget.dart';
+import 'widgets/storage_form_widget.dart';
 
 class OrderScreen extends StatefulWidget {
   const OrderScreen({super.key});
@@ -27,12 +32,29 @@ class OrderScreen extends StatefulWidget {
 }
 
 class _OrderScreenState extends State<OrderScreen> {
-  void _selectVehicleAndProceed(String vehicleType) {
+  @override
+  void initState() {
+    super.initState();
+    // Réinitialiser l'état de commande au démarrage
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<OrderStateModel>(context, listen: false).reset();
+    });
+  }
+
+  void _onServiceTypeSelected(String serviceType) {
     final orderState = Provider.of<OrderStateModel>(context, listen: false);
-    orderState.setVehicleType(vehicleType);
-    Navigator.of(
-      context,
-    ).push(MaterialPageRoute(builder: (context) => const PackagePhotoScreen()));
+    orderState.setServiceType(serviceType);
+    _proceedToTunnel(serviceType);
+  }
+
+  void _proceedToTunnel(String serviceType) {
+        Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => ServiceTunnelScreen(
+          serviceType: serviceType,
+        ),
+      ),
+    );
   }
 
   @override
@@ -51,7 +73,7 @@ class _OrderScreenState extends State<OrderScreen> {
       child: Scaffold(
         appBar: AppBar(
           title: Text(
-            l10n.chooseVehicleTitle,
+            l10n.newOrderTitle,
             style: TextStyle(
               fontWeight: FontWeight.w700,
               color: Colors.grey.shade900,
@@ -110,232 +132,163 @@ class _OrderScreenState extends State<OrderScreen> {
             ),
           ],
         ),
-        body: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(top: 24, left: 24, right: 24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    l10n.selectTransportMode,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey.shade600,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF6C63FF).withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: const Color(0xFF6C63FF).withValues(alpha: 0.2),
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(
-                          Icons.location_on_rounded,
-                          color: Color(0xFF6C63FF),
-                          size: 22,
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            l10n.serviceComingSoon,
-                            style: const TextStyle(
-                              color: Color(0xFF6C63FF),
-                              fontWeight: FontWeight.w500,
-                              fontSize: 13,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: ListView(
-                  children: [
-                    _buildVehicleCard(
-                      icon: Icons.fire_truck_rounded,
-                      title: l10n.dumpTruck,
-                      subtitle: l10n.fastAndEconomic,
-                      color: const Color(0xFF6C63FF),
-                      onTap: () => _selectVehicleAndProceed(l10n.dumpTruck),
-                    ),
-                    const SizedBox(height: 16),
-                    _buildVehicleCard(
-                      icon: Icons.local_shipping_rounded,
-                      title: l10n.van,
-                      subtitle: l10n.secureTransport,
-                      color: const Color(0xFF4CAF50),
-                      onTap: () => _selectVehicleAndProceed(l10n.van),
-                    ),
-                    const SizedBox(height: 16),
-                    _buildVehicleCard(
-                      icon: Icons.moped_rounded,
-                      title: l10n.tricycle,
-                      subtitle: l10n.fastAndEconomic,
-                      color: const Color(0xFFFF9800),
-                      onTap: () => _selectVehicleAndProceed(l10n.tricycle),
-                    ),
-                    const SizedBox(height: 16),
-                    _buildVehicleCard(
-                      icon: Icons.airport_shuttle_rounded,
-                      title: l10n.minivan,
-                      subtitle: l10n.mediumCapacity,
-                      color: const Color(0xFF9C27B0),
-                      onTap: () => _selectVehicleAndProceed(l10n.minivan),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: () {},
-                          icon: const Icon(
-                            Icons.location_on_rounded,
-                            color: Color(0xFF6C63FF),
-                            size: 20,
-                          ),
-                          label: Text(
-                            l10n.trackPackage,
-                            style: const TextStyle(
-                              color: Color(0xFF6C63FF),
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            side: const BorderSide(color: Color(0xFF6C63FF)),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: OutlinedButton.icon(
-                          onPressed: () {},
-                          icon: const Icon(
-                            Icons.chat_bubble_outline_rounded,
-                            color: Color(0xFF9C27B0),
-                            size: 20,
-                          ),
-                          label: Text(
-                            l10n.support,
-                            style: const TextStyle(
-                              color: Color(0xFF9C27B0),
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            side: const BorderSide(color: Color(0xFF9C27B0)),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    l10n.contactSupportCta,
-                    style:  TextStyle(fontSize: 11, color: Colors.grey.shade500),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
-            ),
-          ],
+        body: ServiceTypeSelector(
+          onServiceTypeSelected: _onServiceTypeSelected,
+        ),
+      ),
+    );
+  }
+}
+
+class ServiceTunnelScreen extends StatefulWidget {
+  final String serviceType;
+
+  const ServiceTunnelScreen({
+    required this.serviceType,
+    super.key,
+  });
+
+  @override
+  State<ServiceTunnelScreen> createState() => _ServiceTunnelScreenState();
+}
+
+class _ServiceTunnelScreenState extends State<ServiceTunnelScreen> {
+  late String _currentServiceType;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentServiceType = widget.serviceType;
+  }
+
+  void _proceedToDeliveryPoints() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => DeliveryPointsScreen(
+          serviceType: _currentServiceType,
         ),
       ),
     );
   }
 
-  Widget _buildVehicleCard({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required Color color,
-    required VoidCallback onTap,
-  }) {
-    return Material(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(16),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.grey.shade100, width: 1),
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 56,
-                height: 56,
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: Icon(icon, size: 28, color: color),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      subtitle,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey.shade600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Icon(
-                Icons.chevron_right_rounded,
-                color: Colors.grey.shade400,
-                size: 24,
-              ),
-            ],
-          ),
+  void _submitQuoteRequest() {
+    final l10n = AppLocalizations.of(context)!;
+    final orderState = Provider.of<OrderStateModel>(context, listen: false);
+    
+    orderState.setIsQuote(true);
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(l10n.quoteRequestSubmitted),
+        backgroundColor: Colors.green.shade600,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
         ),
       ),
     );
+
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (mounted) {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => DeliveryPointsScreen(
+              serviceType: _currentServiceType,
+            ),
+          ),
+        );
+      }
+    });
+  }
+
+  Color _getColorForServiceType() {
+    switch (_currentServiceType) {
+      case 'LIVRAISON':
+        return const Color(0xFF4CAF50);
+      case 'DÉMÉNAGEMENT ET TRANSPORT':
+        return const Color(0xFF2196F3);
+      case 'EXPÉDITION':
+        return const Color(0xFFFF9800);
+      case 'STOCKAGE':
+        return const Color(0xFF9C27B0);
+      default:
+        return const Color(0xFF6C63FF);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    _getColorForServiceType();
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          _currentServiceType,
+          style: TextStyle(
+            fontWeight: FontWeight.w700,
+            color: Colors.grey.shade900,
+            fontSize: 18,
+          ),
+        ),
+        centerTitle: true,
+        leading: IconButton(
+          onPressed: () => Navigator.of(context).pop(),
+          icon: Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: Colors.grey.shade100,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(
+              Icons.arrow_back_ios_new_rounded,
+              size: 18,
+              color: Colors.grey.shade700,
+            ),
+          ),
+        ),
+      ),
+      body: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 300),
+        child: _buildFormWidget(
+          key: ValueKey(_currentServiceType),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFormWidget({required Key key}) {
+    switch (_currentServiceType) {
+      case 'LIVRAISON':
+        return DeliveryFormWidget(
+          key: key,
+          onProceed: _proceedToDeliveryPoints,
+        );
+      case 'DÉMÉNAGEMENT ET TRANSPORT':
+        return MovingFormWidget(
+          key: key,
+          onProceed: _submitQuoteRequest,
+        );
+      case 'EXPÉDITION':
+        return ShipmentFormWidget(
+          key: key,
+          onProceed: _submitQuoteRequest,
+        );
+      case 'STOCKAGE ET LIVRAISON':
+        return StorageFormWidget(
+          key: key,
+          onProceed: _submitQuoteRequest,
+        );
+      case 'TRANSPORT INTERNATIONAL':
+        return ShipmentFormWidget(
+          key: key,
+          onProceed: _submitQuoteRequest,
+        );
+      default:
+        return Center(
+          child: Text('Service type not found: $_currentServiceType'),
+        );
+    }
   }
 }
 
@@ -659,7 +612,9 @@ class _PackagePhotoScreenState extends State<PackagePhotoScreen> {
                             Navigator.of(context).push(
                               MaterialPageRoute(
                                 builder: (context) =>
-                                    const DeliveryPointsScreen(),
+                                    DeliveryPointsScreen(
+                                      serviceType: orderState.serviceType ?? '',
+                                    ),
                               ),
                             );
                           } else {
@@ -815,12 +770,23 @@ class _PackagePhotoScreenState extends State<PackagePhotoScreen> {
 }
 
 class DeliveryPointsScreen extends StatefulWidget {
-  const DeliveryPointsScreen({super.key});
+  final String serviceType;
+
+  const DeliveryPointsScreen({super.key, required this.serviceType});
+
   @override
   DeliveryPointsScreenState createState() => DeliveryPointsScreenState();
 }
 
 class DeliveryPointsScreenState extends State<DeliveryPointsScreen> {
+  bool get _mapActionsEnabled {
+    const disallowed = [
+      'STOCKAGE ET LIVRAISON',
+      'EXPÉDITION',
+      'TRANSPORT INTERNATIONAL',
+    ];
+    return !disallowed.contains(widget.serviceType);
+  }
   final TextEditingController _depart = TextEditingController();
   final TextEditingController _arrive = TextEditingController();
 
@@ -851,7 +817,7 @@ class DeliveryPointsScreenState extends State<DeliveryPointsScreen> {
 
   // Nouvelle méthode pour gérer la saisie manuelle du départ
   void _onDepartureChanged() {
-    setState(() {});
+    if (mounted) setState(() {});
     final orderState = Provider.of<OrderStateModel>(context, listen: false);
     orderState.setPointDelivery(_depart.text, _arrive.text);
     
@@ -865,7 +831,6 @@ class DeliveryPointsScreenState extends State<DeliveryPointsScreen> {
       return;
     }
 
-    // Debounce pour éviter trop de requêtes
     _debounceTimerDepart?.cancel();
     _debounceTimerDepart = Timer(const Duration(milliseconds: 800), () {
       _geocodeAddress(_depart.text, isPickup: true);
@@ -873,7 +838,7 @@ class DeliveryPointsScreenState extends State<DeliveryPointsScreen> {
   }
 
   void _onDestinationChanged() {
-    setState(() {});
+    if (mounted) setState(() {});
     final orderState = Provider.of<OrderStateModel>(context, listen: false);
     orderState.setPointDelivery(_depart.text, _arrive.text);
 
@@ -892,7 +857,6 @@ class DeliveryPointsScreenState extends State<DeliveryPointsScreen> {
     });
   }
 
-  // Nouvelle méthode : géocodage d'une adresse
   Future<void> _geocodeAddress(String address, {required bool isPickup}) async {
     if (address.isEmpty) return;
 
@@ -902,15 +866,17 @@ class DeliveryPointsScreenState extends State<DeliveryPointsScreen> {
         final location = locations.first;
         final coords = LatLng(location.latitude, location.longitude);
 
-        setState(() {
-          if (isPickup) {
-            _pickupCoords = coords;
-          } else {
-            _dropoffCoords = coords;
-          }
-          _calculateDistance();
-          _fetchRoute();
-        });
+        if (mounted) {
+          setState(() {
+            if (isPickup) {
+              _pickupCoords = coords;
+            } else {
+              _dropoffCoords = coords;
+            }
+            _calculateDistance();
+            _fetchRoute();
+          });
+        }
       }
     } catch (e) {
       debugPrint("Erreur de géocodage: $e");
@@ -919,6 +885,17 @@ class DeliveryPointsScreenState extends State<DeliveryPointsScreen> {
 
   Future<void> _useMyLocation() async {
     final l10n = AppLocalizations.of(context)!;
+
+    if (!_mapActionsEnabled) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Carte / position indisponible pour ce type de service.'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
     LocationPermission permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
@@ -990,12 +967,14 @@ class DeliveryPointsScreenState extends State<DeliveryPointsScreen> {
       final LatLng coords = result['coords'];
       final String address = result['address'];
 
-      setState(() {
-        _arrive.text = address;
-        _dropoffCoords = coords;
-        _calculateDistance();
-        _fetchRoute();
-      });
+      if (mounted) {
+        setState(() {
+          _arrive.text = address;
+          _dropoffCoords = coords;
+          _calculateDistance();
+          _fetchRoute();
+        });
+      }
     }
   }
 
@@ -1162,16 +1141,16 @@ class DeliveryPointsScreenState extends State<DeliveryPointsScreen> {
                   SizedBox(
                     width: double.infinity,
                     child: OutlinedButton.icon(
-                      onPressed: _useMyLocation,
-                      icon: const Icon(
+                      onPressed: _mapActionsEnabled ? _useMyLocation : null,
+                      icon:  Icon(
                         Icons.my_location_rounded,
-                        color: Color(0xFF6C63FF),
+                        color:_mapActionsEnabled ? const Color(0xFF6C63FF) : Colors.grey.shade400,
                         size: 18,
                       ),
                       label: Text(
                         l10n.useMyPosition,
-                        style: const TextStyle(
-                          color: Color(0xFF6C63FF),
+                        style:  TextStyle(
+                          color:_mapActionsEnabled ? const Color(0xFF6C63FF) : Colors.grey.shade400,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -1230,16 +1209,16 @@ class DeliveryPointsScreenState extends State<DeliveryPointsScreen> {
                     children: [
                       Expanded(
                         child: OutlinedButton.icon(
-                          onPressed: _selectDestinationOnMap,
-                          icon: const Icon(
+                          onPressed: _mapActionsEnabled ? _selectDestinationOnMap : null,
+                          icon:  Icon(
                             Icons.map_rounded,
-                            color: Color(0xFF6C63FF),
+                            color:_mapActionsEnabled ? const Color(0xFF6C63FF) : Colors.grey.shade400,
                             size: 18,
                           ),
                           label: Text(
                             l10n.chooseOnMap,
-                            style: const TextStyle(
-                              color: Color(0xFF6C63FF),
+                            style:  TextStyle(
+                              color:_mapActionsEnabled ? const Color(0xFF6C63FF) : Colors.grey.shade400,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -1258,14 +1237,15 @@ class DeliveryPointsScreenState extends State<DeliveryPointsScreen> {
               ),
             ),
           ),
-          // ... le reste du code (carte, bouton continuer) reste identique
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  Row(
+                    children: [
+                      Text(
                     l10n.mapAndDistance,
                     style: const TextStyle(
                       fontSize: 16,
@@ -1273,6 +1253,17 @@ class DeliveryPointsScreenState extends State<DeliveryPointsScreen> {
                       color: Colors.black87,
                     ),
                   ),
+                   const SizedBox(width: 10),
+                                  Text(
+                                    _estimatedDistance != null
+                                        ? '${_estimatedDistance!.toStringAsFixed(1)} km'
+                                        : l10n.selectAddresses,
+                                    style:  const TextStyle(
+                                      color: Color.fromARGB(255, 18, 59, 207),
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                    ]),
                   const SizedBox(height: 12),
                   Container(
                     height: 220,
@@ -1507,10 +1498,16 @@ class _FinalisationOrderState extends State<FinalisationOrder> {
     );
     final DateTime now = DateTime.now();
 
-    if (orderState.pickupAddress == null || orderState.vehicleType == null) {
+    if (orderState.pickupAddress == null || orderState.serviceType == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Veuillez définir l’adresse et le type de service.'),
+          backgroundColor: Colors.red,
+        ),
+      );
       return;
     }
-    setState(() => _isLoading = true);
+    if (mounted) setState(() => _isLoading = true);
 
     try {
       List<Future<String>> uploadTasks = orderState.selectedFiles.map((file) {
@@ -1524,29 +1521,45 @@ class _FinalisationOrderState extends State<FinalisationOrder> {
       final newOrder = Order(
         userId: currentUser.uid,
         pickupAddress: orderState.pickupAddress!,
-        dropoffAddress: orderState.dropoffAddress!,
+        dropoffAddress: orderState.dropoffAddress ?? 'Non spécifié',
         packageNature: orderState.packageNature ?? 'Non spécifié',
         photoUrls: photoUrls,
-        vehicleType: orderState.vehicleType!,
+        vehicleType: orderState.vehicleType ?? orderState.serviceType ?? 'Non spécifié',
         status: 'PENDING',
         timestamp: now,
         priceQuote: orderState.priceQuote,
         description: orderState.description,
+        serviceType: orderState.serviceType ?? 'Transport',
+        isQuote: orderState.isQuote,
+        additionalDetails: orderState.additionalDetails,
       );
 
-      final String newOrderId = await OrderService().addOrder(newOrder);
-      context.go('/waiting/$newOrderId');
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-         SnackBar( 
-          content: const Text("Erreur lors de l'envoi de la commande."),
-          backgroundColor: Colors.red.shade600,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
+      double? clientLat = orderState.pickupCoords?.latitude;
+      double? clientLon = orderState.pickupCoords?.longitude;
+
+      // Créer la commande avec assignation automatique du collaborateur le plus proche
+      final String newOrderId = await OrderService().addOrderWithAutoAssignment(
+        newOrder,
+        clientLat: clientLat,
+        clientLon: clientLon,
       );
+
+      if (mounted) {
+        context.go('/waiting/$newOrderId');
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text("Erreur lors de l'envoi de la commande: Verifier votre connexion internet et réessayer. Détails: "),
+            backgroundColor: Colors.red.shade600,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        );
+      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -1690,6 +1703,14 @@ class _FinalisationOrderState extends State<FinalisationOrder> {
                           icon: Icons.flag_rounded,
                           color: const Color(0xFF2196F3),
                         ),
+                        //   _buildSummaryRow(
+                        //   label: l10n.estimatedPrice,
+                        //   value: orderState.priceQuote != null
+                        //       ? '${orderState.priceQuote!.toStringAsFixed(0)} FCFA'
+                        //       : l10n.notSpecified,
+                        //   icon: Icons.attach_money_rounded,
+                        //   color: const Color.fromARGB(255, 19, 65, 232),
+                        // ),
                       ],
                     ),
                   ),
@@ -1837,7 +1858,7 @@ class _MapSelectorScreenState extends State<MapSelectorScreen> {
 
   Future<void> _fetchAddress(LatLng position) async {
     final l10n = AppLocalizations.of(context)!;
-    setState(() => _isGeocoding = true);
+    if (mounted) setState(() => _isGeocoding = true);
     try {
       List<Placemark> placemarks = await placemarkFromCoordinates(
         position.latitude,
@@ -1860,14 +1881,16 @@ class _MapSelectorScreenState extends State<MapSelectorScreen> {
 
   Future<void> _searchAddress(String query) async {
     if (query.isEmpty) {
-      setState(() {
-        _searchResults = [];
-        _isSearching = false;
-      });
+      if (mounted) {
+        setState(() {
+          _searchResults = [];
+          _isSearching = false;
+        });
+      }
       return;
     }
 
-    setState(() => _isSearching = true);
+    if (mounted) setState(() => _isSearching = true);
     
     try {
       final url = Uri.parse(

@@ -17,11 +17,16 @@ service cloud.firestore {
     // --- 1. COLLECTION 'users' ---
     // =====================================================
     match /users/{userId} {
-      // Lecture autorisée si propriétaire, admin, livreur OU si c'est une vérification d'existence (limit 1)
-      allow read: if request.auth.uid == userId || isAdmin() || isDeliverer() || (request.query.limit <= 1);
+      // Lecture document spécifique: propriétaire, admin, livreur
+      allow read: if request.auth.uid == userId || isAdmin() || isDeliverer();
       allow create: if isAdmin() || (isSignedIn() && request.auth.uid == userId);
       allow update: if request.auth.uid == userId || isAdmin();
       allow delete: if isAdmin();
+    }
+    
+    // Requête filtrée globale pour les collaborateurs (lecture uniquement)
+    match /users {
+      allow read: if isSignedIn();
     }
     // ====================================================
     // --- 2. COLLECTION 'orders' ---

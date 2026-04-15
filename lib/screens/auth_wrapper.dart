@@ -1,7 +1,7 @@
-import 'package:camelia_logistics/screens/admin_panel.dart';
-import 'package:camelia_logistics/screens/home_custumer_screen.dart';
-import 'package:camelia_logistics/screens/home_screen.dart';
-import 'package:camelia_logistics/screens/splash_screen.dart';
+import 'package:camelia/screens/admin_panel.dart';
+import 'package:camelia/screens/home_custumer_screen.dart';
+import 'package:camelia/screens/home_screen.dart';
+import 'package:camelia/screens/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
