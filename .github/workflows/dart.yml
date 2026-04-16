@@ -1,45 +1,64 @@
-name: Dart
+name: 🎉 iOS Build Camelia
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "ios" ]
   pull_request:
     branches: [ "main" ]
 
 jobs:
   build-ios:
-    name: 🎉 iOS Build
+    name: 🎉 iOS Build & Release
     runs-on: macos-latest
+    
     steps:
-      - uses: actions/checkout@v3
+      - name: 📂 Checkout du code
+        uses: actions/checkout@v4
 
-      - uses: subosito/flutter-action@v2
+      - name: 🛠 Configuration Flutter
+        uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-          architecture: x64
-      - run: flutter pub get
-      
+          cache: true 
 
-      - run: pod repo update
-        working-directory: ios
+      - name: 📦 Installation des dépendances Flutter
+        run: flutter pub get
 
-      - run: flutter build ios --release --no-codesign
+      - name: 🔍 Vérification du fichier Firebase (Crucial pour l'écran blanc)
+        run: |
+          if [ ! -f "ios/Runner/GoogleService-Info.plist" ]; then
+            echo "ERREUR : Le fichier GoogleService-Info.plist est absent de ios/Runner/"
+            exit 1
+          fi
 
-      - run: mkdir Payload
-        working-directory: build/ios/iphoneos
+      - name: ⚙️ Installation CocoaPods
+        run: |
+          cd ios
+          pod install --repo-update
+          cd ..
 
-      - run: mv Runner.app/ Payload
-        working-directory: build/ios/iphoneos
+      - name: 🏗 Compilation iOS (No Codesign)
+        
+        run: flutter build ios --release --no-codesign
 
-      - name: Zip output
-        run: zip -qq -r -9 FlutterIpaExport.ipa Payload
-        working-directory: build/ios/iphoneos
+      - name: 📦 Création du fichier .ipa pour test
+        run: |
+          mkdir -p Payload
+          mv build/ios/iphoneos/Runner.app Payload/
+          zip -r FlutterIpaExport.ipa Payload
+          
+      - name: 📤 Archivage de l'artefact (Pour téléchargement direct)
+        uses: actions/upload-artifact@v4
+        with:
+          name: camelia-ios-debug
+          path: FlutterIpaExport.ipa
 
-      - name: Upload binaries to release
+      - name: 🚀 Mise en ligne sur GitHub Release
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: build/ios/iphoneos/FlutterIpaExport.ipa
-          tag: v1.0
+          file: FlutterIpaExport.ipa
+          tag: v1.0.${{ github.run_number }}
           overwrite: true
-          body: "This is first release"
+          body: "Build automatique de Camelia Logistics - Version iOS de test"
