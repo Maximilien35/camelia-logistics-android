@@ -4,5 +4,7 @@
 <dict>
 	<key>aps-environment</key>
 	<string>development</string>
+	<!-- Note : Si tu fais un build pour l'App Store plus tard,
+	 il faudra changer development par production, mais pour tes tests actuels, laisse development. -->
 </dict>
 </plist>
