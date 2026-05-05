@@ -70,6 +70,9 @@ class AuthService {
       final existingPhoneProfile = await _storeService.getProfileByPhone(
         phoneNumber.trim(),
       );
+      final existingEmailProfile = await _storeService.getProfileByEmail(
+        email.trim(),
+      );
       if (existingPhoneProfile != null) {
         if (!existingPhoneProfile.isActive) {
           throw FirebaseAuthException(
@@ -82,6 +85,21 @@ class AuthService {
           code: 'phone-already-in-use',
           message:
               'Un compte existe déjà avec ce numéro de téléphone. Connectez-vous ou utilisez un autre numéro.',
+        );
+      }
+
+      if (existingEmailProfile != null) {
+        if (!existingEmailProfile.isActive) {
+          throw FirebaseAuthException(
+            code: 'email-account-disabled',
+            message:
+                'Cette adresse e-mail est associée à un compte désactivé. Veuillez contacter le support.',
+          );
+        }
+        throw FirebaseAuthException(
+          code: 'email-already-in-use',
+          message:
+              'Un compte existe déjà avec cette adresse e-mail. Connectez-vous ou utilisez une autre adresse.',
         );
       }
 

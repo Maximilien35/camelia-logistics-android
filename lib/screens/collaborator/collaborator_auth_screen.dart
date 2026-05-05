@@ -4,6 +4,7 @@ import 'package:pinput/pinput.dart';
 import 'package:go_router/go_router.dart';
 import 'package:camelia/models/services/firebase_service.dart';
 import 'package:camelia/models/services/user_profile_service.dart';
+import 'package:camelia/models/services/error_handler_service.dart';
 
 class CollaboratorAuthScreen extends StatefulWidget {
   const CollaboratorAuthScreen({super.key});
@@ -18,6 +19,7 @@ class _CollaboratorAuthScreenState extends State<CollaboratorAuthScreen> {
   bool _isLoading = false;
   final bool _otpSent = false;
   final _otpController = TextEditingController();
+  final ErrorHandlerService _errorHandler = ErrorHandlerService();
 
   @override
   void dispose() {
@@ -56,7 +58,7 @@ class _CollaboratorAuthScreenState extends State<CollaboratorAuthScreen> {
       }
     } catch (e) {
       if (mounted) {
-        _showErrorSnackBar(e.toString().replaceAll('Exception: ', ''));
+        _showErrorSnackBar(_errorHandler.handleError(e));
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);

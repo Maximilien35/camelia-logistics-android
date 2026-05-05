@@ -2,6 +2,7 @@ import 'package:camelia/models/services/admin_service.dart';
 import 'package:camelia/models/services/firebase_service.dart';
 import 'package:camelia/models/services/user_profile_service.dart';
 import 'package:camelia/models/services/phone_auth_service.dart';
+import 'package:camelia/models/services/error_handler_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -366,6 +367,7 @@ class _LoginTabContentState extends State<LoginTabContent> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _otpController = TextEditingController();
   final PhoneAuthService _phoneAuthService = PhoneAuthService();
+  final ErrorHandlerService _errorHandler = ErrorHandlerService();
 
   String _loginPhoneNumber = '';
   bool _isLoading = false;
@@ -476,8 +478,9 @@ class _LoginTabContentState extends State<LoginTabContent> {
               _otpProcessEnded = true;
               widget.onOtpEnded();
             }
+            final errorMessage = _errorHandler.handleError(Exception(message));
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('${l10n.error}: $message'), backgroundColor: Colors.red),
+              SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
             );
           }
         },
@@ -496,7 +499,7 @@ class _LoginTabContentState extends State<LoginTabContent> {
                 widget.onOtpEnded();
               }
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Erreur auto-vérification: $e'), backgroundColor: Colors.red),
+                SnackBar(content: Text(_errorHandler.handleError(e)), backgroundColor: Colors.red),
               );
             }
           }
@@ -527,7 +530,7 @@ class _LoginTabContentState extends State<LoginTabContent> {
         widget.onOtpEnded();
       }
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('${l10n.error}: $e'), backgroundColor: Colors.red),
+        SnackBar(content: Text(_errorHandler.handleError(e)), backgroundColor: Colors.red),
       );
     }
   }
@@ -552,7 +555,7 @@ class _LoginTabContentState extends State<LoginTabContent> {
     } catch (e) {
       _setAuthInProgress(false);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('${l10n.error}: ${e.toString()}'), backgroundColor: Colors.red),
+        SnackBar(content: Text(_errorHandler.handleError(e)), backgroundColor: Colors.red),
       );
     }
   }
@@ -767,6 +770,7 @@ class _SignupTabContentState extends State<SignupTabContent> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _otpController = TextEditingController();
+  final ErrorHandlerService _errorHandler = ErrorHandlerService();
 
   bool _isLoading = false;
   bool _isPhoneVerified = false;
@@ -824,6 +828,16 @@ class _SignupTabContentState extends State<SignupTabContent> {
     if (_completePhoneNumber.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l10n.phoneRequired), backgroundColor: Colors.red),
+      );
+      return;
+    }
+    final existingProfile = await UserProfileService().getProfileByPhone(_completePhoneNumber);
+    if (existingProfile != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Un compte existe déjà pour ce numéro. Veuillez vous connecter.'),
+          backgroundColor: Colors.red,
+        ),
       );
       return;
     }
@@ -900,7 +914,7 @@ class _SignupTabContentState extends State<SignupTabContent> {
         widget.onOtpEnded();
       }
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('${l10n.error}: ${e.toString()}'), backgroundColor: Colors.red),
+        SnackBar(content: Text(_errorHandler.handleError(e)), backgroundColor: Colors.red),
       );
     }
   }
@@ -933,11 +947,12 @@ class _SignupTabContentState extends State<SignupTabContent> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(l10n.phoneVerified), backgroundColor: Colors.green),
         );
+        _submitForm();
       }
     } catch (e) {
       setState(() => _isLoading = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('${l10n.error}: ${e.toString()}'), backgroundColor: Colors.red),
+        SnackBar(content: Text(_errorHandler.handleError(e)), backgroundColor: Colors.red),
       );
     }
   }
@@ -989,7 +1004,7 @@ class _SignupTabContentState extends State<SignupTabContent> {
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
-                    '${l10n.error}: ${e.toString().replaceAll('Exception: ', '')}',
+                    _errorHandler.handleError(e),
                     style: GoogleFonts.poppins(),
                   ),
                 ),

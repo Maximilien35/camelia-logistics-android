@@ -5,6 +5,7 @@ import 'package:camelia/screens/admin_dashboard.dart';
 import 'package:camelia/screens/admin_deliverers.dart';
 import 'package:camelia/screens/admin_settings.dart';
 import 'package:camelia/screens/admin_collaborators.dart';
+import 'package:camelia/screens/admin_logs_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
@@ -130,6 +131,7 @@ class _AdminPageState extends State<AdminPage> {
           AdminDeliverersScreen(),
           AdminCollaboratorsScreen(),
           AdminSettings(),
+          AdminLogsScreen(),
         ],
       ),
       bottomNavigationBar: _buildBottomNavigationBar(),
@@ -283,6 +285,28 @@ class _AdminPageState extends State<AdminPage> {
                 ),
               ),
               label: 'Paramètres',
+            ),
+            BottomNavigationBarItem(
+              icon: Container(
+                width: 24,
+                height: 24,
+                decoration: BoxDecoration(
+                  gradient: _selectedIndex == 5
+                      ? const LinearGradient(
+                          colors: [Color(0xFF6C63FF), Color(0xFF8B84FF)],
+                        )
+                      : null,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.bug_report_rounded,
+                  color: _selectedIndex == 5
+                      ? Colors.white
+                      : Colors.grey.shade500,
+                  size: 20,
+                ),
+              ),
+              label: 'Logs',
             ),
           ],
           currentIndex: _selectedIndex,
