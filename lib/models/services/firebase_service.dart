@@ -127,7 +127,7 @@ class AuthService {
       if (kDebugMode) {
         print('SignUp FirebaseAuthException: ${e.code} - ${e.message}');
       }
-      throw Exception(_getFriendlySignUpError(e));
+      rethrow;
     } catch (e) {
       if (kDebugMode) print('SignUp error: $e');
       throw Exception('Erreur lors de l\'inscription : $e');
@@ -171,42 +171,10 @@ class AuthService {
       if (kDebugMode) {
         print('SignIn FirebaseAuthException: ${e.code} - ${e.message}');
       }
-      throw Exception(_getFriendlySignInError(e));
+      rethrow;
     } catch (e) {
       if (kDebugMode) print('SignIn error: $e');
       throw Exception('Erreur lors de la connexion: $e');
-    }
-  }
-
-  String _getFriendlySignUpError(FirebaseAuthException e) {
-    switch (e.code) {
-      case 'invalid-email':
-        return 'Adresse e-mail invalide. Veuillez vérifier le format.';
-      case 'weak-password':
-        return 'Mot de passe trop faible (minimum 6 caractères).';
-      case 'email-already-in-use':
-        return 'Cette adresse e-mail est déjà utilisée.';
-      case 'account-disabled':
-        return e.message ?? 'Compte désactivé.';
-      default:
-        return 'Erreur de traitement : ${e.message ?? e.code}';
-    }
-  }
-
-  String _getFriendlySignInError(FirebaseAuthException e) {
-    switch (e.code) {
-      case 'user-not-found':
-        return 'Aucun compte trouvé avec cette adresse e-mail.';
-      case 'wrong-password':
-        return 'Mot de passe incorrect.';
-      case 'invalid-email':
-        return 'Adresse e-mail invalide.';
-      case 'user-disabled':
-        return 'Ce compte a été temporairement désactivé.';
-      case 'account-disabled':
-        return e.message ?? 'Compte désactivé. Contactez le support.';
-      default:
-        return 'Erreur de connexion: ${e.message ?? e.code}';
     }
   }
 
@@ -226,6 +194,133 @@ class AuthService {
       return "Erreur lors de l'envoi de l'e-mail: ${e.message}";
     } catch (e) {
       return "Une erreur inattendue s'est produite.";
+    }
+  }
+
+  /// Connexion avec email et mot de passe
+  Future<User?> signInWithEmail({
+    required String email,
+    required String password,
+  }) async {
+    try {
+      final userCredential = await _auth.signInWithEmailAndPassword(
+        email: email.trim(),
+        password: password,
+      );
+
+      final user = userCredential.user;
+      if (user == null) {
+        throw FirebaseAuthException(
+          code: 'user-not-found',
+          message: 'Utilisateur introuvable.',
+        );
+      }
+
+      // Vérifier si l'email est vérifié
+      if (!user.emailVerified) {
+        await user.sendEmailVerification();
+        throw FirebaseAuthException(
+          code: 'email-not-verified',
+          message: 'Veuillez vérifier votre email avant de vous connecter. Un nouvel email de vérification a été envoyé.',
+        );
+      }
+
+      // Récupérer le profil utilisateur
+      final userProfile = await _storeService.getProfileByEmail(email.trim());
+      if (userProfile == null) {
+        throw FirebaseAuthException(
+          code: 'profile-not-found',
+          message: 'Profil utilisateur introuvable. Veuillez contacter le support.',
+        );
+      }
+
+      if (!userProfile.isActive) {
+        await _auth.signOut();
+        throw FirebaseAuthException(
+          code: 'account-disabled',
+          message: 'Votre compte a été désactivé. Contactez le support pour le réactiver.',
+        );
+      }
+
+      return user;
+    } on FirebaseAuthException catch (e) {
+      if (kDebugMode) {
+        print('SignInWithEmail FirebaseAuthException: ${e.code} - ${e.message}');
+      }
+      rethrow;
+    } catch (e) {
+      if (kDebugMode) print('SignInWithEmail error: $e');
+      throw Exception('Erreur lors de la connexion: $e');
+    }
+  }
+
+  /// Inscription avec email et mot de passe
+  Future<User?> signUpWithEmail({
+    required String name,
+    required String email,
+    required String password,
+    required String phoneNumber,
+  }) async {
+    try {
+      // Vérifier unicité de l'email et du téléphone
+      final existingEmailProfile = await _storeService.getProfileByEmail(email.trim());
+      final existingPhoneProfile = await _storeService.getProfileByPhone(phoneNumber.trim());
+
+      if (existingEmailProfile != null) {
+        throw FirebaseAuthException(
+          code: 'email-already-in-use',
+          message: 'Cette adresse e-mail est déjà utilisée.',
+        );
+      }
+
+      if (existingPhoneProfile != null) {
+        throw FirebaseAuthException(
+          code: 'phone-already-in-use',
+          message: 'Ce numéro de téléphone est déjà utilisé.',
+        );
+      }
+
+      // Créer l'utilisateur dans Firebase Auth
+      final userCredential = await _auth.createUserWithEmailAndPassword(
+        email: email.trim(),
+        password: password,
+      );
+
+      final user = userCredential.user;
+      if (user == null) {
+        throw FirebaseAuthException(
+          code: 'user-creation-failed',
+          message: 'Échec de la création du compte.',
+        );
+      }
+
+      // Envoyer l'email de vérification
+      await user.sendEmailVerification();
+
+      // Créer le profil utilisateur
+      final profile = UserProfile(
+        uid: user.uid,
+        name: name,
+        phoneNumber: phoneNumber,
+        email: email.trim(),
+        role: 'client',
+        isActive: true,
+      );
+
+      await _storeService.saveProfile(profile);
+
+      // Déconnecter immédiatement l'utilisateur non vérifié
+      await _auth.signOut();
+
+      return user;
+    } on FirebaseAuthException catch (e) {
+      if (kDebugMode) {
+        print('SignUpWithEmail FirebaseAuthException: ${e.code} - ${e.message}');
+      }
+      rethrow;
+    } catch (e) {
+      if (kDebugMode) print('SignUpWithEmail error: $e');
+      throw Exception('Erreur lors de l\'inscription : $e');
     }
   }
 

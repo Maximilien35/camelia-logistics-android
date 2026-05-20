@@ -310,6 +310,7 @@ class _ChangeInformationsState extends State<ChangeInformations> {
                           TextFormField(
                             controller: _emailController,
                             keyboardType: TextInputType.emailAddress,
+                            readOnly: true,
                             decoration: InputDecoration(
                               hintText: l10n.emailHint,
                               hintStyle: TextStyle(color: Colors.grey.shade400),

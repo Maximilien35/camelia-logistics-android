@@ -62,6 +62,24 @@ class ErrorHandlerService {
       case 'missing-phone-number':
         userMessage = 'Numéro de téléphone requis.';
         break;
+      case 'phone-already-in-use':
+        userMessage = 'Ce numéro de téléphone est déjà utilisé.';
+        break;
+      case 'phone-account-disabled':
+        userMessage = 'Ce numéro de téléphone est associé à un compte désactivé. Contactez le support.';
+        break;
+      case 'email-account-disabled':
+        userMessage = 'Cette adresse e-mail est associée à un compte désactivé. Contactez le support.';
+        break;
+      case 'email-not-verified':
+        userMessage = 'Veuillez vérifier votre email avant de vous connecter. Un email de vérification a été envoyé.';
+        break;
+      case 'user-not-authenticated':
+        userMessage = 'Vous devez d\'abord compléter la vérification OTP.';
+        break;
+      case 'profile-not-found':
+        userMessage = 'Profil utilisateur introuvable. Inscrivez-vous ou contactez le support.';
+        break;
       case 'quota-exceeded':
         userMessage = 'Limite de demandes dépassée. Réessayez plus tard.';
         break;
@@ -75,7 +93,9 @@ class ErrorHandlerService {
         userMessage = 'Application non vérifiée. Contactez le support.';
         break;
       default:
-        userMessage = 'Une erreur est survenue. Veuillez réessayer.';
+        userMessage = e.message?.isNotEmpty == true
+            ? e.message!
+            : 'Une erreur est survenue. Veuillez réessayer.';
         break;
     }
 

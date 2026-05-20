@@ -22,15 +22,12 @@ class LoginPageState extends State<LoginPage> with SingleTickerProviderStateMixi
   final AdminService admin = AdminService();
   bool _isAuthInProgress = false;
 
-  // Gestion des onglets
   late TabController _tabController;
   int _previousTabIndex = 0;
   bool _isProgrammaticChange = false;
 
-  // État OTP partagé
   bool _otpInProgress = false;
 
-  // Clés pour accéder aux états des onglets
   final GlobalKey<_LoginTabContentState> _loginTabKey = GlobalKey<_LoginTabContentState>();
   final GlobalKey<_SignupTabContentState> _signupTabKey = GlobalKey<_SignupTabContentState>();
 
@@ -43,9 +40,8 @@ class LoginPageState extends State<LoginPage> with SingleTickerProviderStateMixi
 
   void _onTabChanged() {
     if (!_isProgrammaticChange && _otpInProgress && _tabController.index != _previousTabIndex) {
-      // Tentative de changement alors qu'un processus OTP est actif
-      _tabController.animateTo(_previousTabIndex); // on annule le changement
-      _showConfirmationDialog(); // on demande confirmation
+      _tabController.animateTo(_previousTabIndex); 
+      _showConfirmationDialog(); 
     } else {
       _previousTabIndex = _tabController.index;
     }
@@ -318,6 +314,10 @@ class LoginPageState extends State<LoginPage> with SingleTickerProviderStateMixi
                                   onAuthInProgressChanged: _setAuthInProgress,
                                   onOtpStarted: _onOtpStarted,
                                   onOtpEnded: _onOtpEnded,
+                                  onTabChanged: (tabIndex) {
+                                    _isProgrammaticChange = true;
+                                    _tabController.animateTo(tabIndex);
+                                  },
                                 ),
                               ],
                             ),
@@ -366,9 +366,14 @@ class LoginTabContent extends StatefulWidget {
 class _LoginTabContentState extends State<LoginTabContent> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _otpController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
   final PhoneAuthService _phoneAuthService = PhoneAuthService();
   final ErrorHandlerService _errorHandler = ErrorHandlerService();
+  final AuthService _authService = AuthService();
 
+  bool _useEmail = false;
+  bool _obscurePassword = true;
   String _loginPhoneNumber = '';
   bool _isLoading = false;
   bool _otpSent = false;
@@ -385,6 +390,14 @@ class _LoginTabContentState extends State<LoginTabContent> {
       setState(() => _isLoading = value);
       widget.onAuthInProgressChanged(value);
     }
+  }
+
+  void _toggleAuthMethod(bool useEmail) {
+    if (_useEmail == useEmail) return;
+    if (!_useEmail && (_otpSent || _verificationId != null)) {
+      cancelOtpProcess();
+    }
+    if (mounted) setState(() => _useEmail = useEmail);
   }
 
   void _startCountdown() {
@@ -535,6 +548,42 @@ class _LoginTabContentState extends State<LoginTabContent> {
     }
   }
 
+  Future<void> _loginWithEmail() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    _setAuthInProgress(true);
+    try {
+      final user = await _authService.signInWithEmail(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
+
+      if (user != null && mounted) {
+        final userProfile = await UserProfileService().getProfileFresh(user.uid);
+        if (userProfile != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Connexion réussie !'), backgroundColor: Colors.green),
+          );
+          if (userProfile.role == 'admin') {
+            context.go('/admin');
+          } else if (userProfile.role == 'collaborator') {
+            context.go('/collaborator/home');
+          } else {
+            context.go('/home_custom');
+          }
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(_errorHandler.handleError(e)), backgroundColor: Colors.red),
+        );
+      }
+    } finally {
+      if (mounted) _setAuthInProgress(false);
+    }
+  }
+
   Future<void> _verifyOtp() async {
     final l10n = AppLocalizations.of(context)!;
     if (_verificationId == null || _otpController.text.trim().length != 6) {
@@ -584,7 +633,9 @@ class _LoginTabContentState extends State<LoginTabContent> {
   }
 
   void _submitLogin() async {
-    if (_otpSent) {
+    if (_useEmail) {
+      await _loginWithEmail();
+    } else if (_otpSent) {
       await _verifyOtp();
     } else {
       await _sendOtp();
@@ -594,12 +645,66 @@ class _LoginTabContentState extends State<LoginTabContent> {
   @override
   void dispose() {
     _otpController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
     _timer?.cancel();
     _loadingTimeoutTimer?.cancel();
     if (!_otpProcessEnded && (_otpSent || _verificationId != null)) {
       widget.onOtpEnded();
     }
     super.dispose();
+  }
+
+  Widget _buildAuthToggle() {
+    return Row(
+      children: [
+        Expanded(
+          child: GestureDetector(
+            onTap: () => _toggleAuthMethod(false),
+            child: Container(
+              height: 46,
+              decoration: BoxDecoration(
+                color: _useEmail ? Colors.grey.shade100 : const Color(0xFF6C63FF),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: const Color(0xFF6C63FF)),
+              ),
+              child: Center(
+                child: Text(
+                  'OTP',
+                  style: GoogleFonts.poppins(
+                    color: _useEmail ? Colors.grey.shade700 : Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: GestureDetector(
+            onTap: () => _toggleAuthMethod(true),
+            child: Container(
+              height: 46,
+              decoration: BoxDecoration(
+                color: _useEmail ? const Color(0xFF6C63FF) : Colors.grey.shade100,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: const Color(0xFF6C63FF)),
+              ),
+              child: Center(
+                child: Text(
+                  'Email',
+                  style: GoogleFonts.poppins(
+                    color: _useEmail ? Colors.white : Colors.grey.shade700,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   @override
@@ -631,55 +736,164 @@ class _LoginTabContentState extends State<LoginTabContent> {
                 ),
               ],
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 20),
+            _buildAuthToggle(),
+            const SizedBox(height: 25),
 
-            // Numéro de téléphone
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha:0.1), blurRadius: 15, spreadRadius: 2)],
+            if (_useEmail) ...[
+              // Email
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha:0.1), blurRadius: 15, spreadRadius: 2)],
+                ),
+                child: TextFormField(
+                  controller: _emailController,
+                  style: GoogleFonts.poppins(),
+                  keyboardType: TextInputType.emailAddress,
+                  decoration: InputDecoration(
+                    hintText: l10n.emailHint,
+                    hintStyle: GoogleFonts.poppins(color: Colors.grey.shade400),
+                    prefixIcon: Container(
+                      margin: const EdgeInsets.all(12),
+                      child: const Icon(Icons.email_rounded, color: Color(0xFF6C63FF), size: 22),
+                    ),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                    filled: true,
+                    fillColor: Colors.white,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) return 'Email requis';
+                    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) return 'Email invalide';
+                    return null;
+                  },
+                ),
               ),
-              child: IntlPhoneField(
-                initialCountryCode: 'CM',
-                enabled: !_isLoading && !_otpSent,
-                onChanged: (phone) => _loginPhoneNumber = phone.completeNumber,
-                validator: (value) {
-                  if (value == null || value.number.isEmpty) return l10n.phoneRequired;
-                  if (value.number.length < 8 || value.number.length > 15) return l10n.invalidPhone;
-                  return null;
-                },
-                decoration: InputDecoration(
-                  hintText: l10n.phoneHint,
-                  hintStyle: GoogleFonts.poppins(color: Colors.grey.shade400),
-                  prefixIcon: Container(
-                    margin: const EdgeInsets.all(12),
-                    child: const Icon(Icons.phone_rounded, color: Color(0xFF6C63FF), size: 22),
+              const SizedBox(height: 20),
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha:0.1), blurRadius: 15, spreadRadius: 2)],
+                ),
+                child: TextFormField(
+                  controller: _passwordController,
+                  style: GoogleFonts.poppins(),
+                  obscureText: _obscurePassword,
+                  decoration: InputDecoration(
+                    hintText: 'Mot de passe',
+                    hintStyle: GoogleFonts.poppins(color: Colors.grey.shade400),
+                    prefixIcon: Container(
+                      margin: const EdgeInsets.all(12),
+                      child: const Icon(Icons.lock_rounded, color: Color(0xFF6C63FF), size: 22),
+                    ),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                        color: Colors.grey.shade400,
+                      ),
+                      onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                    ),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                    filled: true,
+                    fillColor: Colors.white,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) return 'Mot de passe requis';
+                    if (value.length < 6) return 'Minimum 6 caractères';
+                    return null;
+                  },
+                ),
+              ),
+              const SizedBox(height: 10),
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  onPressed: () async {
+                    if (_emailController.text.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Veuillez entrer votre email d\'abord'),
+                          backgroundColor: Colors.orange,
+                        ),
+                      );
+                      return;
+                    }
+                    try {
+                      await _authService.resetPassword(_emailController.text.trim());
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Email de réinitialisation envoyé'),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                      }
+                    } catch (e) {
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(_errorHandler.handleError(e)),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
+                    }
+                  },
+                  child: Text(
+                    'Mot de passe oublié ?',
+                    style: GoogleFonts.poppins(color: const Color(0xFF6C63FF), fontWeight: FontWeight.w600),
                   ),
                 ),
               ),
-            ),
-            const SizedBox(height: 20),
-
-            if (_otpSent)
-              Column(
-                children: [
-                  Text('Entrez le code OTP ($_countdown s)', style: GoogleFonts.poppins(color: Colors.grey.shade700)),
-                  const SizedBox(height: 10),
-                  Pinput(
-                    controller: _otpController,
-                    length: 6,
-                    onCompleted: (_) => _verifyOtp(),
-                  ),
-                  const SizedBox(height: 10),
-                  TextButton(
-                    onPressed: _countdown == 0 ? _sendOtp : null,
-                    child: Text(
-                      _countdown == 0 ? 'Renvoyer le code' : 'Renvoyer dans $_countdown s',
-                      style: GoogleFonts.poppins(color: const Color(0xFF6C63FF)),
+            ] else ...[
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha:0.1), blurRadius: 15, spreadRadius: 2)],
+                ),
+                child: IntlPhoneField(
+                  initialCountryCode: 'CM',
+                  enabled: !_isLoading && !_otpSent,
+                  onChanged: (phone) => _loginPhoneNumber = phone.completeNumber,
+                  validator: (value) {
+                    if (value == null || value.number.isEmpty) return l10n.phoneRequired;
+                    if (value.number.length < 8 || value.number.length > 15) return l10n.invalidPhone;
+                    return null;
+                  },
+                  decoration: InputDecoration(
+                    hintText: l10n.phoneHint,
+                    hintStyle: GoogleFonts.poppins(color: Colors.grey.shade400),
+                    prefixIcon: Container(
+                      margin: const EdgeInsets.all(12),
+                      child: const Icon(Icons.phone_rounded, color: Color(0xFF6C63FF), size: 22),
                     ),
                   ),
-                ],
+                ),
               ),
+              const SizedBox(height: 20),
+              if (_otpSent)
+                Column(
+                  children: [
+                    Text('Entrez le code OTP ($_countdown s)', style: GoogleFonts.poppins(color: Colors.grey.shade700)),
+                    const SizedBox(height: 10),
+                    Pinput(
+                      controller: _otpController,
+                      length: 6,
+                      onCompleted: (_) => _verifyOtp(),
+                    ),
+                    const SizedBox(height: 10),
+                    TextButton(
+                      onPressed: _countdown == 0 ? _sendOtp : null,
+                      child: Text(
+                        _countdown == 0 ? 'Renvoyer le code' : 'Renvoyer dans $_countdown s',
+                        style: GoogleFonts.poppins(color: const Color(0xFF6C63FF)),
+                      ),
+                    ),
+                  ],
+                ),
+            ],
 
             const SizedBox(height: 10),
 
@@ -716,7 +930,7 @@ class _LoginTabContentState extends State<LoginTabContent> {
                       child: _isLoading
                           ? const SizedBox(height: 24, width: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5))
                           : Text(
-                              _otpSent ? 'Vérifier OTP' : 'Envoyer OTP',
+                              _useEmail ? 'Se connecter' : (_otpSent ? 'Vérifier OTP' : 'Envoyer OTP'),
                               style: GoogleFonts.poppins(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700),
                             ),
                     ),
@@ -732,7 +946,11 @@ class _LoginTabContentState extends State<LoginTabContent> {
               children: [
                 Text(l10n.noAccount, style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey.shade600)),
                 GestureDetector(
-                  onTap: () => DefaultTabController.of(context).animateTo(1),
+                  onTap: () {
+                    if (context.findAncestorStateOfType<LoginPageState>() != null) {
+                      context.findAncestorStateOfType<LoginPageState>()?._tabController.animateTo(1);
+                    }
+                  },
                   child: Text(
                     l10n.signUp,
                     style: GoogleFonts.poppins(fontSize: 14, color: const Color(0xFF6C63FF), fontWeight: FontWeight.w700),
@@ -752,12 +970,14 @@ class SignupTabContent extends StatefulWidget {
   final ValueChanged<bool> onAuthInProgressChanged;
   final VoidCallback onOtpStarted;
   final VoidCallback onOtpEnded;
+  final ValueChanged<int> onTabChanged;
 
   const SignupTabContent({
     super.key,
     required this.onAuthInProgressChanged,
     required this.onOtpStarted,
     required this.onOtpEnded,
+    required this.onTabChanged,
   });
 
   @override
@@ -766,12 +986,19 @@ class SignupTabContent extends StatefulWidget {
 
 class _SignupTabContentState extends State<SignupTabContent> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _otpController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
   final ErrorHandlerService _errorHandler = ErrorHandlerService();
+  final AuthService _authService = AuthService();
 
+  bool _useEmail = false;
+  bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
   bool _isLoading = false;
   bool _isPhoneVerified = false;
   bool _isVerifyingPhone = false;
@@ -787,6 +1014,14 @@ class _SignupTabContentState extends State<SignupTabContent> {
       setState(() => _isLoading = value);
       widget.onAuthInProgressChanged(value);
     }
+  }
+
+  void _toggleAuthMethod(bool useEmail) {
+    if (_useEmail == useEmail) return;
+    if (!_useEmail && (_verificationId != null || _isVerifyingPhone)) {
+      cancelOtpProcess();
+    }
+    if (mounted) setState(() => _useEmail = useEmail);
   }
 
   void _startCountdown() {
@@ -957,7 +1192,55 @@ class _SignupTabContentState extends State<SignupTabContent> {
     }
   }
 
+  Future<void> _signupWithEmail() async {
+    final l10n = AppLocalizations.of(context)!;
+    if (!_formKey.currentState!.validate()) return;
+    if (_passwordController.text != _confirmPasswordController.text) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Les mots de passe ne correspondent pas'), backgroundColor: Colors.red),
+      );
+      return;
+    }
+    if (_completePhoneNumber.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.phoneRequired), backgroundColor: Colors.red),
+      );
+      return;
+    }
+
+    _setAuthInProgress(true);
+    try {
+      final fullName = '${_firstNameController.text.trim()} ${_nameController.text.trim()}'.trim();
+      final user = await _authService.signUpWithEmail(
+        name: fullName,
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+        phoneNumber: _completePhoneNumber,
+      );
+
+      if (user != null && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Inscription réussie ! Vérifiez votre email pour confirmer votre compte.\nN\'oubliez pas de vérifier vos spams.'), backgroundColor: Colors.green),
+        );
+        widget.onTabChanged(0);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(_errorHandler.handleError(e)), backgroundColor: Colors.red),
+        );
+      }
+    } finally {
+      if (mounted) _setAuthInProgress(false);
+    }
+  }
+
   void _submitForm() async {
+    if (_useEmail) {
+      await _signupWithEmail();
+      return;
+    }
+
     final l10n = AppLocalizations.of(context)!;
     if (!_formKey.currentState!.validate()) return;
     if (!_isPhoneVerified) {
@@ -1028,12 +1311,66 @@ class _SignupTabContentState extends State<SignupTabContent> {
     _emailController.dispose();
     _phoneController.dispose();
     _otpController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
     _timer?.cancel();
     _loadingTimeoutTimer?.cancel();
     if (!_otpProcessEnded && (!_isPhoneVerified && _verificationId != null)) {
       widget.onOtpEnded();
     }
     super.dispose();
+  }
+
+  Widget _buildAuthToggle() {
+    return Row(
+      children: [
+        Expanded(
+          child: GestureDetector(
+            onTap: () => _toggleAuthMethod(false),
+            child: Container(
+              height: 46,
+              decoration: BoxDecoration(
+                color: _useEmail ? Colors.grey.shade100 : const Color(0xFF6C63FF),
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: const Color(0xFF6C63FF)),
+              ),
+              child: Center(
+                child: Text(
+                  'OTP',
+                  style: GoogleFonts.poppins(
+                    color: _useEmail ? Colors.grey.shade700 : Colors.white,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: GestureDetector(
+            onTap: () => _toggleAuthMethod(true),
+            child: Container(
+              height: 46,
+              decoration: BoxDecoration(
+                color: _useEmail ? const Color(0xFF6C63FF) : Colors.grey.shade100,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: const Color(0xFF6C63FF)),
+              ),
+              child: Center(
+                child: Text(
+                  'Email',
+                  style: GoogleFonts.poppins(
+                    color: _useEmail ? Colors.white : Colors.grey.shade700,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   @override
@@ -1065,170 +1402,340 @@ class _SignupTabContentState extends State<SignupTabContent> {
                 ),
               ],
             ),
-            const SizedBox(height: 30),
-
-            // Nom
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha:0.1), blurRadius: 15, spreadRadius: 2)],
-              ),
-              child: TextFormField(
-                controller: _nameController,
-                style: GoogleFonts.poppins(),
-                decoration: InputDecoration(
-                  hintText: l10n.nameHint,
-                  hintStyle: GoogleFonts.poppins(color: Colors.grey.shade400),
-                  prefixIcon: Container(
-                    margin: const EdgeInsets.all(12),
-                    child: const Icon(Icons.person_outline_rounded, color: Color(0xFF6C63FF), size: 22),
-                  ),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-                  filled: true,
-                  fillColor: Colors.white,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
-                ),
-                validator: (value) => value == null || value.isEmpty ? l10n.nameRequired : null,
-              ),
-            ),
             const SizedBox(height: 20),
+            _buildAuthToggle(),
+            const SizedBox(height: 25),
 
-            // Email
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha:0.1), blurRadius: 15, spreadRadius: 2)],
-              ),
-              child: TextFormField(
-                controller: _emailController,
-                style: GoogleFonts.poppins(),
-                decoration: InputDecoration(
-                  hintText: l10n.emailHint,
-                  hintStyle: GoogleFonts.poppins(color: Colors.grey.shade400),
-                  prefixIcon: Container(
-                    margin: const EdgeInsets.all(12),
-                    child: const Icon(Icons.email_rounded, color: Color(0xFF6C63FF), size: 22),
-                  ),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-                  filled: true,
-                  fillColor: Colors.white,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) return l10n.emailRequired;
-                  if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) return l10n.invalidEmail;
-                  return null;
-                },
-              ),
-            ),
-            const SizedBox(height: 20),
-
-            // Téléphone
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha:0.1), blurRadius: 15, spreadRadius: 2)],
-              ),
-              child: IntlPhoneField(
-                controller: _phoneController,
-                style: GoogleFonts.poppins(),
-                decoration: InputDecoration(
-                  hintText: l10n.phoneHint,
-                  hintStyle: GoogleFonts.poppins(color: Colors.grey.shade400),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-                  filled: true,
-                  fillColor: Colors.white,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
-                ),
-                initialCountryCode: 'CM',
-                onChanged: (phone) => _completePhoneNumber = phone.completeNumber,
-                validator: (value) {
-                  if (value == null || value.number.isEmpty) return l10n.phoneRequired;
-                  if (value.number.length < 8) return l10n.invalidPhone;
-                  return null;
-                },
-              ),
-            ),
-            const SizedBox(height: 10),
-
-            if (!_isPhoneVerified && _verificationId == null)
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextButton(
-                  onPressed: _isVerifyingPhone ? null : _sendSmsCode,
-                  child: Text(
-                    _isVerifyingPhone ? l10n.sendingCode : l10n.verifyPhone,
-                    style: GoogleFonts.poppins(color: const Color(0xFF6C63FF), fontWeight: FontWeight.w600),
-                  ),
-                ),
-              ),
-
-            if (_verificationId != null && !_isPhoneVerified)
-              Column(
-                children: [
-                  const SizedBox(height: 20),
-                  Text(
-                    l10n.enterOtp,
-                    style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.grey.shade700),
-                  ),
-                  const SizedBox(height: 10),
-                  Pinput(
-                    controller: _otpController,
-                    length: 6,
-                    defaultPinTheme: PinTheme(
-                      width: 50,
-                      height: 50,
-                      textStyle: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.w600, color: const Color(0xFF6C63FF)),
-                      decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade300), borderRadius: BorderRadius.circular(12)),
-                    ),
-                    focusedPinTheme: PinTheme(
-                      width: 50,
-                      height: 50,
-                      textStyle: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.w600, color: const Color(0xFF6C63FF)),
-                      decoration: BoxDecoration(border: Border.all(color: const Color(0xFF6C63FF)), borderRadius: BorderRadius.circular(12)),
-                    ),
-                    onCompleted: (pin) => _verifyOtp(),
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        _countdown > 0 ? '${l10n.resendIn} $_countdown s' : l10n.resendCode,
-                        style: GoogleFonts.poppins(color: Colors.grey.shade600),
-                      ),
-                      if (_countdown == 0)
-                        TextButton(
-                          onPressed: _sendSmsCode,
-                          child: Text(l10n.resend, style: GoogleFonts.poppins(color: const Color(0xFF6C63FF), fontWeight: FontWeight.w600)),
-                        ),
-                    ],
-                  ),
-                ],
-              ),
-
-            if (_isPhoneVerified)
+            if (_useEmail) ...[
               Container(
-                padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.green.shade50,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.green.shade200),
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha:0.1), blurRadius: 15, spreadRadius: 2)],
                 ),
-                child: Row(
+                child: TextFormField(
+                  controller: _firstNameController,
+                  style: GoogleFonts.poppins(),
+                  decoration: InputDecoration(
+                    hintText: 'Prénom',
+                    hintStyle: GoogleFonts.poppins(color: Colors.grey.shade400),
+                    prefixIcon: Container(
+                      margin: const EdgeInsets.all(12),
+                      child: const Icon(Icons.person_outline_rounded, color: Color(0xFF6C63FF), size: 22),
+                    ),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                    filled: true,
+                    fillColor: Colors.white,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+                  ),
+                  validator: (value) => value == null || value.isEmpty ? 'Prénom requis' : null,
+                ),
+              ),
+              const SizedBox(height: 20),
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha:0.1), blurRadius: 15, spreadRadius: 2)],
+                ),
+                child: TextFormField(
+                  controller: _nameController,
+                  style: GoogleFonts.poppins(),
+                  decoration: InputDecoration(
+                    hintText: 'Nom de famille',
+                    hintStyle: GoogleFonts.poppins(color: Colors.grey.shade400),
+                    prefixIcon: Container(
+                      margin: const EdgeInsets.all(12),
+                      child: const Icon(Icons.person_outline_rounded, color: Color(0xFF6C63FF), size: 22),
+                    ),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                    filled: true,
+                    fillColor: Colors.white,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+                  ),
+                  validator: (value) => value == null || value.isEmpty ? 'Nom requis' : null,
+                ),
+              ),
+              const SizedBox(height: 20),
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha:0.1), blurRadius: 15, spreadRadius: 2)],
+                ),
+                child: TextFormField(
+                  controller: _emailController,
+                  style: GoogleFonts.poppins(),
+                  keyboardType: TextInputType.emailAddress,
+                  decoration: InputDecoration(
+                    hintText: l10n.emailHint,
+                    hintStyle: GoogleFonts.poppins(color: Colors.grey.shade400),
+                    prefixIcon: Container(
+                      margin: const EdgeInsets.all(12),
+                      child: const Icon(Icons.email_rounded, color: Color(0xFF6C63FF), size: 22),
+                    ),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                    filled: true,
+                    fillColor: Colors.white,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) return 'Email requis';
+                    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) return 'Email invalide';
+                    return null;
+                  },
+                ),
+              ),
+              const SizedBox(height: 20),
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha:0.1), blurRadius: 15, spreadRadius: 2)],
+                ),
+                child: IntlPhoneField(
+                  controller: _phoneController,
+                  style: GoogleFonts.poppins(),
+                  decoration: InputDecoration(
+                    hintText: l10n.phoneHint,
+                    hintStyle: GoogleFonts.poppins(color: Colors.grey.shade400),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                    filled: true,
+                    fillColor: Colors.white,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+                  ),
+                  initialCountryCode: 'CM',
+                  onChanged: (phone) => _completePhoneNumber = phone.completeNumber,
+                  validator: (value) {
+                    if (value == null || value.number.isEmpty) return 'Téléphone requis';
+                    if (value.number.length < 8) return 'Numéro invalide';
+                    return null;
+                  },
+                ),
+              ),
+              const SizedBox(height: 20),
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha:0.1), blurRadius: 15, spreadRadius: 2)],
+                ),
+                child: TextFormField(
+                  controller: _passwordController,
+                  style: GoogleFonts.poppins(),
+                  obscureText: _obscurePassword,
+                  decoration: InputDecoration(
+                    hintText: 'Mot de passe',
+                    hintStyle: GoogleFonts.poppins(color: Colors.grey.shade400),
+                    prefixIcon: Container(
+                      margin: const EdgeInsets.all(12),
+                      child: const Icon(Icons.lock_rounded, color: Color(0xFF6C63FF), size: 22),
+                    ),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                        color: Colors.grey.shade400,
+                      ),
+                      onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                    ),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                    filled: true,
+                    fillColor: Colors.white,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) return 'Mot de passe requis';
+                    if (value.length < 6) return 'Minimum 6 caractères';
+                    return null;
+                  },
+                ),
+              ),
+              const SizedBox(height: 20),
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha:0.1), blurRadius: 15, spreadRadius: 2)],
+                ),
+                child: TextFormField(
+                  controller: _confirmPasswordController,
+                  style: GoogleFonts.poppins(),
+                  obscureText: _obscureConfirmPassword,
+                  decoration: InputDecoration(
+                    hintText: 'Confirmer le mot de passe',
+                    hintStyle: GoogleFonts.poppins(color: Colors.grey.shade400),
+                    prefixIcon: Container(
+                      margin: const EdgeInsets.all(12),
+                      child: const Icon(Icons.lock_rounded, color: Color(0xFF6C63FF), size: 22),
+                    ),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscureConfirmPassword ? Icons.visibility_off : Icons.visibility,
+                        color: Colors.grey.shade400,
+                      ),
+                      onPressed: () => setState(() => _obscureConfirmPassword = !_obscureConfirmPassword),
+                    ),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                    filled: true,
+                    fillColor: Colors.white,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) return 'Confirmation requise';
+                    if (value != _passwordController.text) return 'Les mots de passe ne correspondent pas';
+                    return null;
+                  },
+                ),
+              ),
+            ] else ...[
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha:0.1), blurRadius: 15, spreadRadius: 2)],
+                ),
+                child: TextFormField(
+                  controller: _nameController,
+                  style: GoogleFonts.poppins(),
+                  decoration: InputDecoration(
+                    hintText: l10n.nameHint,
+                    hintStyle: GoogleFonts.poppins(color: Colors.grey.shade400),
+                    prefixIcon: Container(
+                      margin: const EdgeInsets.all(12),
+                      child: const Icon(Icons.person_outline_rounded, color: Color(0xFF6C63FF), size: 22),
+                    ),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                    filled: true,
+                    fillColor: Colors.white,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+                  ),
+                  validator: (value) => value == null || value.isEmpty ? l10n.nameRequired : null,
+                ),
+              ),
+              const SizedBox(height: 20),
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha:0.1), blurRadius: 15, spreadRadius: 2)],
+                ),
+                child: TextFormField(
+                  controller: _emailController,
+                  style: GoogleFonts.poppins(),
+                  decoration: InputDecoration(
+                    hintText: l10n.emailHint,
+                    hintStyle: GoogleFonts.poppins(color: Colors.grey.shade400),
+                    prefixIcon: Container(
+                      margin: const EdgeInsets.all(12),
+                      child: const Icon(Icons.email_rounded, color: Color(0xFF6C63FF), size: 22),
+                    ),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                    filled: true,
+                    fillColor: Colors.white,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) return l10n.emailRequired;
+                    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) return l10n.invalidEmail;
+                    return null;
+                  },
+                ),
+              ),
+              const SizedBox(height: 20),
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha:0.1), blurRadius: 15, spreadRadius: 2)],
+                ),
+                child: IntlPhoneField(
+                  controller: _phoneController,
+                  style: GoogleFonts.poppins(),
+                  decoration: InputDecoration(
+                    hintText: l10n.phoneHint,
+                    hintStyle: GoogleFonts.poppins(color: Colors.grey.shade400),
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                    filled: true,
+                    fillColor: Colors.white,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+                  ),
+                  initialCountryCode: 'CM',
+                  onChanged: (phone) => _completePhoneNumber = phone.completeNumber,
+                  validator: (value) {
+                    if (value == null || value.number.isEmpty) return l10n.phoneRequired;
+                    if (value.number.length < 8) return l10n.invalidPhone;
+                    return null;
+                  },
+                ),
+              ),
+              const SizedBox(height: 20),
+              if (!_isPhoneVerified && _verificationId == null)
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: _isVerifyingPhone ? null : _sendSmsCode,
+                    child: Text(
+                      _isVerifyingPhone ? l10n.sendingCode : l10n.verifyPhone,
+                      style: GoogleFonts.poppins(color: const Color(0xFF6C63FF), fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ),
+              if (_verificationId != null && !_isPhoneVerified)
+                Column(
                   children: [
-                    const Icon(Icons.check_circle_rounded, color: Colors.green, size: 24),
-                    const SizedBox(width: 10),
+                    const SizedBox(height: 20),
                     Text(
-                      l10n.phoneVerified,
-                      style: GoogleFonts.poppins(color: Colors.green.shade700, fontWeight: FontWeight.w600),
+                      l10n.enterOtp,
+                      style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.grey.shade700),
+                    ),
+                    const SizedBox(height: 10),
+                    Pinput(
+                      controller: _otpController,
+                      length: 6,
+                      defaultPinTheme: PinTheme(
+                        width: 50,
+                        height: 50,
+                        textStyle: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.w600, color: const Color(0xFF6C63FF)),
+                        decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade300), borderRadius: BorderRadius.circular(12)),
+                      ),
+                      focusedPinTheme: PinTheme(
+                        width: 50,
+                        height: 50,
+                        textStyle: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.w600, color: const Color(0xFF6C63FF)),
+                        decoration: BoxDecoration(border: Border.all(color: const Color(0xFF6C63FF)), borderRadius: BorderRadius.circular(12)),
+                      ),
+                      onCompleted: (pin) => _verifyOtp(),
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          _countdown > 0 ? '${l10n.resendIn} $_countdown s' : l10n.resendCode,
+                          style: GoogleFonts.poppins(color: Colors.grey.shade600),
+                        ),
+                        if (_countdown == 0)
+                          TextButton(
+                            onPressed: _sendSmsCode,
+                            child: Text(l10n.resend, style: GoogleFonts.poppins(color: const Color(0xFF6C63FF), fontWeight: FontWeight.w600)),
+                          ),
+                      ],
                     ),
                   ],
                 ),
-              ),
-            const SizedBox(height: 30),
+              if (_isPhoneVerified)
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.green.shade50,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.green.shade200),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.check_circle_rounded, color: Colors.green, size: 24),
+                      const SizedBox(width: 10),
+                      Text(
+                        l10n.phoneVerified,
+                        style: GoogleFonts.poppins(color: Colors.green.shade700, fontWeight: FontWeight.w600),
+                      ),
+                    ],
+                  ),
+                ),
+            ],
 
-            // Bouton inscription
+            const SizedBox(height: 30),
             Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
@@ -1261,7 +1768,7 @@ class _SignupTabContentState extends State<SignupTabContent> {
                       child: _isLoading
                           ? const SizedBox(height: 24, width: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5))
                           : Text(
-                              l10n.createMyAccount,
+                              _useEmail ? 'S\'inscrire' : l10n.createMyAccount,
                               style: GoogleFonts.poppins(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700),
                             ),
                     ),
@@ -1271,15 +1778,778 @@ class _SignupTabContentState extends State<SignupTabContent> {
             ),
             const SizedBox(height: 25),
 
-            // Lien de connexion
+            // Lien vers connexion
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(l10n.alreadyHaveAccount, style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey.shade600)),
                 GestureDetector(
-                  onTap: () => DefaultTabController.of(context).animateTo(0),
+                  onTap: () {
+                    if (context.findAncestorStateOfType<_EmailTabContentState>() != null) {
+                      context.findAncestorStateOfType<_EmailTabContentState>()?._emailTabController.animateTo(0);
+                    }
+                  },
                   child: Text(
                     l10n.login,
+                    style: GoogleFonts.poppins(fontSize: 14, color: const Color(0xFF6C63FF), fontWeight: FontWeight.w700),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class EmailTabContent extends StatefulWidget {
+  final ValueChanged<bool> onAuthInProgressChanged;
+
+  const EmailTabContent({
+    super.key,
+    required this.onAuthInProgressChanged,
+  });
+
+  @override
+  State<EmailTabContent> createState() => _EmailTabContentState();
+}
+
+class _EmailTabContentState extends State<EmailTabContent> with SingleTickerProviderStateMixin {
+  late TabController _emailTabController;
+  final GlobalKey<_EmailLoginContentState> _loginKey = GlobalKey<_EmailLoginContentState>();
+  final GlobalKey<_EmailSignupContentState> _signupKey = GlobalKey<_EmailSignupContentState>();
+
+  @override
+  void initState() {
+    super.initState();
+    _emailTabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _emailTabController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Column(
+      children: [
+        // Sous-onglets pour Email
+        Container(
+          margin: const EdgeInsets.symmetric(horizontal: 20),
+          padding: const EdgeInsets.all(4),
+          decoration: BoxDecoration(
+            color: Colors.grey.shade100,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: TabBar(
+            controller: _emailTabController,
+            labelColor: Colors.white,
+            unselectedLabelColor: Colors.grey.shade700,
+            indicator: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFF6C63FF), Color(0xFF8B84FF)],
+              ),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            labelStyle: GoogleFonts.poppins(
+              fontWeight: FontWeight.w600,
+              fontSize: 13,
+            ),
+            unselectedLabelStyle: GoogleFonts.poppins(
+              fontWeight: FontWeight.w500,
+              fontSize: 13,
+            ),
+            tabs: [
+              Tab(text: l10n.loginTab),
+              Tab(text: l10n.signupTab),
+            ],
+          ),
+        ),
+        const SizedBox(height: 20),
+        Expanded(
+          child: TabBarView(
+            controller: _emailTabController,
+            children: [
+              EmailLoginContent(
+                key: _loginKey,
+                onAuthInProgressChanged: widget.onAuthInProgressChanged,
+              ),
+              EmailSignupContent(
+                key: _signupKey,
+                onAuthInProgressChanged: widget.onAuthInProgressChanged,
+                onTabChanged: (tabIndex) {
+                  _emailTabController.animateTo(tabIndex);
+                },
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class EmailLoginContent extends StatefulWidget {
+  final ValueChanged<bool> onAuthInProgressChanged;
+
+  const EmailLoginContent({
+    super.key,
+    required this.onAuthInProgressChanged,
+  });
+
+  @override
+  State<EmailLoginContent> createState() => _EmailLoginContentState();
+}
+
+class _EmailLoginContentState extends State<EmailLoginContent> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final AuthService _authService = AuthService();
+  final ErrorHandlerService _errorHandler = ErrorHandlerService();
+
+  bool _isLoading = false;
+  bool _obscurePassword = true;
+
+  void _setAuthInProgress(bool value) {
+    if (mounted) {
+      setState(() => _isLoading = value);
+      widget.onAuthInProgressChanged(value);
+    }
+  }
+
+  Future<void> _loginWithEmail() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    _setAuthInProgress(true);
+    try {
+      final user = await _authService.signInWithEmail(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
+
+      if (user != null && mounted) {
+        final userProfile = await UserProfileService().getProfileFresh(user.uid);
+        if (userProfile != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Connexion réussie !'),
+              backgroundColor: Colors.green,
+            ),
+          );
+
+          if (userProfile.role == 'admin') {
+            context.go('/admin');
+          } else if (userProfile.role == 'collaborator') {
+            context.go('/collaborator/home');
+          } else {
+            context.go('/home_custom');
+          }
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(_errorHandler.handleError(e)),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) _setAuthInProgress(false);
+    }
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Titre
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Connexion par Email',
+                  style: GoogleFonts.poppins(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.grey.shade900,
+                    letterSpacing: -0.5,
+                  ),
+                ),
+                Text(
+                  'Utilisez votre email et mot de passe',
+                  style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey.shade600),
+                ),
+              ],
+            ),
+            const SizedBox(height: 30),
+
+            // Email
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha:0.1), blurRadius: 15, spreadRadius: 2)],
+              ),
+              child: TextFormField(
+                controller: _emailController,
+                style: GoogleFonts.poppins(),
+                keyboardType: TextInputType.emailAddress,
+                decoration: InputDecoration(
+                  hintText: l10n.emailHint,
+                  hintStyle: GoogleFonts.poppins(color: Colors.grey.shade400),
+                  prefixIcon: Container(
+                    margin: const EdgeInsets.all(12),
+                    child: const Icon(Icons.email_rounded, color: Color(0xFF6C63FF), size: 22),
+                  ),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                  filled: true,
+                  fillColor: Colors.white,
+                  contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) return 'Email requis';
+                  if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) return 'Email invalide';
+                  return null;
+                },
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Mot de passe
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha:0.1), blurRadius: 15, spreadRadius: 2)],
+              ),
+              child: TextFormField(
+                controller: _passwordController,
+                style: GoogleFonts.poppins(),
+                obscureText: _obscurePassword,
+                decoration: InputDecoration(
+                  hintText: 'Mot de passe',
+                  hintStyle: GoogleFonts.poppins(color: Colors.grey.shade400),
+                  prefixIcon: Container(
+                    margin: const EdgeInsets.all(12),
+                    child: const Icon(Icons.lock_rounded, color: Color(0xFF6C63FF), size: 22),
+                  ),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                      color: Colors.grey.shade400,
+                    ),
+                    onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                  ),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                  filled: true,
+                  fillColor: Colors.white,
+                  contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) return 'Mot de passe requis';
+                  if (value.length < 6) return 'Minimum 6 caractères';
+                  return null;
+                },
+              ),
+            ),
+            const SizedBox(height: 10),
+
+            // Lien mot de passe oublié
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton(
+                onPressed: () async {
+                  if (_emailController.text.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Veuillez entrer votre email d\'abord'),
+                        backgroundColor: Colors.orange,
+                      ),
+                    );
+                    return;
+                  }
+                  try {
+                    await _authService.resetPassword(_emailController.text.trim());
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Email de réinitialisation envoyé'),
+                          backgroundColor: Colors.green,
+                        ),
+                      );
+                    }
+                  } catch (e) {
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(_errorHandler.handleError(e)),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                  }
+                },
+                child: Text(
+                  'Mot de passe oublié ?',
+                  style: GoogleFonts.poppins(color: const Color(0xFF6C63FF), fontWeight: FontWeight.w600),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Bouton connexion
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF6C63FF).withValues(alpha:0.4),
+                    blurRadius: 20,
+                    spreadRadius: 2,
+                    offset: const Offset(0, 5),
+                  ),
+                ],
+              ),
+              child: Material(
+                borderRadius: BorderRadius.circular(16),
+                child: InkWell(
+                  onTap: _isLoading ? null : _loginWithEmail,
+                  borderRadius: BorderRadius.circular(16),
+                  child: Ink(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 18),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF6C63FF), Color(0xFF8B84FF)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Center(
+                      child: _isLoading
+                          ? const SizedBox(height: 24, width: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5))
+                          : Text(
+                              'Se connecter',
+                              style: GoogleFonts.poppins(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700),
+                            ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 30),
+
+            // Lien vers inscription
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text('Pas de compte ? ', style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey.shade600)),
+                GestureDetector(
+                  onTap: () {
+                    if (context.findAncestorStateOfType<LoginPageState>() != null) {
+                      context.findAncestorStateOfType<LoginPageState>()?._tabController.animateTo(1);
+                    }
+                  },
+                  child: Text(
+                    'S\'inscrire',
+                    style: GoogleFonts.poppins(fontSize: 14, color: const Color(0xFF6C63FF), fontWeight: FontWeight.w700),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class EmailSignupContent extends StatefulWidget {
+  final ValueChanged<bool> onAuthInProgressChanged;
+  final ValueChanged<int> onTabChanged;
+
+  const EmailSignupContent({
+    super.key,
+    required this.onAuthInProgressChanged,
+    required this.onTabChanged,
+  });
+
+  @override
+  State<EmailSignupContent> createState() => _EmailSignupContentState();
+}
+
+class _EmailSignupContentState extends State<EmailSignupContent> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final TextEditingController _firstNameController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
+  final AuthService _authService = AuthService();
+  final ErrorHandlerService _errorHandler = ErrorHandlerService();
+
+  bool _isLoading = false;
+  bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
+  String _completePhoneNumber = '';
+
+  void _setAuthInProgress(bool value) {
+    if (mounted) {
+      setState(() => _isLoading = value);
+      widget.onAuthInProgressChanged(value);
+    }
+  }
+
+  Future<void> _signupWithEmail() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    if (_passwordController.text != _confirmPasswordController.text) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Les mots de passe ne correspondent pas'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    _setAuthInProgress(true);
+    try {
+      final fullName = '${_firstNameController.text.trim()} ${_nameController.text.trim()}'.trim();
+      final user = await _authService.signUpWithEmail(
+        name: fullName,
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+        phoneNumber: _completePhoneNumber,
+      );
+
+      if (user != null && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Inscription réussie ! Vérifiez votre email pour confirmer votre compte.\nN\'oubliez pas de vérifier vos spams.'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        // Rediriger vers la page de connexion email
+        widget.onTabChanged(0);
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(_errorHandler.handleError(e)),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) _setAuthInProgress(false);
+    }
+  }
+
+  @override
+  void dispose() {
+    _firstNameController.dispose();
+    _nameController.dispose();
+    _emailController.dispose();
+    _phoneController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Titre
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Inscription par Email',
+                  style: GoogleFonts.poppins(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.grey.shade900,
+                    letterSpacing: -0.5,
+                  ),
+                ),
+                Text(
+                  'Créez votre compte avec email et mot de passe',
+                  style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey.shade600),
+                ),
+              ],
+            ),
+            const SizedBox(height: 30),
+
+            // Prénom
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha:0.1), blurRadius: 15, spreadRadius: 2)],
+              ),
+              child: TextFormField(
+                controller: _firstNameController,
+                style: GoogleFonts.poppins(),
+                decoration: InputDecoration(
+                  hintText: 'Prénom',
+                  hintStyle: GoogleFonts.poppins(color: Colors.grey.shade400),
+                  prefixIcon: Container(
+                    margin: const EdgeInsets.all(12),
+                    child: const Icon(Icons.person_outline_rounded, color: Color(0xFF6C63FF), size: 22),
+                  ),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                  filled: true,
+                  fillColor: Colors.white,
+                  contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+                ),
+                validator: (value) => value == null || value.isEmpty ? 'Prénom requis' : null,
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Nom
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha:0.1), blurRadius: 15, spreadRadius: 2)],
+              ),
+              child: TextFormField(
+                controller: _nameController,
+                style: GoogleFonts.poppins(),
+                decoration: InputDecoration(
+                  hintText: l10n.nameHint,
+                  hintStyle: GoogleFonts.poppins(color: Colors.grey.shade400),
+                  prefixIcon: Container(
+                    margin: const EdgeInsets.all(12),
+                    child: const Icon(Icons.person_outline_rounded, color: Color(0xFF6C63FF), size: 22),
+                  ),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                  filled: true,
+                  fillColor: Colors.white,
+                  contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+                ),
+                validator: (value) => value == null || value.isEmpty ? 'Nom requis' : null,
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Email
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha:0.1), blurRadius: 15, spreadRadius: 2)],
+              ),
+              child: TextFormField(
+                controller: _emailController,
+                style: GoogleFonts.poppins(),
+                keyboardType: TextInputType.emailAddress,
+                decoration: InputDecoration(
+                  hintText: l10n.emailHint,
+                  hintStyle: GoogleFonts.poppins(color: Colors.grey.shade400),
+                  prefixIcon: Container(
+                    margin: const EdgeInsets.all(12),
+                    child: const Icon(Icons.email_rounded, color: Color(0xFF6C63FF), size: 22),
+                  ),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                  filled: true,
+                  fillColor: Colors.white,
+                  contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) return 'Email requis';
+                  if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) return 'Email invalide';
+                  return null;
+                },
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Téléphone
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha:0.1), blurRadius: 15, spreadRadius: 2)],
+              ),
+              child: IntlPhoneField(
+                controller: _phoneController,
+                style: GoogleFonts.poppins(),
+                decoration: InputDecoration(
+                  hintText: l10n.phoneHint,
+                  hintStyle: GoogleFonts.poppins(color: Colors.grey.shade400),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                  filled: true,
+                  fillColor: Colors.white,
+                  contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+                ),
+                initialCountryCode: 'CM',
+                onChanged: (phone) => _completePhoneNumber = phone.completeNumber,
+                validator: (value) {
+                  if (value == null || value.number.isEmpty) return 'Téléphone requis';
+                  if (value.number.length < 8) return 'Numéro invalide';
+                  return null;
+                },
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Mot de passe
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha:0.1), blurRadius: 15, spreadRadius: 2)],
+              ),
+              child: TextFormField(
+                controller: _passwordController,
+                style: GoogleFonts.poppins(),
+                obscureText: _obscurePassword,
+                decoration: InputDecoration(
+                  hintText: 'Mot de passe',
+                  hintStyle: GoogleFonts.poppins(color: Colors.grey.shade400),
+                  prefixIcon: Container(
+                    margin: const EdgeInsets.all(12),
+                    child: const Icon(Icons.lock_rounded, color: Color(0xFF6C63FF), size: 22),
+                  ),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                      color: Colors.grey.shade400,
+                    ),
+                    onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                  ),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                  filled: true,
+                  fillColor: Colors.white,
+                  contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) return 'Mot de passe requis';
+                  if (value.length < 6) return 'Minimum 6 caractères';
+                  return null;
+                },
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Confirmation mot de passe
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha:0.1), blurRadius: 15, spreadRadius: 2)],
+              ),
+              child: TextFormField(
+                controller: _confirmPasswordController,
+                style: GoogleFonts.poppins(),
+                obscureText: _obscureConfirmPassword,
+                decoration: InputDecoration(
+                  hintText: 'Confirmer le mot de passe',
+                  hintStyle: GoogleFonts.poppins(color: Colors.grey.shade400),
+                  prefixIcon: Container(
+                    margin: const EdgeInsets.all(12),
+                    child: const Icon(Icons.lock_rounded, color: Color(0xFF6C63FF), size: 22),
+                  ),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscureConfirmPassword ? Icons.visibility_off : Icons.visibility,
+                      color: Colors.grey.shade400,
+                    ),
+                    onPressed: () => setState(() => _obscureConfirmPassword = !_obscureConfirmPassword),
+                  ),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                  filled: true,
+                  fillColor: Colors.white,
+                  contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) return 'Confirmation requise';
+                  if (value != _passwordController.text) return 'Les mots de passe ne correspondent pas';
+                  return null;
+                },
+              ),
+            ),
+            const SizedBox(height: 30),
+
+            // Bouton inscription
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: const Color(0xFF6C63FF).withValues(alpha:0.4),
+                    blurRadius: 20,
+                    spreadRadius: 2,
+                    offset: const Offset(0, 5),
+                  ),
+                ],
+              ),
+              child: Material(
+                borderRadius: BorderRadius.circular(16),
+                child: InkWell(
+                  onTap: _isLoading ? null : _signupWithEmail,
+                  borderRadius: BorderRadius.circular(16),
+                  child: Ink(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(vertical: 18),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF6C63FF), Color(0xFF8B84FF)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Center(
+                      child: _isLoading
+                          ? const SizedBox(height: 24, width: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5))
+                          : Text(
+                              'S\'inscrire',
+                              style: GoogleFonts.poppins(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700),
+                            ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 25),
+
+            // Lien vers connexion
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text('Déjà un compte ? ', style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey.shade600)),
+                GestureDetector(
+                  onTap: () => widget.onTabChanged(0),
+                  child: Text(
+                    'Se connecter',
                     style: GoogleFonts.poppins(fontSize: 14, color: const Color(0xFF6C63FF), fontWeight: FontWeight.w700),
                   ),
                 ),

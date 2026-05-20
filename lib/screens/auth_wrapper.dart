@@ -27,6 +27,12 @@ class AuthWrapper extends StatelessWidget {
           return const HomeScreen();
         }
 
+        // Empêcher un utilisateur non vérifié d'accéder à l'application
+        if (!user.emailVerified) {
+          Future.microtask(() => FirebaseAuth.instance.signOut());
+          return const HomeScreen();
+        }
+
         return StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
           stream: FirebaseFirestore.instance
               .collection('users')
