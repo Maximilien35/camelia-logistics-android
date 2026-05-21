@@ -1,6 +1,7 @@
 import UIKit
 import Flutter
-import Firebase
+import FirebaseCore   
+import FirebaseAuth   
 
 @UIApplicationMain
 @objc class AppDelegate: FlutterAppDelegate {
@@ -19,6 +20,7 @@ import Firebase
         completionHandler(.noData)
         return
     }
+    
     super.application(application, didReceiveRemoteNotification: userInfo, fetchCompletionHandler: completionHandler)
   }
 }
