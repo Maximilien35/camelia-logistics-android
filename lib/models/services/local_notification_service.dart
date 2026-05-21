@@ -14,7 +14,7 @@ class LocalNotificationService {
     const iosSettings = DarwinInitializationSettings();
 
     await _notificationsPlugin.initialize(
-      const InitializationSettings(
+      settings: const InitializationSettings(
         android: androidSettings,
         iOS: iosSettings,
         macOS: DarwinInitializationSettings(),
@@ -34,11 +34,11 @@ class LocalNotificationService {
     );
 
     await _notificationsPlugin.zonedSchedule(
-      id,
-      title,
-      body,
-      tzScheduled,
-      const NotificationDetails(
+      id: id,
+      title: title,
+      body: body,
+      scheduledDate: tzScheduled,
+      notificationDetails: const NotificationDetails(
         android: AndroidNotificationDetails(
           'reminder_channel',
           'Rappels',
@@ -49,14 +49,12 @@ class LocalNotificationService {
         iOS: DarwinNotificationDetails(),
       ),
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-      uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.absoluteTime,
       matchDateTimeComponents: DateTimeComponents.dateAndTime,
     );
   }
 
   static Future<void> cancel(int id) async {
-    await _notificationsPlugin.cancel(id);
+    await _notificationsPlugin.cancel(id: id);
   }
 
   static Future<void> cancelAll() async {

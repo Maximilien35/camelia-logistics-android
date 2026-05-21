@@ -918,7 +918,9 @@ class DeliveryPointsScreenState extends State<DeliveryPointsScreen> {
 
     try {
       final position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
+        locationSettings: const LocationSettings(
+          accuracy: LocationAccuracy.high,
+        ),
       );
       final LatLng coords = LatLng(position.latitude, position.longitude);
 
@@ -1980,10 +1982,8 @@ class _MapSelectorScreenState extends State<MapSelectorScreen> {
               initialCenter: widget.initialPosition,
               initialZoom: 16,
               onPositionChanged: (position, hasGesture) {
-                if (position.center != null) {
-                  _currentCameraPosition = position.center!;
-                  if (hasGesture) _fetchAddress(_currentCameraPosition);
-                }
+                _currentCameraPosition = position.center;
+                if (hasGesture) _fetchAddress(_currentCameraPosition);
               },
             ),
             children: [
