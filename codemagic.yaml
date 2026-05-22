@@ -3,6 +3,8 @@ workflows:
     name: Camelia Logistics iOS Release (App Store)
     instance_type: mac_mini_m2
     max_build_duration: 120
+    integrations:
+      app_store_connect: CI\CD
 
     environment:
       groups:
