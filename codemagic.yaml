@@ -1,0 +1,74 @@
+workflows:
+  ios-release-workflow:
+    name: Camelia Logistics iOS Release (App Store)
+    instance_type: mac_mini_m2
+    max_build_duration: 120
+
+    environment:
+      groups:
+        - app_store_credentials
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+
+    cache:
+      cache_paths:
+        - $FLUTTER_ROOT/.pub-cache
+        - $HOME/Library/Caches/CocoaPods
+
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: 'ios' 
+          include: true
+          source: true
+      cancel_previous_builds: true
+
+    scripts:
+      - name: Initialisation du trousseau (Keychain) pour la signature
+        script: keychain initialize
+
+      - name: Récupération automatique des certificats Apple (La magie opère ici)
+        script: |
+          app-store-connect fetch-signing-files "com.camelia.logistics" \
+            --type IOS_APP_STORE \
+            --create
+
+      - name: Installation du certificat de signature
+        script: keychain add-certificates
+
+      - name: Configuration de Xcode avec le bon profil (Provisioning Profile)
+        script: xcode-project use-profiles
+
+      - name: Récupération des packages Flutter
+        script: flutter pub get
+
+      - name: Nettoyage et synchronisation de CocoaPods (Correction de ton erreur Sandbox)
+        script: |
+          cd ios
+          rm -rf Pods
+          rm -rf Podfile.lock
+          pod install --repo-update
+          cd ..
+
+      - name: Compilation de l'application (Création du .ipa)
+        script: |
+          flutter build ipa --release \
+            --export-options-plist=/Users/builder/export_options.plist
+
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
+      
+      email:
+        recipients:
+          -camelialogisticss@gmail.com
+        notify:
+          success: true
+          failure: true
