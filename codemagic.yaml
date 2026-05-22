@@ -68,7 +68,7 @@ workflows:
       
       email:
         recipients:
-          -camelialogisticss@gmail.com
+          - camelialogisticss@gmail.com
         notify:
           success: true
           failure: true
