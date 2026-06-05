@@ -41,7 +41,7 @@ dependencies:
   fl_chart: ^1.1.1               # ← version originale
 
   # Timezone
-  timezone: ^0.9.4
+  timezone: ^0.10.0
 
   # Média
   image_picker: ^1.0.7
