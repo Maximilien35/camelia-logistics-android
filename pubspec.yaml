@@ -33,23 +33,22 @@ dependencies:
   flutter_localizations:
     sdk: flutter
 
-  firebase_core: ^3.6.0
-  firebase_auth: ^5.3.1
-  cloud_firestore: ^5.4.1       # ← clé du problème, 6.x casse iOS
-  firebase_storage: ^12.3.2
-  firebase_messaging: ^15.1.3
-  firebase_app_check: ^0.3.1+4
-  cloud_functions: ^5.1.3
-  google_sign_in: ^6.2.1
-  
-  go_router: ^14.2.7
-  geolocator: ^13.0.1
-  geocoding: ^3.0.0
-  flutter_map: ^7.0.2
-  latlong2: ^0.9.0
-  http: ^1.2.0
-  fl_chart: ^0.69.0
-  timezone: ^0.9.4
+  go_router: ^17.2.3
+  firebase_core: ^4.1.1
+  firebase_auth: ^6.1.0
+  cloud_firestore: ^5.4.1
+  firebase_storage: ^13.0.2
+  firebase_messaging: ^16.0.2
+  google_sign_in: ^7.2.0
+  cloud_functions: ^6.3.1
+  geolocator: ^14.0.2      # Pour obtenir la position GPS
+  geocoding: ^4.0.0       # Pour transformer Lat/Lng en adresse texte
+  flutter_map: ^8.3.0     # OpenStreetMap Widget
+  latlong2: ^0.9.0        # Gestion des coordonnées
+  http: ^1.2.0            # Pour requêter OSRM
+  fl_chart: ^1.1.1
+  firebase_app_check: ^0.4.1+4
+  timezone: ^0.10.1
 
   # Média
   image_picker: ^1.0.7
@@ -59,8 +58,8 @@ dependencies:
   auto_size_text: ^3.0.0
   flutter_svg: ^2.0.9
   lottie: ^3.1.0
-  google_fonts: ^6.2.1
-  flutter_launcher_icons: ^0.13.1
+  google_fonts: ^8.1.0
+  flutter_launcher_icons: ^0.14.4
   url_launcher: ^6.2.1
 
   # État & Utilitaires
@@ -69,8 +68,8 @@ dependencies:
   shared_preferences: ^2.3.2
 
   # Sécurité
-  flutter_secure_storage: ^9.2.2  
-  flutter_local_notifications: ^17.0.0
+  flutter_secure_storage: ^10.2.0  
+  flutter_local_notifications: ^20.1.0
   intl_phone_field: ^3.2.0
   pinput: ^6.0.2
 
