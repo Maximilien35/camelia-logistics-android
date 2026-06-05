@@ -1,5 +1,5 @@
 name: camelia
-description: "Une application de livraison de colis pour les particuliers et les professionnels, offrant une expérience utilisateur fluide et des fonctionnalités avancées pour suivre et gérer les livraisons en temps réel."
+description: "Une application de livraison de colis pour les particuliers et les professionnels."
 publish_to: 'none'
 
 version: 1.0.0+5
@@ -13,14 +13,14 @@ dependencies:
   flutter_localizations:
     sdk: flutter
 
-  # Firebase - versions compatibles entre elles (firebase_core_platform_interface ^7.0.1)
+  # Firebase - toutes compatibles firebase_core ^3.x
   firebase_core: ^3.6.0
   firebase_auth: ^5.3.1
   cloud_firestore: ^5.6.11
   firebase_storage: ^12.3.2
   firebase_messaging: ^15.1.3
   firebase_app_check: ^0.3.1+4
-  cloud_functions: ^5.6.2
+  cloud_functions: ^5.6.2        # ← compatible firebase_core ^3.x
 
   # Auth
   google_sign_in: ^7.2.0
@@ -37,8 +37,8 @@ dependencies:
   # Réseau
   http: ^1.2.0
 
-  # Charts - version compatible fl_chart (API stable)
-  fl_chart: ^0.68.0
+  # Charts
+  fl_chart: ^1.1.1               # ← version originale
 
   # Timezone
   timezone: ^0.9.4
@@ -62,7 +62,7 @@ dependencies:
 
   # Sécurité & Notifications
   flutter_secure_storage: ^10.2.0
-  flutter_local_notifications: ^18.0.0   # API cancel(id) sans paramètre nommé
+  flutter_local_notifications: ^20.1.0  # ← version originale (cancel(id:) nommé)
   intl_phone_field: ^3.2.0
   pinput: ^6.0.2
 
