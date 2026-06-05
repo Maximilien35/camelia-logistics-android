@@ -33,22 +33,23 @@ dependencies:
   flutter_localizations:
     sdk: flutter
 
-  go_router: ^17.2.3
-  firebase_core: ^4.1.1
-  firebase_auth: ^6.1.0
-  cloud_firestore: ^5.4.1
-  firebase_storage: ^13.0.2
-  firebase_messaging: ^16.0.2
-  google_sign_in: ^7.2.0
-  cloud_functions: ^6.3.1
-  geolocator: ^14.0.2      # Pour obtenir la position GPS
-  geocoding: ^4.0.0       # Pour transformer Lat/Lng en adresse texte
-  flutter_map: ^8.3.0     # OpenStreetMap Widget
-  latlong2: ^0.9.0        # Gestion des coordonnées
-  http: ^1.2.0            # Pour requêter OSRM
-  fl_chart: ^1.1.1
-  firebase_app_check: ^0.4.1+4
-  timezone: ^0.10.1
+  firebase_core: ^3.6.0
+  firebase_auth: ^5.3.1
+  cloud_firestore: ^5.6.11      
+  firebase_storage: ^12.3.2
+  firebase_messaging: ^15.1.3
+  firebase_app_check: ^0.3.1+4
+  cloud_functions: ^6.3.1       
+  google_sign_in: ^7.2.0        
+  
+  go_router: ^14.2.7
+  geolocator: ^13.0.1
+  geocoding: ^3.0.0
+  flutter_map: ^7.0.2
+  latlong2: ^0.9.0
+  http: ^1.2.0
+  fl_chart: ^1.1.1         
+  timezone: ^0.9.4
 
   # Média
   image_picker: ^1.0.7
