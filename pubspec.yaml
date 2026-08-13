@@ -2,7 +2,7 @@ name: camelia
 description: "Une application de livraison de colis pour les particuliers et les professionnels."
 publish_to: 'none'
 
-version: 1.0.0+5
+version: 1.0.0+6
 
 environment:
   sdk: ^3.8.0

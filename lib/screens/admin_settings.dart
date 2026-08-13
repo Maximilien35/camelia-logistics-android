@@ -11,6 +11,7 @@ import 'package:camelia/screens/help_center.dart';
 import 'package:camelia/models/services/launch_url.dart';
 import 'package:camelia/models/services/user_profile_service.dart';
 import 'package:camelia/screens/change_informations.dart';
+import 'package:camelia/screens/admin_partners.dart';
 class AdminSettings extends StatefulWidget {
   const AdminSettings({super.key});
   @override
@@ -520,6 +521,17 @@ class _AdminSettingsState extends State<AdminSettings> {
                 title: 'Ajouter un administrateur',
                 subtitle: 'Promouvoir un utilisateur',
                 onTap: () => _showPromoteDialog(context),
+                showChevron: true,
+              ),
+              _buildDivider(),
+              _buildSettingItem(
+                icon: Icons.business_center_outlined,
+                title: 'Partenaires API',
+                subtitle: 'Gérer les entreprises partenaires et leurs clés API',
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const AdminPartnersScreen()),
+                ),
                 showChevron: true,
               ),
               _buildDivider(),

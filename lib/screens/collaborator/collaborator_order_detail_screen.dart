@@ -274,6 +274,9 @@ class _CollaboratorOrderDetailScreenState
         (order['photoUrls'] as List?)?.cast<String>() ??
         (order['photos'] as List?)?.cast<String>() ??
         [];
+    final isFromPartner = order['source'] == 'partner_api';
+    final contactName = order['contactName'] as String?;
+    final contactPhone = order['contactPhone'] as String?;
 
     return Scaffold(
       appBar: AppBar(
@@ -314,22 +317,47 @@ class _CollaboratorOrderDetailScreenState
                           fontSize: 16,
                         ),
                       ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: statusColor.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          statusLabel,
-                          style: GoogleFonts.poppins(
-                            fontSize: 12,
-                            color: statusColor,
+                      Row(
+                        children: [
+                          if (isFromPartner) ...[
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 5,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.deepPurple.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Text(
+                                'Via API',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.deepPurple,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                          ],
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: statusColor.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              statusLabel,
+                              style: GoogleFonts.poppins(
+                                fontSize: 12,
+                                color: statusColor,
+                              ),
+                            ),
                           ),
-                        ),
+                        ],
                       ),
                     ],
                   ),
@@ -343,12 +371,23 @@ class _CollaboratorOrderDetailScreenState
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Prix: ${priceQuote.toStringAsFixed(2)} FCFA',
+                    'Prix: ${priceQuote.toStringAsFixed(0)} FCFA',
                     style: GoogleFonts.poppins(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
+                  if (isFromPartner && (contactName != null || contactPhone != null)) ...[
+                    const SizedBox(height: 8),
+                    Text(
+                      'Contact : ${contactName ?? 'N/A'}${contactPhone != null ? ' · $contactPhone' : ''}',
+                      style: GoogleFonts.poppins(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.grey.shade800,
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),

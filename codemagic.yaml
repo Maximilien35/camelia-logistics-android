@@ -54,9 +54,19 @@ workflows:
           pod install --repo-update
           cd ..
 
+      - name: Détermination du build number (auto-incrément depuis App Store Connect)
+        script: |
+          #!/usr/bin/env bash
+          set -e
+          LATEST_BUILD_NUMBER=$(app-store-connect get-latest-build-number "com.camelia.logistics") || LATEST_BUILD_NUMBER=0
+          NEW_BUILD_NUMBER=$((LATEST_BUILD_NUMBER + 1))
+          echo "Dernier build number publié : $LATEST_BUILD_NUMBER -> nouveau build number : $NEW_BUILD_NUMBER"
+          echo "BUILD_NUMBER=$NEW_BUILD_NUMBER" >> $CM_ENV
+
       - name: Compilation de l'application (Création du .ipa)
         script: |
           flutter build ipa --release \
+            --build-number=$BUILD_NUMBER \
             --export-options-plist=/Users/builder/export_options.plist
 
     artifacts:

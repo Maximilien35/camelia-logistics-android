@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import '../user_profile.dart';
@@ -355,25 +356,33 @@ class UserProfileService {
     return result != null;
   }
 
+  /// Supprime réellement le compte de l'utilisateur connecté (Auth + profil Firestore
+  /// + photos de colis dans Storage), conformément à la Guideline Apple 5.1.1(v).
+  /// L'historique de commandes est conservé mais anonymisé côté serveur
+  /// (voir Cloud Function `deleteMyAccount` / functions/accountDeletion.js).
   Future<void> deleteUserAccount() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
     try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user == null) return;
-      final String uid = user.uid;
+      await FirebaseFunctions.instanceFor(
+        region: 'us-central1',
+      ).httpsCallable('deleteMyAccount').call();
 
-      await _usersCollection.doc(uid).update({
-        'isActive': false,
-        'deletedAt': FieldValue.serverTimestamp(),
-      });
-
+      await clearMemoryCache();
       await FirebaseAuth.instance.signOut();
 
       if (kDebugMode) {
-        print("Compte désactivé avec succès (soft delete)");
+        print('Compte supprimé avec succès (hard delete)');
       }
+    } on FirebaseFunctionsException catch (e) {
+      if (kDebugMode) {
+        print('Erreur Cloud Function lors de la suppression du compte : ${e.code} - ${e.message}');
+      }
+      rethrow;
     } catch (e) {
       if (kDebugMode) {
-        print("Erreur lors de la désactivation du compte : $e");
+        print('Erreur lors de la suppression du compte : $e');
       }
       rethrow;
     }

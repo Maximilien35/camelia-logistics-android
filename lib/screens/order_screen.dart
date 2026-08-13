@@ -1705,14 +1705,19 @@ class _FinalisationOrderState extends State<FinalisationOrder> {
                           icon: Icons.flag_rounded,
                           color: const Color(0xFF2196F3),
                         ),
-                        //   _buildSummaryRow(
-                        //   label: l10n.estimatedPrice,
-                        //   value: orderState.priceQuote != null
-                        //       ? '${orderState.priceQuote!.toStringAsFixed(0)} FCFA'
-                        //       : l10n.notSpecified,
-                        //   icon: Icons.attach_money_rounded,
-                        //   color: const Color.fromARGB(255, 19, 65, 232),
-                        // ),
+                        const SizedBox(height: 16),
+                        _buildSummaryRow(
+                          label: l10n.estimatedPrice,
+                          // Prix ferme (ex. LIVRAISON) : affiché avant création pour que
+                          // le client valide en connaissance de cause. Services sur devis
+                          // (prix pas encore connu) : on l'annonce clairement plutôt que
+                          // de laisser un champ vide qui ressemblerait à un bug.
+                          value: orderState.isQuote == false && orderState.priceQuote != null
+                              ? '${orderState.priceQuote!.toStringAsFixed(0)} FCFA'
+                              : 'Sur devis — vous serez contacté(e)',
+                          icon: Icons.attach_money_rounded,
+                          color: const Color.fromARGB(255, 19, 65, 232),
+                        ),
                       ],
                     ),
                   ),

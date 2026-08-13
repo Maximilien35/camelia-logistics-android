@@ -74,7 +74,8 @@ class OrderCard extends StatelessWidget {
     final dropoffAddress = order['dropoffAddress'] as String? ?? 'Adresse à chercher';
     final price = order['priceQuote'] as num?;
     final isQuote = order['isQuote'] as bool? ?? false;
-    
+    final isFromPartner = order['source'] == 'partner_api';
+
     String formattedPrice = CollaboratorStateModel.formatPrice(price);
 
     return Card(
@@ -103,11 +104,36 @@ class OrderCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
-                    child: Text(
-                      _getServiceTypeLabel(serviceType),
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
+                    child: Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            _getServiceTypeLabel(serviceType),
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                            overflow: TextOverflow.ellipsis,
                           ),
+                        ),
+                        if (isFromPartner) ...[
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: Colors.deepPurple.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: const Text(
+                              'API',
+                              style: TextStyle(
+                                color: Colors.deepPurple,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 10,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
                   ),
                   Container(

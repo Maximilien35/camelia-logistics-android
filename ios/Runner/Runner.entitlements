@@ -3,8 +3,11 @@
 <plist version="1.0">
 <dict>
 	<key>aps-environment</key>
-	<string>development</string>
-	<!-- Note : Si tu fais un build pour l'App Store plus tard,
-	 il faudra changer development par production, mais pour tes tests actuels, laisse development. -->
+	<string>production</string>
+	<!-- production requis pour les builds distribués via TestFlight/App Store.
+	 Pour du debug local en direct depuis Xcode, un profil de développement
+	 utilisera automatiquement l'environnement "development" côté APNs
+	 indépendamment de cette valeur ; ne repasse pas cette clé en "development"
+	 pour un build destiné à Codemagic/App Store. -->
 </dict>
 </plist>
