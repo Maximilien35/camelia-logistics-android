@@ -244,13 +244,14 @@ class _AdminAssignStaffScreenState extends State<AdminAssignStaffScreen> {
                                           ),
                                         );
                                       } else {
+                                        // updateFinalPrice pose déjà status: 'PRICE_QUOTED'.
+                                        // On NE saute PAS directement à 'ACCEPTED' : le client
+                                        // doit d'abord voir et confirmer son devis dans l'app
+                                        // (voir order_summary_screen.dart) avant qu'un livreur
+                                        // ne soit assigné (assignDeliverer -> 'ASSIGNED').
                                         await _orderService.updateFinalPrice(
                                           order.id!,
                                           value,
-                                        );
-                                        await _orderService.updateOrderStatus(
-                                          orderId: order.id!,
-                                          newStatus: 'ACCEPTED',
                                         );
                                         ScaffoldMessenger.of(
                                           context,

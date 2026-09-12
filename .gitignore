@@ -75,11 +75,7 @@ macos/flutter/ephemeral/
 web/icons/ # Seulement si générés automatiquement, sinon gardez-les
 lib/generated_plugin_registrant.dart
 
-# Firebase / Google Services (TRES IMPORTANT)
-# Ces fichiers contiennent des clés API et des identifiants de projet.
-# Pour les projets open-source, il est crucial de les ignorer.
-# Pour les projets privés, certains développeurs choisissent de les committer,
-# mais la bonne pratique est de les ignorer et de les fournir sécurisément via CI/CD.
+
 android/app/google-services.json
 ios/Runner/GoogleService-Info.plist
 firebase_options.dart
@@ -87,3 +83,4 @@ firebase_options.dart
 # Environnement
 .env
 .env.*
+/docs

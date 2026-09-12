@@ -5,6 +5,7 @@ import 'package:camelia/screens/admin_dashboard.dart';
 import 'package:camelia/screens/admin_deliverers.dart';
 import 'package:camelia/screens/admin_settings.dart';
 import 'package:camelia/screens/admin_collaborators.dart';
+import 'package:camelia/screens/admin_logs_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
@@ -130,6 +131,7 @@ class _AdminPageState extends State<AdminPage> {
           AdminDeliverersScreen(),
           AdminCollaboratorsScreen(),
           AdminSettings(),
+          AdminLogsScreen(),
         ],
       ),
       bottomNavigationBar: _buildBottomNavigationBar(),
@@ -283,6 +285,28 @@ class _AdminPageState extends State<AdminPage> {
                 ),
               ),
               label: 'Paramètres',
+            ),
+            BottomNavigationBarItem(
+              icon: Container(
+                width: 24,
+                height: 24,
+                decoration: BoxDecoration(
+                  gradient: _selectedIndex == 5
+                      ? const LinearGradient(
+                          colors: [Color(0xFF6C63FF), Color(0xFF8B84FF)],
+                        )
+                      : null,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  Icons.bug_report_rounded,
+                  color: _selectedIndex == 5
+                      ? Colors.white
+                      : Colors.grey.shade500,
+                  size: 20,
+                ),
+              ),
+              label: 'Logs',
             ),
           ],
           currentIndex: _selectedIndex,
@@ -714,23 +738,49 @@ class OrderAdminCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: statusColor.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        displayStatus,
-                        style: TextStyle(
-                          color: statusColor,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: statusColor.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            displayStatus,
+                            style: TextStyle(
+                              color: statusColor,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                         ),
-                      ),
+                        if (order.isFromPartner) ...[
+                          const SizedBox(height: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFF6C63FF).withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: const Text(
+                              'Via API',
+                              style: TextStyle(
+                                color: Color(0xFF6C63FF),
+                                fontSize: 10,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
                   ],
                 ),
@@ -938,6 +988,16 @@ class OrderAdminCard extends StatelessWidget {
   }
 
   Widget _getClientName(BuildContext context) {
+    if (order.isFromPartner) {
+      return Text(
+        order.contactName ?? 'Contact partenaire',
+        style: TextStyle(
+          fontSize: 14,
+          color: Colors.grey.shade800,
+          fontWeight: FontWeight.w500,
+        ),
+      );
+    }
     return FutureBuilder<UserProfile?>(
       future: _userProfileService.getProfile(order.userId),
       builder: (context, snapshot) {
@@ -1428,7 +1488,7 @@ class _OrderDetailsAdminScreenState extends State<OrderDetailsAdminScreen> {
                             icon: Icons.attach_money_rounded,
                             label: 'Prix',
                             value:
-                                '${order.priceQuote?.toStringAsFixed(2) ?? '0.00'} FCFA',
+                                '${order.priceQuote?.toStringAsFixed(0) ?? '0'} FCFA',
                           ),
                           if (order.isQuote)
                             Column(
@@ -1496,6 +1556,14 @@ class _OrderDetailsAdminScreenState extends State<OrderDetailsAdminScreen> {
                             value: _formatDate(order.timestamp),
                           ),
                           _buildDetailRow(icon: Icons.abc, label: "type", value: order.serviceType),
+                          if (order.isFromPartner)
+                            _buildDetailRow(
+                              icon: Icons.business_center_rounded,
+                              label: 'Commande via API',
+                              value: order.contactName != null
+                                  ? '${order.contactName} · ${order.contactPhone ?? "N/A"}'
+                                  : 'Réf. partenaire: ${order.partnerOrderRef ?? order.partnerId}',
+                            ),
                           if (order.description != null &&
                               order.description!.isNotEmpty)
                             _buildDetailRow(

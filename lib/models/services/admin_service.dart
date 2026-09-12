@@ -3,8 +3,11 @@
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:camelia/models/services/error_handler_service.dart';
 //import 'package:flutter/services.dart';
 class AdminService {
+  final ErrorHandlerService _errorHandler = ErrorHandlerService();
+
   Future<void> handlePopInvoked(bool didPop, BuildContext context) async {
     if (didPop) {
       return;
@@ -74,7 +77,7 @@ class AdminService {
       }
     } on FirebaseFunctionsException catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erreur Cloud Functions: ${e.code}')),
+        SnackBar(content: Text(_errorHandler.handleCloudFunctionsError(e))),
       );
       if (kDebugMode) {
         print('Erreur d\'appel de la fonction: ${e.code} - ${e.message}');
@@ -82,7 +85,7 @@ class AdminService {
       rethrow;
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erreur lors de l\'attribution du rôle: $e')),
+        SnackBar(content: Text(_errorHandler.handleError(e))),
       );
       if (kDebugMode) {
         print('Erreur générale: $e');

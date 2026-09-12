@@ -146,13 +146,13 @@ class _HistoryScreenState extends State<HistoryScreen> {
                               depart: order.pickupAddress,
                               destination: order.dropoffAddress,
                               date: order.timestamp.toString().substring(0, 10),
-                              prix: order.priceQuote != 0.0
-                                  ? '${order.priceQuote} FCFA'
+                              prix: (order.priceQuote != null && order.priceQuote != 0.0)
+                                  ? '${order.priceQuote!.toStringAsFixed(0)} FCFA'
                                   : 'Devis en cours ...',
                               status: order.status,
                               onTap: () {
                                 if ((order.status == "PENDING" ||
-                                        order.status == "ASSIGNED") &&
+                                        order.status == "PRICE_QUOTED") &&
                                     order.isQuote == true) {
                                   context.push('/waiting/${order.id!}');
                                 }

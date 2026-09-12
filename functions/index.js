@@ -10,11 +10,23 @@ const { onSchedule } = require('firebase-functions/v2/scheduler');
 // On importe le module firestore V2 complet sous l'alias 'firestoreFunc'
 const firestoreFunc = require('firebase-functions/v2/firestore');
 const admin = require('firebase-admin');
+const { FieldValue, Timestamp } = require('firebase-admin/firestore');
 
 // Initialisation de l'Admin SDK
 admin.initializeApp();
 const db = admin.firestore();
 const messaging = admin.messaging(); // Import du service de messagerie (FCM)
+const { signWebhookPayload } = require('./lib/partnerCrypto');
+
+// --- API PARTENAIRES B2B (voir docs/partner-api.md) ---
+// Gestion admin des partenaires (createPartner, rotatePartnerApiKey, ...)
+Object.assign(exports, require('./partnerAdmin'));
+// API REST publique (Bearer <clé API>) consommée par les entreprises partenaires
+exports.partnerApi = require('./partnerApi').partnerApi;
+
+// --- SUPPRESSION DE COMPTE (Apple Guideline 5.1.1(v)) ---
+// deleteMyAccount : suppression réelle Auth + Firestore + Storage, appelable par l'utilisateur lui-même.
+Object.assign(exports, require('./accountDeletion'));
 
 // --- 1. FONCTIONS DE GESTION DES RÔLES (HTTPS V2) ---
 
@@ -211,7 +223,7 @@ exports.notifyAdminOnNewOrder = firestoreFunc.onDocumentWritten( // Remplacé pa
             
             if (error.code === 'messaging/invalid-registration-token' ||
               error.code === 'messaging/registration-token-not-registered') {
-              db.collection('users').doc(adminIds[idx]).update({ fcmToken: admin.firestore.FieldValue.delete() });
+              db.collection('users').doc(adminIds[idx]).update({ fcmToken: FieldValue.delete() });
             }
           }
         });
@@ -293,12 +305,77 @@ exports.notifyClientOnOrderUpdate = firestoreFunc.onDocumentUpdated(
       };
 
       try {
-        await messaging.send(payload); 
+        await messaging.send(payload);
         console.log(`Notification envoyée au client ${userId} pour le statut ${after.status}`);
       } catch (error) {
         console.error('Erreur lors de l\'envoi au client (V2):', error);
       }
   });
+
+/**
+ * 2bis. Webhook Partenaire (Mise à jour de Commande créée via l'API B2B)
+ * Notifie le système du partenaire (POST signé HMAC) pour les commandes
+ * dont source === 'partner_api', sur les mêmes statuts importants que le client app.
+ */
+const PARTNER_WEBHOOK_STATUSES = ['PRICE_QUOTED', 'ACCEPTED', 'ASSIGNED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'];
+
+exports.notifyPartnerWebhook = firestoreFunc.onDocumentUpdated(
+  'orders/{orderId}',
+  async (event) => {
+    const before = event.data?.before.data();
+    const after = event.data?.after.data();
+    const orderId = event.params.orderId;
+
+    if (!before || !after) return;
+    if (after.source !== 'partner_api' || !after.partnerId) return;
+    if (before.status === after.status) return;
+    if (!PARTNER_WEBHOOK_STATUSES.includes(after.status)) return;
+
+    const partnerDoc = await db.collection('partners').doc(after.partnerId).get();
+    if (!partnerDoc.exists) return;
+    const partner = partnerDoc.data();
+    if (!partner.webhookUrl || !partner.webhookSecret) {
+      console.log(`Partenaire ${after.partnerId} sans webhookUrl configurée, envoi ignoré.`);
+      return;
+    }
+
+    const eventPayload = {
+      event: 'order.status_changed',
+      orderId,
+      partnerOrderRef: after.partnerOrderRef || null,
+      status: after.status,
+      priceQuote: after.priceQuote || null,
+      timestamp: new Date().toISOString(),
+    };
+    const rawBody = JSON.stringify(eventPayload);
+    const signature = signWebhookPayload(partner.webhookSecret, rawBody);
+
+    const maxAttempts = 3;
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        const response = await fetch(partner.webhookUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Camelia-Signature': signature,
+          },
+          body: rawBody,
+        });
+        if (response.ok) {
+          console.log(`Webhook envoyé au partenaire ${after.partnerId} pour ${orderId} (tentative ${attempt}).`);
+          return;
+        }
+        console.error(`Webhook refusé par le partenaire ${after.partnerId} (HTTP ${response.status}), tentative ${attempt}.`);
+      } catch (error) {
+        console.error(`Échec d'envoi webhook au partenaire ${after.partnerId}, tentative ${attempt}:`, error.message);
+      }
+      if (attempt < maxAttempts) {
+        await new Promise((resolve) => setTimeout(resolve, 500 * attempt));
+      }
+    }
+    console.error(`Webhook définitivement échoué pour la commande ${orderId} (partenaire ${after.partnerId}).`);
+  }
+);
 
 // --- 3. FONCTIONS MARKETING & RAPPELS (AUTOMATISATION) ---
 
@@ -404,7 +481,7 @@ exports.sendMarketingCampaign = onCall(async (request) => {
  * Vérifie les utilisateurs inactifs depuis > 30 jours et envoie un rappel.
  */
 exports.reengageInactiveUsers = onSchedule("every sunday 10:00", async (event) => {
-    const thirtyDaysAgo = admin.firestore.Timestamp.fromMillis(Date.now() - (30 * 24 * 60 * 60 * 1000));
+    const thirtyDaysAgo = Timestamp.fromMillis(Date.now() - (30 * 24 * 60 * 60 * 1000));
 
     try {
         // Trouver les utilisateurs inactifs

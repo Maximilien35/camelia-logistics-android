@@ -17,6 +17,14 @@ class Order {
   final String? description;
   final String? delivererId;
 
+  final String source;
+  final String? partnerId;
+
+  final String? partnerOrderRef;
+
+  final String? contactName;
+  final String? contactPhone;
+
   Order({
     this.id,
     required this.userId,
@@ -33,7 +41,14 @@ class Order {
     required this.additionalDetails,
     required this.description,
     this.delivererId,
+    this.source = 'app',
+    this.partnerId,
+    this.partnerOrderRef,
+    this.contactName,
+    this.contactPhone,
   });
+
+  bool get isFromPartner => source == 'partner_api';
 
   Map<String, dynamic> toJson() {
     return {
@@ -51,6 +66,11 @@ class Order {
       'description': description,
       'timestamp': Timestamp.fromDate(timestamp),
       'delivererId': delivererId,
+      'source': source,
+      'partnerId': partnerId,
+      'partnerOrderRef': partnerOrderRef,
+      'contactName': contactName,
+      'contactPhone': contactPhone,
     };
   }
 
@@ -75,6 +95,11 @@ class Order {
       isQuote: json['isQuote'] as bool? ?? false,
       additionalDetails: Map<String, dynamic>.from(json['additionalDetails'] ?? {}),
       timestamp: (json['timestamp'] as Timestamp).toDate(),
+      source: json['source'] as String? ?? 'app',
+      partnerId: json['partnerId'] as String?,
+      partnerOrderRef: json['partnerOrderRef'] as String?,
+      contactName: json['contactName'] as String?,
+      contactPhone: json['contactPhone'] as String?,
     );
   }
 }

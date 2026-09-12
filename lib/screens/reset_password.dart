@@ -1,4 +1,5 @@
 import 'package:camelia/models/services/firebase_service.dart';
+import 'package:camelia/models/services/error_handler_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -16,6 +17,7 @@ class _ResetPasswordScreenState extends State<ResetPassword> {
   final AuthService _authService = AuthService();
   final TextEditingController _emailController = TextEditingController();
   bool _isLoading = false;
+  final ErrorHandlerService _errorHandler = ErrorHandlerService();
 
   void _resetPassword() async {
     if (!_formKey.currentState!.validate()) {
@@ -104,7 +106,7 @@ class _ResetPasswordScreenState extends State<ResetPassword> {
                   size: 20,
                 ),
                 const SizedBox(width: 8),
-                Text('Erreur: ${e.toString()}'),
+                Text(_errorHandler.handleError(e)),
               ],
             ),
             backgroundColor: Colors.red.shade600,

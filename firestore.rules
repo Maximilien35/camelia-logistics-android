@@ -39,6 +39,19 @@ service cloud.firestore {
       allow update: if isAdmin() || (isDeliverer() && request.auth.uid == resource.data.delivererId) || (isSignedIn() && request.auth.uid == resource.data.userId && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'updatedAt']));
       allow delete: if isAdmin();
     }
+    // ====================================================
+    // --- 2bis. COLLECTION 'partners' (API B2B) ---
+    // Gérée exclusivement par les Cloud Functions (Admin SDK), qui
+    // contournent ces règles. Jamais accessible depuis un client, y
+    // compris admin, car elle contient le hash de clé API et le secret
+    // webhook de chaque partenaire.
+    // ====================================================
+    match /partners/{partnerId} {
+      allow read, write: if false;
+      match /{document=**} {
+        allow read, write: if false;
+      }
+    }
     // ====================================
     // --- 3. SÉCURITÉ PAR DÉFAUT ---
     // ====================================

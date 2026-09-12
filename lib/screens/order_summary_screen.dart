@@ -196,7 +196,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
     final l10n = AppLocalizations.of(context)!;
     if (order.priceQuote == 0.0 && order.isQuote==true && order.status == "PENDING") {
       return WaitingScreen(orderId: widget.orderId);
-    } else if(order.isQuote==true && order.status == "ASSIGNED") {
+    } else if(order.isQuote==true && order.status == "PRICE_QUOTED") {
       return Scaffold(
           appBar: AppBar(title: Text(l10n.confirmYourOrder)),
           body: SingleChildScrollView(
@@ -286,7 +286,81 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
             ),
           ),
       );
-      
+
+    } else if (order.isQuote == false && order.priceQuote != null) {
+      return Scaffold(
+          appBar: AppBar(title: const Text('Commande envoyée')),
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.5,
+                  child: Stack(
+                    children: [
+                      SizedBox.expand(
+                        child: Lottie.asset(
+                          'assets/Success.json',
+                          fit: BoxFit.fill,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Text(
+                  'Votre commande a été enregistrée',
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  order.status == 'ASSIGNED'
+                      ? 'Un livreur a été assigné et va vous contacter.'
+                      : 'Nous recherchons un livreur disponible près de vous.',
+                  style: TextStyle(color: Colors.grey.shade600),
+                ),
+                const SizedBox(height: 15),
+
+                Card(
+                  color: Colors.lightGreen.shade50,
+                  child: ListTile(
+                    title: Text(l10n.finalPriceWithoutTax),
+                    trailing: Text(
+                      "${order.priceQuote!.toStringAsFixed(0)} FCFA",
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF4CAF50),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 30),
+
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      context.go('/home_custom');
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF4CAF50),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 15),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                    ),
+                    child: Text(
+                      l10n.backToHome,
+                      style: const TextStyle(fontSize: 18),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+      );
     }
     return Scaffold(
       appBar: AppBar(title: Text(l10n.orderSummary)),
