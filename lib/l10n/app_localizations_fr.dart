@@ -3077,7 +3077,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get apiErrorPaymentAlreadyPending =>
-      'Une demande de paiement attend déjà votre validation sur votre téléphone.';
+      'Une demande de paiement est déjà en attente pour cette commande. Validez-la sur le téléphone qui l\'a reçue ; si le numéro était erroné, contactez le support.';
 
   @override
   String get apiErrorPaymentProviderUnavailable =>
@@ -3096,7 +3096,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get payerSheetBody =>
-      'La demande de paiement sera envoyée sur ce numéro. L\'opérateur est reconnu automatiquement.';
+      'La demande de paiement sera envoyée sur ce numéro MTN ou Orange Money.';
 
   @override
   String get payerSheetPhoneLabel => 'Numéro à débiter';
@@ -3257,4 +3257,21 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get accountDeletedAppleBody =>
       'Pour retirer aussi l\'accès de Camelia à votre identifiant Apple : Réglages › [votre nom] › Connexion et sécurité › Se connecter avec Apple › Camelia.';
+
+  @override
+  String get payerPhoneInvalid =>
+      'Saisissez les 9 chiffres d\'un numéro MTN ou Orange : il commence par 6.';
+
+  @override
+  String get payerConfirmTitle => 'Vérifiez le numéro';
+
+  @override
+  String get payerConfirmBody =>
+      'La demande de paiement partira sur ce numéro. Une fois envoyée, elle ne pourra plus être redirigée vers un autre numéro.';
+
+  @override
+  String get payerConfirmSend => 'Oui, envoyer la demande';
+
+  @override
+  String get payerConfirmEdit => 'Modifier le numéro';
 }

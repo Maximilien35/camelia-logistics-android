@@ -3047,7 +3047,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get apiErrorPaymentAlreadyPending =>
-      'A payment request is already waiting for your approval on your phone.';
+      'A payment request is already pending for this order. Approve it on the phone that received it; if the number was wrong, contact support.';
 
   @override
   String get apiErrorPaymentProviderUnavailable =>
@@ -3066,7 +3066,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get payerSheetBody =>
-      'The payment request will be sent to this number. The operator is detected automatically.';
+      'The payment request will be sent to this MTN or Orange Money number.';
 
   @override
   String get payerSheetPhoneLabel => 'Number to charge';
@@ -3227,4 +3227,21 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get accountDeletedAppleBody =>
       'To also remove Camelia\'s access to your Apple ID: Settings › [your name] › Sign-In & Security › Sign in with Apple › Camelia.';
+
+  @override
+  String get payerPhoneInvalid =>
+      'Enter the 9 digits of an MTN or Orange number: it starts with 6.';
+
+  @override
+  String get payerConfirmTitle => 'Check the number';
+
+  @override
+  String get payerConfirmBody =>
+      'The payment request will go to this number. Once sent, it can\'t be redirected to another number.';
+
+  @override
+  String get payerConfirmSend => 'Yes, send the request';
+
+  @override
+  String get payerConfirmEdit => 'Change the number';
 }

@@ -5669,7 +5669,7 @@ abstract class AppLocalizations {
   /// No description provided for @apiErrorPaymentAlreadyPending.
   ///
   /// In fr, this message translates to:
-  /// **'Une demande de paiement attend déjà votre validation sur votre téléphone.'**
+  /// **'Une demande de paiement est déjà en attente pour cette commande. Validez-la sur le téléphone qui l\'a reçue ; si le numéro était erroné, contactez le support.'**
   String get apiErrorPaymentAlreadyPending;
 
   /// No description provided for @apiErrorPaymentProviderUnavailable.
@@ -5699,7 +5699,7 @@ abstract class AppLocalizations {
   /// No description provided for @payerSheetBody.
   ///
   /// In fr, this message translates to:
-  /// **'La demande de paiement sera envoyée sur ce numéro. L\'opérateur est reconnu automatiquement.'**
+  /// **'La demande de paiement sera envoyée sur ce numéro MTN ou Orange Money.'**
   String get payerSheetBody;
 
   /// No description provided for @payerSheetPhoneLabel.
@@ -5977,6 +5977,36 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Pour retirer aussi l\'accès de Camelia à votre identifiant Apple : Réglages › [votre nom] › Connexion et sécurité › Se connecter avec Apple › Camelia.'**
   String get accountDeletedAppleBody;
+
+  /// No description provided for @payerPhoneInvalid.
+  ///
+  /// In fr, this message translates to:
+  /// **'Saisissez les 9 chiffres d\'un numéro MTN ou Orange : il commence par 6.'**
+  String get payerPhoneInvalid;
+
+  /// No description provided for @payerConfirmTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifiez le numéro'**
+  String get payerConfirmTitle;
+
+  /// No description provided for @payerConfirmBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'La demande de paiement partira sur ce numéro. Une fois envoyée, elle ne pourra plus être redirigée vers un autre numéro.'**
+  String get payerConfirmBody;
+
+  /// No description provided for @payerConfirmSend.
+  ///
+  /// In fr, this message translates to:
+  /// **'Oui, envoyer la demande'**
+  String get payerConfirmSend;
+
+  /// No description provided for @payerConfirmEdit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier le numéro'**
+  String get payerConfirmEdit;
 }
 
 class _AppLocalizationsDelegate
