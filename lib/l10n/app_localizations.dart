@@ -5731,6 +5731,144 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'L\'opérateur de paiement prélève sa commission sur le montant envoyé : vous recevrez un peu moins que le montant demandé.'**
   String get walletWithdrawFeeNotice;
+
+  /// No description provided for @apiErrorPasswordNotSet.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce compte n\'a pas encore de mot de passe. Définissez-en un avec un code reçu par email.'**
+  String get apiErrorPasswordNotSet;
+
+  /// No description provided for @apiErrorInvalidCurrentPassword.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le mot de passe actuel est incorrect.'**
+  String get apiErrorInvalidCurrentPassword;
+
+  /// No description provided for @authForgotPassword.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mot de passe oublié ?'**
+  String get authForgotPassword;
+
+  /// No description provided for @forgotTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réinitialiser le mot de passe'**
+  String get forgotTitle;
+
+  /// No description provided for @forgotSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Saisissez l\'email de votre compte : nous y enverrons un code à 6 chiffres.'**
+  String get forgotSubtitle;
+
+  /// No description provided for @forgotSendCode.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recevoir un code'**
+  String get forgotSendCode;
+
+  /// No description provided for @resetTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveau mot de passe'**
+  String get resetTitle;
+
+  /// No description provided for @resetSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Saisissez le code reçu par email, puis choisissez votre nouveau mot de passe.'**
+  String get resetSubtitle;
+
+  /// No description provided for @resetCodeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Code reçu par email'**
+  String get resetCodeLabel;
+
+  /// No description provided for @resetNewPasswordLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveau mot de passe'**
+  String get resetNewPasswordLabel;
+
+  /// No description provided for @resetConfirmPasswordLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confirmer le mot de passe'**
+  String get resetConfirmPasswordLabel;
+
+  /// No description provided for @passwordMismatch.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les deux mots de passe ne correspondent pas.'**
+  String get passwordMismatch;
+
+  /// No description provided for @resetSubmit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrer le mot de passe'**
+  String get resetSubmit;
+
+  /// No description provided for @passwordOtherDevicesNotice.
+  ///
+  /// In fr, this message translates to:
+  /// **'Par sécurité, vos autres appareils seront déconnectés.'**
+  String get passwordOtherDevicesNotice;
+
+  /// No description provided for @passwordSaved.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mot de passe enregistré.'**
+  String get passwordSaved;
+
+  /// No description provided for @accountPassword.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mot de passe'**
+  String get accountPassword;
+
+  /// No description provided for @accountPasswordNotSet.
+  ///
+  /// In fr, this message translates to:
+  /// **'À définir'**
+  String get accountPasswordNotSet;
+
+  /// No description provided for @changePasswordTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Changer le mot de passe'**
+  String get changePasswordTitle;
+
+  /// No description provided for @changePasswordSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Saisissez votre mot de passe actuel, puis le nouveau.'**
+  String get changePasswordSubtitle;
+
+  /// No description provided for @currentPasswordLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mot de passe actuel'**
+  String get currentPasswordLabel;
+
+  /// No description provided for @changePasswordForgot.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mot de passe actuel oublié ?'**
+  String get changePasswordForgot;
+
+  /// No description provided for @setPasswordTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Définir un mot de passe'**
+  String get setPasswordTitle;
+
+  /// No description provided for @setPasswordBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre compte n\'a pas encore de mot de passe. Nous allons envoyer un code à {email} pour en définir un.'**
+  String setPasswordBody(Object email);
 }
 
 class _AppLocalizationsDelegate

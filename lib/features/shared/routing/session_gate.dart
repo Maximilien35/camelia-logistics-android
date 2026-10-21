@@ -37,9 +37,22 @@ class _SessionGateState extends State<SessionGate> {
   /// (§ 7.7). Le désenregistrement, lui, part **avant** la révocation de la
   /// session (`AuthController.beforeLogout`), faute de quoi il n'aurait plus
   /// de jeton d'accès valide.
+  ///
+  /// Au passage, tout changement de session **ramène à la racine** : l'écran
+  /// qui ouvre une session (code de connexion, mot de passe oublié) est poussé
+  /// au-dessus de la connexion, et une session perdue (jeton révoqué,
+  /// déconnexion) peut survenir sous un écran poussé (suivi, formulaire).
+  /// Changer la racine ne suffit pas : sans ce retour, l'écran poussé resterait
+  /// affiché par-dessus l'expérience qui vient de s'ouvrir — ou de se fermer.
   void _syncPush(SessionStatus status) {
     if (status == _lastStatus) return;
+    final previous = _lastStatus;
     _lastStatus = status;
+    if (previous != null && previous != SessionStatus.unknown) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) Navigator.of(context).popUntil((r) => r.isFirst);
+      });
+    }
     if (status == SessionStatus.authenticated) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) context.read<PushController>().attach();

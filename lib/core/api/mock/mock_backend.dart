@@ -141,6 +141,13 @@ class MockBackend extends http.BaseClient {
         });
       case 'POST auth/login':
         return _login(body);
+      case 'POST auth/password/reset':
+        // Anti-énumération : même réponse, que le compte existe ou non.
+        return _ok({
+          'detail': 'Si un compte existe pour cet email, un code a été envoyé.',
+        });
+      case 'POST auth/password/reset/confirm':
+        return _confirmPasswordReset(body);
       case 'POST auth/refresh':
         return _refresh(body);
     }
@@ -175,6 +182,8 @@ class MockBackend extends http.BaseClient {
         return _ok(user.toMeJson());
       case 'PATCH me':
         return _patchMe(user, body);
+      case 'POST me/password':
+        return _changePassword(user, body);
       case 'POST me/phone':
         return _requestPhoneChange(user, body);
       case 'POST me/phone/verify':
@@ -386,6 +395,62 @@ class MockBackend extends http.BaseClient {
         'Vérifiez votre email avant de vous connecter.',
       );
     }
+    return _ok(_state.issueTokens(user));
+  }
+
+  /// Validateurs de mot de passe, réduits à la longueur (les vrais sont ceux de
+  /// Django, `AUTH_PASSWORD_VALIDATORS`). Erreur rendue sur [field].
+  _MockResponse? _weakPassword(String? password, String field) =>
+      (password ?? '').length < 8
+      ? _validation({
+          field: ['Ce mot de passe est trop court (8 caractères minimum).'],
+        })
+      : null;
+
+  /// `POST /auth/password/reset/confirm/` (§ 6c.5) : mot de passe validé
+  /// **avant** le code, puis nouveau mot de passe, email vérifié, sessions
+  /// révoquées et couple de jetons neuf.
+  _MockResponse _confirmPasswordReset(Map<String, dynamic> body) {
+    final email = (body['email'] as String? ?? '').toLowerCase().trim();
+    final newPassword = body['new_password'] as String?;
+    final weak = _weakPassword(newPassword, 'new_password');
+    if (weak != null) return weak;
+    final codeError = _otpError(body['code'] as String?);
+    if (codeError != null) return codeError;
+
+    final user = _state.findByEmail(email);
+    if (user == null) {
+      return _error(400, 'invalid_otp', 'Code incorrect ou expiré.');
+    }
+    user.password = newPassword!;
+    _state
+      ..markVerified(user)
+      ..revokeTokens(user);
+    return _ok(_state.issueTokens(user));
+  }
+
+  /// `POST /me/password/` (§ 6c.6) — `400`, jamais `401`, sur un mot de passe
+  /// actuel faux.
+  _MockResponse _changePassword(MockUser user, Map<String, dynamic> body) {
+    if (user.password.isEmpty) {
+      return _error(
+        400,
+        'password_not_set',
+        'Ce compte n\'a pas de mot de passe.',
+      );
+    }
+    if (body['current_password'] != user.password) {
+      return _error(
+        400,
+        'invalid_current_password',
+        'Le mot de passe actuel est incorrect.',
+      );
+    }
+    final newPassword = body['new_password'] as String?;
+    final weak = _weakPassword(newPassword, 'new_password');
+    if (weak != null) return weak;
+    user.password = newPassword!;
+    _state.revokeTokens(user);
     return _ok(_state.issueTokens(user));
   }
 

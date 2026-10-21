@@ -3085,4 +3085,81 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get walletWithdrawFeeNotice =>
       'The payment operator deducts its commission from the amount sent: you\'ll receive slightly less than the amount requested.';
+
+  @override
+  String get apiErrorPasswordNotSet =>
+      'This account has no password yet. Set one with a code sent by email.';
+
+  @override
+  String get apiErrorInvalidCurrentPassword =>
+      'Your current password is incorrect.';
+
+  @override
+  String get authForgotPassword => 'Forgot password?';
+
+  @override
+  String get forgotTitle => 'Reset your password';
+
+  @override
+  String get forgotSubtitle =>
+      'Enter your account email: we\'ll send a 6-digit code to it.';
+
+  @override
+  String get forgotSendCode => 'Send me a code';
+
+  @override
+  String get resetTitle => 'New password';
+
+  @override
+  String get resetSubtitle =>
+      'Enter the code from the email, then choose your new password.';
+
+  @override
+  String get resetCodeLabel => 'Code from the email';
+
+  @override
+  String get resetNewPasswordLabel => 'New password';
+
+  @override
+  String get resetConfirmPasswordLabel => 'Confirm password';
+
+  @override
+  String get passwordMismatch => 'The two passwords don\'t match.';
+
+  @override
+  String get resetSubmit => 'Save password';
+
+  @override
+  String get passwordOtherDevicesNotice =>
+      'For your security, your other devices will be signed out.';
+
+  @override
+  String get passwordSaved => 'Password saved.';
+
+  @override
+  String get accountPassword => 'Password';
+
+  @override
+  String get accountPasswordNotSet => 'Not set';
+
+  @override
+  String get changePasswordTitle => 'Change password';
+
+  @override
+  String get changePasswordSubtitle =>
+      'Enter your current password, then the new one.';
+
+  @override
+  String get currentPasswordLabel => 'Current password';
+
+  @override
+  String get changePasswordForgot => 'Forgot your current password?';
+
+  @override
+  String get setPasswordTitle => 'Set a password';
+
+  @override
+  String setPasswordBody(Object email) {
+    return 'Your account doesn\'t have a password yet. We\'ll send a code to $email so you can set one.';
+  }
 }

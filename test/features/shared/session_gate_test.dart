@@ -134,6 +134,7 @@ Future<void> _pumpGate(
         },
         '/v1/driver/wallet/' => {..._emptyPage, 'balance': '0.00'},
         '/v1/me/ambassador-code/' => _ambassadorDashboard,
+        '/v1/auth/login/' => {'access': 'bon', 'refresh': 'r'},
         _ => {'detail': 'ok'},
       };
       return http.Response.bytes(
@@ -269,6 +270,53 @@ void main() {
     // `destination` renverrait encore « driver » et l'écran resterait ouvert.
     expect(find.byType(LoginScreen), findsOneWidget);
     expect(find.byType(DriverShell), findsNothing);
+  });
+
+  testWidgets('une connexion depuis un écran poussé revient à la racine', (
+    tester,
+  ) async {
+    // Connexion par code, mot de passe oublié : l'écran qui ouvre la session
+    // est poussé au-dessus de la connexion. Sans retour à la racine, il
+    // resterait affiché par-dessus l'app qui vient de s'ouvrir dessous.
+    await _pumpGate(tester);
+    Navigator.of(tester.element(find.byType(LoginScreen))).push(
+      MaterialPageRoute<void>(
+        builder: (_) => const Scaffold(body: Text('écran poussé')),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('écran poussé'), findsOneWidget);
+
+    final auth = Provider.of<AuthController>(
+      tester.element(find.byType(SessionGate, skipOffstage: false)),
+      listen: false,
+    );
+    await auth.loginWithCode(email: 'aicha@example.cm', code: '123456');
+    await tester.pumpAndSettle();
+
+    expect(find.text('écran poussé'), findsNothing);
+    expect(find.byType(ClientShell), findsOneWidget);
+  });
+
+  testWidgets('une session perdue sous un écran poussé ramène à la connexion', (
+    tester,
+  ) async {
+    await _pumpGate(tester, storedToken: 'bon', role: 'client');
+    Navigator.of(tester.element(find.byType(ClientShell))).push(
+      MaterialPageRoute<void>(
+        builder: (_) => const Scaffold(body: Text('suivi ouvert')),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    Provider.of<AuthController>(
+      tester.element(find.byType(SessionGate, skipOffstage: false)),
+      listen: false,
+    ).handleSessionExpired();
+    await tester.pumpAndSettle();
+
+    expect(find.text('suivi ouvert'), findsNothing);
+    expect(find.byType(LoginScreen), findsOneWidget);
   });
 
   group('présentation (onboarding)', () {

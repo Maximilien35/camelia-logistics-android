@@ -130,8 +130,32 @@ Téléphone : E.164 strict, `^\+[1-9]\d{7,14}$` (ex. `+237690000000`).
 
 | Méthode | Chemin | Réponse |
 |---|---|---|
-| GET | `/v1/me/` | `id`, `email`, `phone`, `first_name`, `last_name`, `role`, `language`, `email_verified`, `created_at` — tous en lecture seule |
+| GET | `/v1/me/` | `id`, `email`, `phone`, `first_name`, `last_name`, `role`, `language`, `email_verified`, `created_at`, **`has_password`**, **`social_providers`** (lot 8) — tous en lecture seule |
 | PATCH | `/v1/me/` | corps : `language` (`fr` ou `en`) **uniquement** ; réponse = même forme que `GET /me/` |
+
+### Mot de passe — lot 8 (`06c` § 6c.5 à 6c.7, branche backend `feat/identification`)
+
+> **Contrat lu dans le code du 21 octobre 2026, avant fusion côté backend**
+> (suite pytest du lot 8 pas encore lancée, `lot8.md`). À revérifier contre
+> les serializers une fois `feat/identification` fusionnée.
+
+| Méthode | Chemin | Corps envoyé | Réponse |
+|---|---|---|---|
+| POST | `/v1/auth/password/reset/` | `email` | `200` `{ "detail" }` — **toujours** la même (anti-énumération) |
+| POST | `/v1/auth/password/reset/confirm/` | `email`, `code` (6), `new_password` | `200` `{ "access", "refresh" }` — **ouvre la session**, révoque les autres |
+| POST | `/v1/me/password/` | `current_password`, `new_password` | `200` `{ "access", "refresh" }` — **à enregistrer** : le `refresh` de cet appareil est révoqué aussi |
+
+- `new_password` refusé par un validateur Django : `400` sur ce champ, **sans
+  consommer de tentative** du code — l'app l'affiche sous le champ.
+- `400 password_not_set` (compte Google/Apple) et `400
+  invalid_current_password` — **jamais `401`**, qui déclencherait un
+  rafraîchissement puis une déconnexion.
+- `has_password` faux : l'écran Compte → Mot de passe propose « Définir »
+  (code par email via `reset/`) au lieu de « Changer ». Absent d'un serveur
+  antérieur au lot 8 : l'app suppose un mot de passe.
+- Après une réinitialisation hors session, le `SessionGate` ouvre
+  l'expérience du rôle relu sur `/me/` et **revient à la racine** de la pile
+  de navigation (vrai pour tout changement de session).
 
 ## Chauffeur — `accounts` + `dispatch`
 

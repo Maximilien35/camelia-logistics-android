@@ -27,6 +27,7 @@ class MockUser {
     required this.role,
     required this.emailVerified,
     this.language = 'fr',
+    this.socialProviders = const [],
   });
 
   final String id;
@@ -36,7 +37,13 @@ class MockUser {
   String phone;
   String firstName;
   String lastName;
-  final String password;
+
+  /// Vide = mot de passe inutilisable (compte créé par Google ou Apple,
+  /// § 6c.2). Modifiable par la réinitialisation et le changement (§ 6c.5-6).
+  String password;
+
+  /// Fournisseurs rattachés, parmi `google` et `apple` (§ 6c.7).
+  final List<String> socialProviders;
 
   /// `client`, `driver` ou `admin` — valeurs exactes de `User.Role`.
   final String role;
@@ -55,6 +62,8 @@ class MockUser {
     'language': language,
     'email_verified': emailVerified,
     'created_at': '2026-08-14T09:12:00+01:00',
+    'has_password': password.isNotEmpty,
+    'social_providers': socialProviders,
   };
 }
 

@@ -1,5 +1,6 @@
 import 'package:camelia/core/api/api_client.dart';
 import 'package:camelia/core/auth/token_store.dart';
+import 'package:camelia/features/shared/screens/auth/forgot_password_screen.dart';
 import 'package:camelia/features/shared/screens/auth/register_screen.dart';
 import 'package:camelia/features/shared/services/auth_service.dart';
 import 'package:camelia/features/shared/state/auth_controller.dart';
@@ -22,7 +23,10 @@ class _NoTokenStore extends TokenStore {
   Future<void> clear() async {}
 }
 
-Future<void> _pumpRegister(WidgetTester tester) async {
+Future<void> _pumpRegister(WidgetTester tester) =>
+    _pumpAuthScreen(tester, const RegisterScreen());
+
+Future<void> _pumpAuthScreen(WidgetTester tester, Widget screen) async {
   final store = _NoTokenStore();
   final client = ApiClient(
     tokenStore: store,
@@ -33,16 +37,16 @@ Future<void> _pumpRegister(WidgetTester tester) async {
       create: (_) => AuthController(
         service: AuthService(client: client, tokenStore: store),
       ),
-      child: const MaterialApp(
-        localizationsDelegates: [
+      child: MaterialApp(
+        localizationsDelegates: const [
           AppLocalizations.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
         ],
-        supportedLocales: [Locale('fr'), Locale('en')],
-        locale: Locale('fr'),
-        home: RegisterScreen(),
+        supportedLocales: const [Locale('fr'), Locale('en')],
+        locale: const Locale('fr'),
+        home: screen,
       ),
     ),
   );
@@ -113,4 +117,33 @@ void main() {
     await type(4, 'abcd');
     await _pumpFrames(tester);
   });
+
+  testWidgets(
+    'nouveau mot de passe : la non-concordance se dit sous le champ',
+    (tester) async {
+      await _pumpAuthScreen(
+        tester,
+        const ResetPasswordScreen(email: 'aicha@example.cm'),
+      );
+
+      await tester.enterText(find.byType(TextField).first, '123456');
+      final passwords = find.byType(TextField);
+      final count = passwords.evaluate().length;
+      await tester.ensureVisible(passwords.at(count - 2));
+      await tester.enterText(passwords.at(count - 2), 'nouveauMdp9');
+      await tester.ensureVisible(passwords.at(count - 1));
+      await tester.enterText(passwords.at(count - 1), 'autreMdp99');
+      FocusManager.instance.primaryFocus?.unfocus();
+      await tester.pumpAndSettle();
+
+      await tester.ensureVisible(find.text('Enregistrer le mot de passe'));
+      await tester.tap(find.text('Enregistrer le mot de passe'));
+      await _pumpFrames(tester);
+
+      expect(
+        find.text('Les deux mots de passe ne correspondent pas.'),
+        findsOneWidget,
+      );
+    },
+  );
 }

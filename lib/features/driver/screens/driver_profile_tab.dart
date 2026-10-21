@@ -21,6 +21,7 @@ import '../../../core/theme/app_icons.dart';
 import '../../../core/theme/app_tokens.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../shared/screens/profile/edit_profile_screen.dart';
+import '../../shared/screens/profile/password_screen.dart';
 import '../../shared/state/auth_controller.dart';
 import '../../shared/widgets/account_widgets.dart';
 import '../../shared/widgets/entrance.dart';
@@ -125,6 +126,16 @@ class DriverProfileTab extends StatelessWidget {
             label: l10n.accountPersonalInfo,
             detail: user?.phone,
             onTap: () => _editProfile(context),
+          ),
+          MenuTile(
+            icon: AppIcons.lock,
+            label: l10n.accountPassword,
+            detail: user?.hasPassword == false
+                ? l10n.accountPasswordNotSet
+                : null,
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(builder: (_) => const PasswordScreen()),
+            ),
           ),
         ],
       ),

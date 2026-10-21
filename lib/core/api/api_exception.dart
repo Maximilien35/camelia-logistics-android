@@ -114,6 +114,16 @@ abstract final class ApiErrorCode {
   static const String invalidOtp = 'invalid_otp';
   static const String otpExpired = 'otp_expired';
   static const String otpMaxAttempts = 'otp_max_attempts';
+
+  // Mot de passe (`06c` § 6c.6, lot 8) — **400**, jamais 401 : un 401 serait
+  // pris pour un jeton expiré et déconnecterait l'utilisateur.
+
+  /// Compte sans mot de passe (créé par Google ou Apple) : le définir passe
+  /// par la réinitialisation par code email.
+  static const String passwordNotSet = 'password_not_set';
+
+  /// Mot de passe actuel faux au changement.
+  static const String invalidCurrentPassword = 'invalid_current_password';
   static const String invalidCredentials = 'invalid_credentials';
   static const String accountInactive = 'account_inactive';
   static const String emailNotVerified = 'email_not_verified';
@@ -284,6 +294,8 @@ abstract final class ApiErrorCode {
     invalidOtp,
     otpExpired,
     otpMaxAttempts,
+    passwordNotSet,
+    invalidCurrentPassword,
     invalidCredentials,
     accountInactive,
     emailNotVerified,

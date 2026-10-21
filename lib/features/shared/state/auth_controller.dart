@@ -150,6 +150,44 @@ class AuthController extends ChangeNotifier {
   Future<bool> startCodeLogin({required String email}) =>
       resendOtp(email: email);
 
+  /// `POST /auth/password/reset/` — demande un code de réinitialisation
+  /// (§ 6c.5). Réponse générique : l'UI ne déduit pas l'existence du compte.
+  Future<bool> requestPasswordReset({required String email}) => _run(() async {
+    await _service.requestPasswordReset(email: email);
+    _pendingEmail = email;
+  });
+
+  /// `POST /auth/password/reset/confirm/`, puis `GET /me/`.
+  ///
+  /// Hors session, c'est une **connexion** : le serveur rend des jetons, et le
+  /// SessionGate ouvre l'expérience du rôle relu sur `/me/`, comme après
+  /// `loginWithCode`. En session (« Définir un mot de passe » depuis le
+  /// compte), le profil relu passe `hasPassword` à vrai.
+  Future<bool> resetPassword({
+    required String email,
+    required String code,
+    required String newPassword,
+  }) => _run(() async {
+    await _service.confirmPasswordReset(
+      email: email,
+      code: code,
+      newPassword: newPassword,
+    );
+    await _loadProfile();
+  });
+
+  /// `POST /me/password/` — le couple de jetons neuf est enregistré par le
+  /// service ; le profil ne change pas.
+  Future<bool> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) => _run(() async {
+    await _service.changePassword(
+      currentPassword: currentPassword,
+      newPassword: newPassword,
+    );
+  });
+
   /// `POST /auth/logout/` puis retour à l'écran d'authentification.
   ///
   /// Même si la révocation serveur échoue, le coffre local est vidé par

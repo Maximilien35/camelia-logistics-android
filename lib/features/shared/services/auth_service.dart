@@ -134,6 +134,58 @@ class AuthService {
     return _persist(body);
   }
 
+  /// `POST /v1/auth/password/reset/` — demande un code de réinitialisation
+  /// (§ 6c.5, étape 1).
+  ///
+  /// Réponse **toujours** identique, que le compte existe ou non
+  /// (anti-énumération) : l'UI n'en déduit rien. Sert aussi à **définir** un
+  /// premier mot de passe sur un compte créé par Google ou Apple.
+  Future<String> requestPasswordReset({required String email}) async {
+    final body = await _client.post(
+      'auth/password/reset',
+      authenticated: false,
+      body: {'email': email},
+    );
+    return (body['detail'] as String?) ?? '';
+  }
+
+  /// `POST /v1/auth/password/reset/confirm/` — code reçu + nouveau mot de
+  /// passe (§ 6c.5, étape 2). **Ouvre la session** : le serveur rend un couple
+  /// de jetons neuf et révoque toutes les autres sessions du compte.
+  ///
+  /// Un mot de passe refusé par un validateur rend `400` sur `new_password`
+  /// **sans consommer de tentative** : on peut corriger et renvoyer le même
+  /// code.
+  Future<AuthTokens> confirmPasswordReset({
+    required String email,
+    required String code,
+    required String newPassword,
+  }) async {
+    final body = await _client.post(
+      'auth/password/reset/confirm',
+      authenticated: false,
+      body: {'email': email, 'code': code, 'new_password': newPassword},
+    );
+    return _persist(body);
+  }
+
+  /// `POST /v1/me/password/` — changement depuis le compte (§ 6c.6).
+  ///
+  /// Les jetons de rafraîchissement du compte sont révoqués **y compris celui
+  /// de cet appareil** : la réponse porte un couple neuf qu'il faut enregistrer,
+  /// sinon la session tomberait au prochain rafraîchissement. Mot de passe
+  /// actuel faux : `400 invalid_current_password`, jamais `401`.
+  Future<AuthTokens> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    final body = await _client.post(
+      'me/password',
+      body: {'current_password': currentPassword, 'new_password': newPassword},
+    );
+    return _persist(body);
+  }
+
   /// `GET /v1/me/` — profil de l'utilisateur connecté.
   ///
   /// **C'est ici que se décide l'aiguillage Client / Chauffeur** : `login` et

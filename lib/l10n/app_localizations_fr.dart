@@ -3115,4 +3115,81 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get walletWithdrawFeeNotice =>
       'L\'opérateur de paiement prélève sa commission sur le montant envoyé : vous recevrez un peu moins que le montant demandé.';
+
+  @override
+  String get apiErrorPasswordNotSet =>
+      'Ce compte n\'a pas encore de mot de passe. Définissez-en un avec un code reçu par email.';
+
+  @override
+  String get apiErrorInvalidCurrentPassword =>
+      'Le mot de passe actuel est incorrect.';
+
+  @override
+  String get authForgotPassword => 'Mot de passe oublié ?';
+
+  @override
+  String get forgotTitle => 'Réinitialiser le mot de passe';
+
+  @override
+  String get forgotSubtitle =>
+      'Saisissez l\'email de votre compte : nous y enverrons un code à 6 chiffres.';
+
+  @override
+  String get forgotSendCode => 'Recevoir un code';
+
+  @override
+  String get resetTitle => 'Nouveau mot de passe';
+
+  @override
+  String get resetSubtitle =>
+      'Saisissez le code reçu par email, puis choisissez votre nouveau mot de passe.';
+
+  @override
+  String get resetCodeLabel => 'Code reçu par email';
+
+  @override
+  String get resetNewPasswordLabel => 'Nouveau mot de passe';
+
+  @override
+  String get resetConfirmPasswordLabel => 'Confirmer le mot de passe';
+
+  @override
+  String get passwordMismatch => 'Les deux mots de passe ne correspondent pas.';
+
+  @override
+  String get resetSubmit => 'Enregistrer le mot de passe';
+
+  @override
+  String get passwordOtherDevicesNotice =>
+      'Par sécurité, vos autres appareils seront déconnectés.';
+
+  @override
+  String get passwordSaved => 'Mot de passe enregistré.';
+
+  @override
+  String get accountPassword => 'Mot de passe';
+
+  @override
+  String get accountPasswordNotSet => 'À définir';
+
+  @override
+  String get changePasswordTitle => 'Changer le mot de passe';
+
+  @override
+  String get changePasswordSubtitle =>
+      'Saisissez votre mot de passe actuel, puis le nouveau.';
+
+  @override
+  String get currentPasswordLabel => 'Mot de passe actuel';
+
+  @override
+  String get changePasswordForgot => 'Mot de passe actuel oublié ?';
+
+  @override
+  String get setPasswordTitle => 'Définir un mot de passe';
+
+  @override
+  String setPasswordBody(Object email) {
+    return 'Votre compte n\'a pas encore de mot de passe. Nous allons envoyer un code à $email pour en définir un.';
+  }
 }

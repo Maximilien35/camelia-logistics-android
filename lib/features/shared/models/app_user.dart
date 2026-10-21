@@ -62,6 +62,8 @@ class AppUser {
     required this.language,
     required this.emailVerified,
     required this.createdAt,
+    this.hasPassword = true,
+    this.socialProviders = const [],
   });
 
   final String id;
@@ -79,6 +81,20 @@ class AppUser {
   final bool emailVerified;
   final DateTime createdAt;
 
+  /// Le compte a un mot de passe utilisable (`has_password`, § 6c.7, lot 8).
+  ///
+  /// Faux pour un compte créé par Google ou Apple : l'écran Sécurité propose
+  /// alors « Définir » (réinitialisation par code email, § 6c.5) au lieu de
+  /// « Changer » (§ 6c.6, qui exige le mot de passe actuel). Absent d'un
+  /// serveur antérieur au lot 8 : on suppose un mot de passe, ce qui était vrai
+  /// de tout compte avant ce lot.
+  final bool hasPassword;
+
+  /// Fournisseurs d'identité rattachés, parmi `google` et `apple`
+  /// (`social_providers`, § 6c.7). Sert à l'avertissement Apple de la
+  /// suppression de compte (§ 6c.4).
+  final List<String> socialProviders;
+
   String get fullName => '$firstName $lastName'.trim();
 
   factory AppUser.fromJson(Map<String, dynamic> json) => AppUser(
@@ -91,6 +107,11 @@ class AppUser {
     language: AppLanguage.fromWire((json['language'] as String?) ?? 'fr'),
     emailVerified: (json['email_verified'] as bool?) ?? false,
     createdAt: DateTime.parse(json['created_at'] as String),
+    hasPassword: (json['has_password'] as bool?) ?? true,
+    socialProviders: [
+      for (final p in (json['social_providers'] as List?) ?? const [])
+        if (p is String) p,
+    ],
   );
 
   /// Aucun `toJson` complet : `/me/` est en lecture seule. Seule la langue

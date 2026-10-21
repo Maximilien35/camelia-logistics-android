@@ -25,6 +25,7 @@ import '../../state/auth_controller.dart';
 import '../../widgets/app_text_field.dart';
 import '../../widgets/auth_scaffold.dart';
 import '../../widgets/primary_button.dart';
+import 'forgot_password_screen.dart';
 import 'login_method_screen.dart';
 import 'otp_verification_screen.dart';
 import 'register_screen.dart';
@@ -98,6 +99,14 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  void _openForgotPassword() {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => ForgotPasswordScreen(initialEmail: _email.text.trim()),
+      ),
+    );
+  }
+
   void _openRegister() {
     Navigator.of(
       context,
@@ -158,6 +167,26 @@ class _LoginScreenState extends State<LoginScreen> {
             setState(() {});
           },
           onSubmitted: (_) => _canSubmit ? _submit() : null,
+        ),
+        // § 6c.5 : avant le lot 8, le seul recours était la connexion par code.
+        Align(
+          alignment: Alignment.centerRight,
+          child: TextButton(
+            onPressed: auth.busy ? null : _openForgotPassword,
+            style: TextButton.styleFrom(
+              foregroundColor: AppColors.brand,
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+              minimumSize: const Size(0, 36),
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
+            child: Text(
+              l10n.authForgotPassword,
+              style: const TextStyle(
+                fontSize: AppFontSize.label,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
         ),
 
         if (failure != null && !needsVerification) ...[

@@ -139,7 +139,10 @@ void main() {
         ApiErrorCode.all,
         contains(ApiErrorCode.paymentProviderUnavailable),
       );
-      expect(ApiErrorCode.all, hasLength(62));
+      expect(ApiErrorCode.all, contains(ApiErrorCode.passwordNotSet));
+      expect(ApiErrorCode.all, contains(ApiErrorCode.invalidCurrentPassword));
+      // Plus les deux codes du mot de passe (lot 8, § 6c.6).
+      expect(ApiErrorCode.all, hasLength(64));
     });
 
     test('le code de repli ne fait pas partie des codes métier', () {
