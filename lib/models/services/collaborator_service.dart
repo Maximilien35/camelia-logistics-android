@@ -62,7 +62,8 @@ class CollaboratorService {
       }
 
       // Générer un UID unique au lieu de créer un compte Firebase Auth
-      final uid = '${DateTime.now().millisecondsSinceEpoch}_${Random().nextInt(999999)}';
+      final uid =
+          '${DateTime.now().millisecondsSinceEpoch}_${Random().nextInt(999999)}';
 
       final docRef = _usersCollection.doc(uid);
 
@@ -91,7 +92,9 @@ class CollaboratorService {
       if (kDebugMode) {
         print('Erreur lors de la création du collaborateur: $e');
       }
-      throw Exception('Une erreur inattendue s\'est produite lors de la création du collaborateur. Veuillez réessayer.');
+      throw Exception(
+        'Une erreur inattendue s\'est produite lors de la création du collaborateur. Veuillez réessayer.',
+      );
     }
   }
 
@@ -112,7 +115,9 @@ class CollaboratorService {
       if (kDebugMode) {
         print('Erreur lors de la mise à jour du collaborateur: $e');
       }
-      throw Exception('Une erreur inattendue s\'est produite lors de la mise à jour du collaborateur. Veuillez réessayer.');
+      throw Exception(
+        'Une erreur inattendue s\'est produite lors de la mise à jour du collaborateur. Veuillez réessayer.',
+      );
     }
   }
 
@@ -146,7 +151,9 @@ class CollaboratorService {
       if (kDebugMode) {
         print('Erreur lors de la modification du statut: $e');
       }
-      throw Exception('Une erreur inattendue s\'est produite lors de la modification du statut. Veuillez réessayer.');
+      throw Exception(
+        'Une erreur inattendue s\'est produite lors de la modification du statut. Veuillez réessayer.',
+      );
     }
   }
 

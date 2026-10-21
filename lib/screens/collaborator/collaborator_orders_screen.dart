@@ -23,7 +23,10 @@ class _CollaboratorOrdersScreenState extends State<CollaboratorOrdersScreen> {
         backgroundColor: primaryColor,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+          icon: const Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: Colors.white,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
@@ -41,7 +44,10 @@ class _CollaboratorOrdersScreenState extends State<CollaboratorOrdersScreen> {
               // Filtres
               Container(
                 color: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Row(
@@ -63,7 +69,8 @@ class _CollaboratorOrdersScreenState extends State<CollaboratorOrdersScreen> {
                       _buildFilterChip(
                         label: 'En cours',
                         isSelected: collaboratorState.filter == 'IN_PROGRESS',
-                        onTap: () => collaboratorState.applyFilter('IN_PROGRESS'),
+                        onTap: () =>
+                            collaboratorState.applyFilter('IN_PROGRESS'),
                         primaryColor: primaryColor,
                       ),
                       const SizedBox(width: 8),
@@ -88,65 +95,68 @@ class _CollaboratorOrdersScreenState extends State<CollaboratorOrdersScreen> {
                         ),
                       )
                     : collaboratorState.assignedOrders.isEmpty
-                        ? Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.inbox_rounded,
-                                  size: 64,
-                                  color: Colors.grey.shade300,
-                                ),
-                                const SizedBox(height: 16),
-                                Text(
-                                  'Aucune commande',
-                                  style: GoogleFonts.poppins(
-                                    color: Colors.grey.shade600,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  'Il n\'y a aucune commande pour ce filtre',
-                                  style: GoogleFonts.poppins(
-                                    color: Colors.grey.shade500,
-                                    fontSize: 13,
-                                  ),
-                                ),
-                              ],
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.inbox_rounded,
+                              size: 64,
+                              color: Colors.grey.shade300,
                             ),
-                          )
-                        : RefreshIndicator(
-                            onRefresh: () => collaboratorState.refreshOrders(),
-                            child: ListView.builder(
-                              padding: const EdgeInsets.all(20),
-                              itemCount: collaboratorState.assignedOrders.length,
-                              itemBuilder: (context, index) {
-                                final order = collaboratorState.assignedOrders[index];
-                                return Padding(
-                                  padding: const EdgeInsets.only(bottom: 12),
-                                  child: OrderCard(
-                                    order: order,
-                                    onTap: () {
-                                      collaboratorState.selectOrder(order);
-                                      context.go('/collaborator/order-detail');
-                                    },
-                                    onAccept: order['status'] == 'PENDING' ||
-                                            order['status'] == 'ASSIGNED'
-                                        ? () => _handleAcceptOrder(context, order)
-                                        : null,
-                                    onRefuse: order['status'] == 'PENDING' ||
-                                            order['status'] == 'ASSIGNED'
-                                        ? () => _handleRefuseOrder(context, order)
-                                        : null,
-                                    showActions:
-                                        order['status'] == 'PENDING' ||
-                                        order['status'] == 'ASSIGNED',
-                                  ),
-                                );
-                              },
+                            const SizedBox(height: 16),
+                            Text(
+                              'Aucune commande',
+                              style: GoogleFonts.poppins(
+                                color: Colors.grey.shade600,
+                                fontSize: 16,
+                              ),
                             ),
-                          ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Il n\'y a aucune commande pour ce filtre',
+                              style: GoogleFonts.poppins(
+                                color: Colors.grey.shade500,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    : RefreshIndicator(
+                        onRefresh: () => collaboratorState.refreshOrders(),
+                        child: ListView.builder(
+                          padding: const EdgeInsets.all(20),
+                          itemCount: collaboratorState.assignedOrders.length,
+                          itemBuilder: (context, index) {
+                            final order =
+                                collaboratorState.assignedOrders[index];
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 12),
+                              child: OrderCard(
+                                order: order,
+                                onTap: () {
+                                  collaboratorState.selectOrder(order);
+                                  context.go('/collaborator/order-detail');
+                                },
+                                onAccept:
+                                    order['status'] == 'PENDING' ||
+                                        order['status'] == 'ASSIGNED'
+                                    ? () => _handleAcceptOrder(context, order)
+                                    : null,
+                                onRefuse:
+                                    order['status'] == 'PENDING' ||
+                                        order['status'] == 'ASSIGNED'
+                                    ? () => _handleRefuseOrder(context, order)
+                                    : null,
+                                showActions:
+                                    order['status'] == 'PENDING' ||
+                                    order['status'] == 'ASSIGNED',
+                              ),
+                            );
+                          },
+                        ),
+                      ),
               ),
             ],
           );
@@ -176,7 +186,7 @@ class _CollaboratorOrdersScreenState extends State<CollaboratorOrdersScreen> {
               ? []
               : [
                   BoxShadow(
-                    color: Colors.grey.withValues(alpha:0.05),
+                    color: Colors.grey.withValues(alpha: 0.05),
                     blurRadius: 10,
                   ),
                 ],
@@ -193,7 +203,10 @@ class _CollaboratorOrdersScreenState extends State<CollaboratorOrdersScreen> {
     );
   }
 
-  void _handleAcceptOrder(BuildContext context, Map<String, dynamic> order) async {
+  void _handleAcceptOrder(
+    BuildContext context,
+    Map<String, dynamic> order,
+  ) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -209,38 +222,54 @@ class _CollaboratorOrdersScreenState extends State<CollaboratorOrdersScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text('Annuler', style: GoogleFonts.poppins(color: Colors.grey.shade600)),
+            child: Text(
+              'Annuler',
+              style: GoogleFonts.poppins(color: Colors.grey.shade600),
+            ),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text('Accepter', style: GoogleFonts.poppins(color: Colors.green.shade600)),
+            child: Text(
+              'Accepter',
+              style: GoogleFonts.poppins(color: Colors.green.shade600),
+            ),
           ),
         ],
       ),
     );
 
     if (confirmed == true && mounted) {
-      final success = await context
-          .read<CollaboratorStateModel>()
-          .acceptOrder(order['id']);
+      final success = await context.read<CollaboratorStateModel>().acceptOrder(
+        order['id'],
+      );
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Row(
               children: [
-                Icon(success ? Icons.check_circle_rounded : Icons.error_outline_rounded,
-                    color: Colors.white),
+                Icon(
+                  success
+                      ? Icons.check_circle_rounded
+                      : Icons.error_outline_rounded,
+                  color: Colors.white,
+                ),
                 const SizedBox(width: 10),
                 Text(
-                  success ? 'Commande acceptée!' : 'Erreur lors de l\'acceptation',
+                  success
+                      ? 'Commande acceptée!'
+                      : 'Erreur lors de l\'acceptation',
                   style: GoogleFonts.poppins(),
                 ),
               ],
             ),
-            backgroundColor: success ? Colors.green.shade600 : Colors.red.shade600,
+            backgroundColor: success
+                ? Colors.green.shade600
+                : Colors.red.shade600,
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
             duration: const Duration(seconds: 2),
           ),
         );
@@ -248,7 +277,10 @@ class _CollaboratorOrdersScreenState extends State<CollaboratorOrdersScreen> {
     }
   }
 
-  void _handleRefuseOrder(BuildContext context, Map<String, dynamic> order) async {
+  void _handleRefuseOrder(
+    BuildContext context,
+    Map<String, dynamic> order,
+  ) async {
     String? reason;
     final confirmed = await showDialog<bool>(
       context: context,
@@ -273,7 +305,10 @@ class _CollaboratorOrdersScreenState extends State<CollaboratorOrdersScreen> {
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
               ),
               maxLines: 3,
               onChanged: (value) => reason = value,
@@ -284,28 +319,39 @@ class _CollaboratorOrdersScreenState extends State<CollaboratorOrdersScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text('Annuler', style: GoogleFonts.poppins(color: Colors.grey.shade600)),
+            child: Text(
+              'Annuler',
+              style: GoogleFonts.poppins(color: Colors.grey.shade600),
+            ),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text('Refuser', style: GoogleFonts.poppins(color: Colors.red.shade600)),
+            child: Text(
+              'Refuser',
+              style: GoogleFonts.poppins(color: Colors.red.shade600),
+            ),
           ),
         ],
       ),
     );
 
     if (confirmed == true && mounted) {
-      final success = await context
-          .read<CollaboratorStateModel>()
-          .refuseOrder(order['id'], reason: reason);
+      final success = await context.read<CollaboratorStateModel>().refuseOrder(
+        order['id'],
+        reason: reason,
+      );
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Row(
               children: [
-                Icon(success ? Icons.info_outline_rounded : Icons.error_outline_rounded,
-                    color: Colors.white),
+                Icon(
+                  success
+                      ? Icons.info_outline_rounded
+                      : Icons.error_outline_rounded,
+                  color: Colors.white,
+                ),
                 const SizedBox(width: 10),
                 Text(
                   success ? 'Commande refusée' : 'Erreur lors du refus',
@@ -313,9 +359,13 @@ class _CollaboratorOrdersScreenState extends State<CollaboratorOrdersScreen> {
                 ),
               ],
             ),
-            backgroundColor: success ? Colors.orange.shade600 : Colors.red.shade600,
+            backgroundColor: success
+                ? Colors.orange.shade600
+                : Colors.red.shade600,
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
             duration: const Duration(seconds: 2),
           ),
         );

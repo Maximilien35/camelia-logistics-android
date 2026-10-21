@@ -26,8 +26,7 @@ class _AdminAssignStaffScreenState extends State<AdminAssignStaffScreen> {
   String _selectedGroup = 'all';
   String? _selectedZone;
   String _searchQuery = '';
-  bool _assigning =
-      false; 
+  bool _assigning = false;
 
   Future<List<UserProfile>>? _staffFuture;
 

@@ -148,7 +148,7 @@ class _ChangeInformationsState extends State<ChangeInformations> {
       body: _isLoading
           ? const Center(
               child: CircularProgressIndicator(
-                color:  Color(0xFF6C63FF),
+                color: Color(0xFF6C63FF),
                 strokeWidth: 2,
               ),
             )
@@ -164,13 +164,15 @@ class _ChangeInformationsState extends State<ChangeInformations> {
                           width: 80,
                           height: 80,
                           decoration: BoxDecoration(
-                            color: const Color(0xFF6C63FF).withValues(alpha:0.1),
+                            color: const Color(
+                              0xFF6C63FF,
+                            ).withValues(alpha: 0.1),
                             shape: BoxShape.circle,
                           ),
-                          child:const Icon(
+                          child: const Icon(
                             Icons.person_rounded,
                             size: 40,
-                            color:  Color(0xFF6C63FF),
+                            color: Color(0xFF6C63FF),
                           ),
                         ),
                         const SizedBox(height: 20),
@@ -338,8 +340,9 @@ class _ChangeInformationsState extends State<ChangeInformations> {
                               if (value == null || value.isEmpty) {
                                 return l10n.emailIsRequired;
                               }
-                              if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                                  .hasMatch(value)) {
+                              if (!RegExp(
+                                r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                              ).hasMatch(value)) {
                                 return l10n.invalidEmail;
                               }
                               return null;
@@ -363,20 +366,21 @@ class _ChangeInformationsState extends State<ChangeInformations> {
                               onTap: _isLoading ? null : _changeInfo,
                               borderRadius: BorderRadius.circular(12),
                               child: Container(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 16),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 16,
+                                ),
                                 decoration: BoxDecoration(
                                   gradient: const LinearGradient(
                                     colors: [
                                       Color(0xFF6C63FF),
-                                      Color(0xFF8B84FF)
+                                      Color(0xFF8B84FF),
                                     ],
                                   ),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Center(
                                   child: _isLoading
-                                      ?const SizedBox(
+                                      ? const SizedBox(
                                           height: 24,
                                           width: 24,
                                           child: CircularProgressIndicator(
@@ -403,8 +407,7 @@ class _ChangeInformationsState extends State<ChangeInformations> {
                           child: OutlinedButton(
                             onPressed: () => Navigator.of(context).pop(),
                             style: OutlinedButton.styleFrom(
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 16),
+                              padding: const EdgeInsets.symmetric(vertical: 16),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
@@ -413,7 +416,7 @@ class _ChangeInformationsState extends State<ChangeInformations> {
                             child: Text(
                               l10n.cancel,
                               style: const TextStyle(
-                                color:  Color(0xFF6C63FF),
+                                color: Color(0xFF6C63FF),
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -423,9 +426,7 @@ class _ChangeInformationsState extends State<ChangeInformations> {
                     ),
                   ),
                 ),
-                const SliverToBoxAdapter(
-                  child: SizedBox(height: 32),
-                ),
+                const SliverToBoxAdapter(child: SizedBox(height: 32)),
               ],
             ),
     );

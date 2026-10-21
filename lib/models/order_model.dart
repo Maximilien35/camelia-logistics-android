@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class Order {
   final String? id;
   final String userId;
-  final String serviceType; 
+  final String serviceType;
   final String pickupAddress;
   final String dropoffAddress;
   final String packageNature;
@@ -93,7 +93,9 @@ class Order {
           ? (priceQuoteValue as num).toDouble()
           : 0.0,
       isQuote: json['isQuote'] as bool? ?? false,
-      additionalDetails: Map<String, dynamic>.from(json['additionalDetails'] ?? {}),
+      additionalDetails: Map<String, dynamic>.from(
+        json['additionalDetails'] ?? {},
+      ),
       timestamp: (json['timestamp'] as Timestamp).toDate(),
       source: json['source'] as String? ?? 'app',
       partnerId: json['partnerId'] as String?,

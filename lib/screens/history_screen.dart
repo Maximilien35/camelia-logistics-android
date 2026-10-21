@@ -146,7 +146,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                               depart: order.pickupAddress,
                               destination: order.dropoffAddress,
                               date: order.timestamp.toString().substring(0, 10),
-                              prix: (order.priceQuote != null && order.priceQuote != 0.0)
+                              prix:
+                                  (order.priceQuote != null &&
+                                      order.priceQuote != 0.0)
                                   ? '${order.priceQuote!.toStringAsFixed(0)} FCFA'
                                   : 'Devis en cours ...',
                               status: order.status,
@@ -249,11 +251,11 @@ class _CardInventory extends StatelessWidget {
     switch (status.toUpperCase()) {
       case 'PENDING':
         return Colors.green.shade700;
-      case 'ACCEPTED': 
+      case 'ACCEPTED':
         return const Color.fromARGB(255, 129, 7, 229);
       case 'ASSIGNED':
         return Colors.blue.shade700;
-      case 'COMPLETED': 
+      case 'COMPLETED':
         return Colors.indigo.shade700;
       case 'CANCELLED':
         return Colors.red.shade700;

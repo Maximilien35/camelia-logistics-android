@@ -65,10 +65,7 @@ class CollaboratorOrderService {
   /// Status que l'ordre peut appartient à orderList cache avant d'aller à Firestore
   Future<Map<String, dynamic>?> getOrderDetail(String orderId) async {
     try {
-      final doc = await _firestore
-          .collection('orders')
-          .doc(orderId)
-          .get();
+      final doc = await _firestore.collection('orders').doc(orderId).get();
 
       if (doc.exists) {
         final data = doc.data();
@@ -304,7 +301,6 @@ class CollaboratorOrderService {
 
   /// Upload photo for order completion proof
   /// Returns the photo URL
-
 
   /// Clear all cached data (on logout)
   void clearAllCache() {

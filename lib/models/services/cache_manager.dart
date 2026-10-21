@@ -12,7 +12,8 @@ class CacheManager {
 
   // Cache keys
   static const String _collaboratorOrdersCacheKey = 'collab_orders_cache';
-  static const String _collaboratorOrdersTimestampKey = 'collab_orders_timestamp';
+  static const String _collaboratorOrdersTimestampKey =
+      'collab_orders_timestamp';
   static const String _collaboratorSessionKey = 'collab_session';
 
   // Cache TTL in seconds (5 minutes for order list, 30 minutes for session)
@@ -48,14 +49,23 @@ class CacheManager {
   }
 
   /// Save collaborator orders to cache
-  void cacheCollaboratorOrders(String collaboratorId, List<Map<String, dynamic>> orders) {
+  void cacheCollaboratorOrders(
+    String collaboratorId,
+    List<Map<String, dynamic>> orders,
+  ) {
     try {
       if (!_isInitialized) return; // Skip if not initialized
       // Clean orders before encoding - remove Timestamps and complex objects
       final cleanedOrders = orders.map(_cleanFirestoreObject).toList();
       final ordersJson = jsonEncode(cleanedOrders);
-      _prefs.setString('${_collaboratorOrdersCacheKey}_$collaboratorId', ordersJson);
-      _prefs.setInt('${_collaboratorOrdersTimestampKey}_$collaboratorId', DateTime.now().millisecondsSinceEpoch);
+      _prefs.setString(
+        '${_collaboratorOrdersCacheKey}_$collaboratorId',
+        ordersJson,
+      );
+      _prefs.setInt(
+        '${_collaboratorOrdersTimestampKey}_$collaboratorId',
+        DateTime.now().millisecondsSinceEpoch,
+      );
     } catch (e) {
       if (kDebugMode) {
         print('Error caching orders: $e');
@@ -65,16 +75,22 @@ class CacheManager {
   }
 
   /// Get cached collaborator orders
-  List<Map<String, dynamic>>? getCachedCollaboratorOrders(String collaboratorId) {
+  List<Map<String, dynamic>>? getCachedCollaboratorOrders(
+    String collaboratorId,
+  ) {
     try {
       if (!_isInitialized) return null; // Return null if not initialized
-      final cached = _prefs.getString('${_collaboratorOrdersCacheKey}_$collaboratorId');
+      final cached = _prefs.getString(
+        '${_collaboratorOrdersCacheKey}_$collaboratorId',
+      );
       if (cached == null) return null;
 
       // Check if cache is expired
-      final timestamp = _prefs.getInt('${_collaboratorOrdersTimestampKey}_$collaboratorId') ?? 0;
+      final timestamp =
+          _prefs.getInt('${_collaboratorOrdersTimestampKey}_$collaboratorId') ??
+          0;
       if (timestamp == 0) return null;
-      
+
       final cacheAge = DateTime.now().millisecondsSinceEpoch - timestamp;
 
       if (cacheAge > (ordersCacheTTL * 1000)) {
@@ -84,7 +100,7 @@ class CacheManager {
 
       final decoded = jsonDecode(cached) as List;
       return List<Map<String, dynamic>>.from(
-        decoded.map((item) => Map<String, dynamic>.from(item as Map))
+        decoded.map((item) => Map<String, dynamic>.from(item as Map)),
       );
     } catch (e) {
       if (kDebugMode) {
@@ -107,7 +123,10 @@ class CacheManager {
     try {
       final sessionJson = jsonEncode(sessionData);
       _prefs.setString(_collaboratorSessionKey, sessionJson);
-      _prefs.setInt('${_collaboratorSessionKey}_timestamp', DateTime.now().millisecondsSinceEpoch);
+      _prefs.setInt(
+        '${_collaboratorSessionKey}_timestamp',
+        DateTime.now().millisecondsSinceEpoch,
+      );
     } catch (e) {
       if (kDebugMode) {
         print('Error caching session: $e');
@@ -122,7 +141,8 @@ class CacheManager {
       if (cached == null) return null;
 
       // Check if session is expired (30 minutes)
-      final timestamp = _prefs.getInt('${_collaboratorSessionKey}_timestamp') ?? 0;
+      final timestamp =
+          _prefs.getInt('${_collaboratorSessionKey}_timestamp') ?? 0;
       final sessionAge = DateTime.now().millisecondsSinceEpoch - timestamp;
 
       if (sessionAge > (sessionCacheTTL * 1000)) {
@@ -147,7 +167,9 @@ class CacheManager {
 
   /// Check if cache exists and is valid
   bool isCacheValid(String collaboratorId) {
-    final timestamp = _prefs.getInt('${_collaboratorOrdersTimestampKey}_$collaboratorId') ?? 0;
+    final timestamp =
+        _prefs.getInt('${_collaboratorOrdersTimestampKey}_$collaboratorId') ??
+        0;
     if (timestamp == 0) return false;
 
     final cacheAge = DateTime.now().millisecondsSinceEpoch - timestamp;
@@ -156,7 +178,9 @@ class CacheManager {
 
   /// Get cache age in seconds
   int? getCacheAgeSeconds(String collaboratorId) {
-    final timestamp = _prefs.getInt('${_collaboratorOrdersTimestampKey}_$collaboratorId');
+    final timestamp = _prefs.getInt(
+      '${_collaboratorOrdersTimestampKey}_$collaboratorId',
+    );
     if (timestamp == null) return null;
 
     final cacheAge = DateTime.now().millisecondsSinceEpoch - timestamp;

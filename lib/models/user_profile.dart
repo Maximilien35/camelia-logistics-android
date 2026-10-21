@@ -11,9 +11,9 @@ class UserProfile {
   final String? location;
   final String? serviceType;
   final double? pricePerKm;
-  final bool isCollaborator; 
+  final bool isCollaborator;
 
-  final String? serviceZone; 
+  final String? serviceZone;
   final bool isActive;
   final double? latitude; // Nouveau : position fixe du collaborateur
   final double? longitude; // Nouveau : position fixe du collaborateur

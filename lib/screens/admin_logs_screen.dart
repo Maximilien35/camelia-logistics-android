@@ -51,9 +51,9 @@ class _AdminLogsScreenState extends State<AdminLogsScreen> {
     } catch (e) {
       setState(() => _isLoadingStats = false);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(_errorHandler.handleError(e))),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(_errorHandler.handleError(e))));
       }
     }
   }
@@ -100,9 +100,7 @@ class _AdminLogsScreenState extends State<AdminLogsScreen> {
           _buildFiltersSection(),
 
           // Liste des logs
-          Expanded(
-            child: _buildLogsList(),
-          ),
+          Expanded(child: _buildLogsList()),
         ],
       ),
     );
@@ -118,7 +116,9 @@ class _AdminLogsScreenState extends State<AdminLogsScreen> {
 
     return Container(
       padding: const EdgeInsets.all(16.0),
-      color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+      color: Theme.of(
+        context,
+      ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -140,12 +140,14 @@ class _AdminLogsScreenState extends State<AdminLogsScreen> {
                 Icons.error,
                 Colors.red,
               ),
-              ..._errorStats.entries.map((entry) => _buildStatCard(
-                entry.key,
-                entry.value.toString(),
-                Icons.warning,
-                Colors.orange,
-              )),
+              ..._errorStats.entries.map(
+                (entry) => _buildStatCard(
+                  entry.key,
+                  entry.value.toString(),
+                  Icons.warning,
+                  Colors.orange,
+                ),
+              ),
             ],
           ),
         ],
@@ -153,7 +155,12 @@ class _AdminLogsScreenState extends State<AdminLogsScreen> {
     );
   }
 
-  Widget _buildStatCard(String title, String value, IconData icon, Color color) {
+  Widget _buildStatCard(
+    String title,
+    String value,
+    IconData icon,
+    Color color,
+  ) {
     return Card(
       elevation: 2,
       child: Padding(
@@ -186,10 +193,7 @@ class _AdminLogsScreenState extends State<AdminLogsScreen> {
       padding: const EdgeInsets.all(16.0),
       decoration: BoxDecoration(
         border: Border(
-          bottom: BorderSide(
-            color: Theme.of(context).dividerColor,
-            width: 1,
-          ),
+          bottom: BorderSide(color: Theme.of(context).dividerColor, width: 1),
         ),
       ),
       child: Column(
@@ -244,8 +248,14 @@ class _AdminLogsScreenState extends State<AdminLogsScreen> {
                   items: const [
                     DropdownMenuItem(value: 'all', child: Text('Toutes')),
                     DropdownMenuItem(value: 'error', child: Text('Erreurs')),
-                    DropdownMenuItem(value: 'warning', child: Text('Avertissements')),
-                    DropdownMenuItem(value: 'info', child: Text('Informations')),
+                    DropdownMenuItem(
+                      value: 'warning',
+                      child: Text('Avertissements'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'info',
+                      child: Text('Informations'),
+                    ),
                   ],
                   onChanged: (value) {
                     setState(() => _selectedSeverity = value ?? 'all');
@@ -262,8 +272,14 @@ class _AdminLogsScreenState extends State<AdminLogsScreen> {
                   ),
                   items: const [
                     DropdownMenuItem(value: 'all', child: Text('Toutes')),
-                    DropdownMenuItem(value: 'auth', child: Text('Authentification')),
-                    DropdownMenuItem(value: 'firestore', child: Text('Base de données')),
+                    DropdownMenuItem(
+                      value: 'auth',
+                      child: Text('Authentification'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'firestore',
+                      child: Text('Base de données'),
+                    ),
                     DropdownMenuItem(value: 'network', child: Text('Réseau')),
                     DropdownMenuItem(value: 'generic', child: Text('Général')),
                   ],
@@ -286,9 +302,7 @@ class _AdminLogsScreenState extends State<AdminLogsScreen> {
       ),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
-          return Center(
-            child: Text('Erreur: ${snapshot.error}'),
-          );
+          return Center(child: Text('Erreur: ${snapshot.error}'));
         }
 
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -304,7 +318,9 @@ class _AdminLogsScreenState extends State<AdminLogsScreen> {
           // Filtre de recherche
           if (_searchQuery.isNotEmpty) {
             final title = (data['title'] ?? '').toString().toLowerCase();
-            final message = (data['technicalMessage'] ?? '').toString().toLowerCase();
+            final message = (data['technicalMessage'] ?? '')
+                .toString()
+                .toLowerCase();
             final category = (data['category'] ?? '').toString().toLowerCase();
 
             if (!title.contains(_searchQuery) &&
@@ -413,7 +429,9 @@ class _AdminLogsScreenState extends State<AdminLogsScreen> {
                     category,
                     style: GoogleFonts.poppins(fontSize: 10),
                   ),
-                  backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  backgroundColor: Theme.of(
+                    context,
+                  ).colorScheme.surfaceContainerHighest,
                   padding: EdgeInsets.zero,
                   materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
@@ -443,7 +461,6 @@ class _AdminLogsScreenState extends State<AdminLogsScreen> {
                 Text(
                   technicalMessage,
                   style: GoogleFonts.poppins(
-                    
                     fontSize: 12,
                     color: Colors.grey[700],
                   ),
@@ -469,7 +486,6 @@ class _AdminLogsScreenState extends State<AdminLogsScreen> {
                       child: Text(
                         stackTrace,
                         style: GoogleFonts.poppins(
-                         
                           fontSize: 10,
                           color: Colors.grey[800],
                         ),

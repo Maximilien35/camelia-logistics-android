@@ -48,11 +48,9 @@ class _OrderScreenState extends State<OrderScreen> {
   }
 
   void _proceedToTunnel(String serviceType) {
-        Navigator.of(context).push(
+    Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => ServiceTunnelScreen(
-          serviceType: serviceType,
-        ),
+        builder: (context) => ServiceTunnelScreen(serviceType: serviceType),
       ),
     );
   }
@@ -143,10 +141,7 @@ class _OrderScreenState extends State<OrderScreen> {
 class ServiceTunnelScreen extends StatefulWidget {
   final String serviceType;
 
-  const ServiceTunnelScreen({
-    required this.serviceType,
-    super.key,
-  });
+  const ServiceTunnelScreen({required this.serviceType, super.key});
 
   @override
   State<ServiceTunnelScreen> createState() => _ServiceTunnelScreenState();
@@ -164,9 +159,8 @@ class _ServiceTunnelScreenState extends State<ServiceTunnelScreen> {
   void _proceedToDeliveryPoints() {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => DeliveryPointsScreen(
-          serviceType: _currentServiceType,
-        ),
+        builder: (context) =>
+            DeliveryPointsScreen(serviceType: _currentServiceType),
       ),
     );
   }
@@ -174,17 +168,15 @@ class _ServiceTunnelScreenState extends State<ServiceTunnelScreen> {
   void _submitQuoteRequest() {
     final l10n = AppLocalizations.of(context)!;
     final orderState = Provider.of<OrderStateModel>(context, listen: false);
-    
+
     orderState.setIsQuote(true);
-    
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(l10n.quoteRequestSubmitted),
         backgroundColor: Colors.green.shade600,
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     );
 
@@ -192,9 +184,8 @@ class _ServiceTunnelScreenState extends State<ServiceTunnelScreen> {
       if (mounted) {
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (context) => DeliveryPointsScreen(
-              serviceType: _currentServiceType,
-            ),
+            builder: (context) =>
+                DeliveryPointsScreen(serviceType: _currentServiceType),
           ),
         );
       }
@@ -250,9 +241,7 @@ class _ServiceTunnelScreenState extends State<ServiceTunnelScreen> {
       ),
       body: AnimatedSwitcher(
         duration: const Duration(milliseconds: 300),
-        child: _buildFormWidget(
-          key: ValueKey(_currentServiceType),
-        ),
+        child: _buildFormWidget(key: ValueKey(_currentServiceType)),
       ),
     );
   }
@@ -265,25 +254,13 @@ class _ServiceTunnelScreenState extends State<ServiceTunnelScreen> {
           onProceed: _proceedToDeliveryPoints,
         );
       case 'DÉMÉNAGEMENT ET TRANSPORT':
-        return MovingFormWidget(
-          key: key,
-          onProceed: _submitQuoteRequest,
-        );
+        return MovingFormWidget(key: key, onProceed: _submitQuoteRequest);
       case 'EXPÉDITION':
-        return ShipmentFormWidget(
-          key: key,
-          onProceed: _submitQuoteRequest,
-        );
+        return ShipmentFormWidget(key: key, onProceed: _submitQuoteRequest);
       case 'STOCKAGE ET LIVRAISON':
-        return StorageFormWidget(
-          key: key,
-          onProceed: _submitQuoteRequest,
-        );
+        return StorageFormWidget(key: key, onProceed: _submitQuoteRequest);
       case 'TRANSPORT INTERNATIONAL':
-        return ShipmentFormWidget(
-          key: key,
-          onProceed: _submitQuoteRequest,
-        );
+        return ShipmentFormWidget(key: key, onProceed: _submitQuoteRequest);
       default:
         return Center(
           child: Text('Service type not found: $_currentServiceType'),
@@ -339,7 +316,7 @@ class _PackagePhotoScreenState extends State<PackagePhotoScreen> {
       appBar: AppBar(
         title: Text(
           l10n.newOrderTitle,
-          style:  TextStyle(
+          style: TextStyle(
             fontWeight: FontWeight.w700,
             color: Colors.grey.shade900,
             fontSize: 18,
@@ -406,7 +383,7 @@ class _PackagePhotoScreenState extends State<PackagePhotoScreen> {
                   const SizedBox(height: 8),
                   Text(
                     l10n.packagePhotoSubtitle,
-                    style:  TextStyle(fontSize: 14, color: Colors.grey.shade600),
+                    style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
                   ),
                 ],
               ),
@@ -446,7 +423,7 @@ class _PackagePhotoScreenState extends State<PackagePhotoScreen> {
                                 const SizedBox(height: 16),
                                 Text(
                                   l10n.addAPhoto,
-                                  style:  TextStyle(
+                                  style: TextStyle(
                                     fontSize: 16,
                                     color: Colors.grey.shade600,
                                     fontWeight: FontWeight.w500,
@@ -455,7 +432,7 @@ class _PackagePhotoScreenState extends State<PackagePhotoScreen> {
                                 const SizedBox(height: 4),
                                 Text(
                                   l10n.touchToChoosePhoto,
-                                  style:  TextStyle(
+                                  style: TextStyle(
                                     fontSize: 12,
                                     color: Colors.grey.shade500,
                                   ),
@@ -576,7 +553,7 @@ class _PackagePhotoScreenState extends State<PackagePhotoScreen> {
                     maxLines: 3,
                     decoration: InputDecoration(
                       hintText: l10n.describeYourPackageHint,
-                      hintStyle:  TextStyle(color: Colors.grey.shade400),
+                      hintStyle: TextStyle(color: Colors.grey.shade400),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(color: Colors.grey.shade300),
@@ -611,18 +588,15 @@ class _PackagePhotoScreenState extends State<PackagePhotoScreen> {
                           if (hasPhotos && hasPackage) {
                             Navigator.of(context).push(
                               MaterialPageRoute(
-                                builder: (context) =>
-                                    DeliveryPointsScreen(
-                                      serviceType: orderState.serviceType ?? '',
-                                    ),
+                                builder: (context) => DeliveryPointsScreen(
+                                  serviceType: orderState.serviceType ?? '',
+                                ),
                               ),
                             );
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: Text(
-                                  l10n.pleaseCompleteSelection,
-                                ),
+                                content: Text(l10n.pleaseCompleteSelection),
                                 behavior: SnackBarBehavior.floating,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
@@ -787,6 +761,7 @@ class DeliveryPointsScreenState extends State<DeliveryPointsScreen> {
     ];
     return !disallowed.contains(widget.serviceType);
   }
+
   final TextEditingController _depart = TextEditingController();
   final TextEditingController _arrive = TextEditingController();
 
@@ -803,7 +778,9 @@ class DeliveryPointsScreenState extends State<DeliveryPointsScreen> {
   void initState() {
     super.initState();
     _arrive.addListener(_onDestinationChanged);
-    _depart.addListener(_onDepartureChanged); // Ajout du listener pour le départ manuel
+    _depart.addListener(
+      _onDepartureChanged,
+    ); // Ajout du listener pour le départ manuel
   }
 
   @override
@@ -820,7 +797,7 @@ class DeliveryPointsScreenState extends State<DeliveryPointsScreen> {
     if (mounted) setState(() {});
     final orderState = Provider.of<OrderStateModel>(context, listen: false);
     orderState.setPointDelivery(_depart.text, _arrive.text);
-    
+
     // Si le champ est vide, réinitialiser les coordonnées
     if (_depart.text.isEmpty) {
       setState(() {
@@ -889,7 +866,9 @@ class DeliveryPointsScreenState extends State<DeliveryPointsScreen> {
     if (!_mapActionsEnabled) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Carte / position indisponible pour ce type de service.'),
+          content: Text(
+            'Carte / position indisponible pour ce type de service.',
+          ),
           backgroundColor: Colors.orange,
         ),
       );
@@ -1144,15 +1123,19 @@ class DeliveryPointsScreenState extends State<DeliveryPointsScreen> {
                     width: double.infinity,
                     child: OutlinedButton.icon(
                       onPressed: _mapActionsEnabled ? _useMyLocation : null,
-                      icon:  Icon(
+                      icon: Icon(
                         Icons.my_location_rounded,
-                        color:_mapActionsEnabled ? const Color(0xFF6C63FF) : Colors.grey.shade400,
+                        color: _mapActionsEnabled
+                            ? const Color(0xFF6C63FF)
+                            : Colors.grey.shade400,
                         size: 18,
                       ),
                       label: Text(
                         l10n.useMyPosition,
-                        style:  TextStyle(
-                          color:_mapActionsEnabled ? const Color(0xFF6C63FF) : Colors.grey.shade400,
+                        style: TextStyle(
+                          color: _mapActionsEnabled
+                              ? const Color(0xFF6C63FF)
+                              : Colors.grey.shade400,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -1211,16 +1194,22 @@ class DeliveryPointsScreenState extends State<DeliveryPointsScreen> {
                     children: [
                       Expanded(
                         child: OutlinedButton.icon(
-                          onPressed: _mapActionsEnabled ? _selectDestinationOnMap : null,
-                          icon:  Icon(
+                          onPressed: _mapActionsEnabled
+                              ? _selectDestinationOnMap
+                              : null,
+                          icon: Icon(
                             Icons.map_rounded,
-                            color:_mapActionsEnabled ? const Color(0xFF6C63FF) : Colors.grey.shade400,
+                            color: _mapActionsEnabled
+                                ? const Color(0xFF6C63FF)
+                                : Colors.grey.shade400,
                             size: 18,
                           ),
                           label: Text(
                             l10n.chooseOnMap,
-                            style:  TextStyle(
-                              color:_mapActionsEnabled ? const Color(0xFF6C63FF) : Colors.grey.shade400,
+                            style: TextStyle(
+                              color: _mapActionsEnabled
+                                  ? const Color(0xFF6C63FF)
+                                  : Colors.grey.shade400,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -1248,24 +1237,25 @@ class DeliveryPointsScreenState extends State<DeliveryPointsScreen> {
                   Row(
                     children: [
                       Text(
-                    l10n.mapAndDistance,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black87,
-                    ),
+                        l10n.mapAndDistance,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Text(
+                        _estimatedDistance != null
+                            ? '${_estimatedDistance!.toStringAsFixed(1)} km'
+                            : l10n.selectAddresses,
+                        style: const TextStyle(
+                          color: Color.fromARGB(255, 18, 59, 207),
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
                   ),
-                   const SizedBox(width: 10),
-                                  Text(
-                                    _estimatedDistance != null
-                                        ? '${_estimatedDistance!.toStringAsFixed(1)} km'
-                                        : l10n.selectAddresses,
-                                    style:  const TextStyle(
-                                      color: Color.fromARGB(255, 18, 59, 207),
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                    ]),
                   const SizedBox(height: 12),
                   Container(
                     height: 220,
@@ -1288,7 +1278,7 @@ class DeliveryPointsScreenState extends State<DeliveryPointsScreen> {
                                   const SizedBox(height: 12),
                                   Text(
                                     l10n.interactiveMap,
-                                    style:  TextStyle(
+                                    style: TextStyle(
                                       color: Colors.grey.shade600,
                                       fontWeight: FontWeight.w600,
                                     ),
@@ -1298,7 +1288,7 @@ class DeliveryPointsScreenState extends State<DeliveryPointsScreen> {
                                     _estimatedDistance != null
                                         ? '${_estimatedDistance!.toStringAsFixed(1)} km'
                                         : l10n.selectAddresses,
-                                    style:  TextStyle(
+                                    style: TextStyle(
                                       color: Colors.grey.shade500,
                                       fontSize: 13,
                                     ),
@@ -1526,7 +1516,8 @@ class _FinalisationOrderState extends State<FinalisationOrder> {
         dropoffAddress: orderState.dropoffAddress ?? 'Non spécifié',
         packageNature: orderState.packageNature ?? 'Non spécifié',
         photoUrls: photoUrls,
-        vehicleType: orderState.vehicleType ?? orderState.serviceType ?? 'Non spécifié',
+        vehicleType:
+            orderState.vehicleType ?? orderState.serviceType ?? 'Non spécifié',
         status: 'PENDING',
         timestamp: now,
         priceQuote: orderState.priceQuote,
@@ -1553,7 +1544,9 @@ class _FinalisationOrderState extends State<FinalisationOrder> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text("Erreur lors de l'envoi de la commande: Verifier votre connexion internet et réessayer. Détails: "),
+            content: const Text(
+              "Erreur lors de l'envoi de la commande: Verifier votre connexion internet et réessayer. Détails: ",
+            ),
             backgroundColor: Colors.red.shade600,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
@@ -1603,7 +1596,7 @@ class _FinalisationOrderState extends State<FinalisationOrder> {
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
-              child:  CircularProgressIndicator(
+              child: CircularProgressIndicator(
                 color: Color(0xFF6C63FF),
                 strokeWidth: 2,
               ),
@@ -1712,7 +1705,9 @@ class _FinalisationOrderState extends State<FinalisationOrder> {
                           // le client valide en connaissance de cause. Services sur devis
                           // (prix pas encore connu) : on l'annonce clairement plutôt que
                           // de laisser un champ vide qui ressemblerait à un bug.
-                          value: orderState.isQuote == false && orderState.priceQuote != null
+                          value:
+                              orderState.isQuote == false &&
+                                  orderState.priceQuote != null
                               ? '${orderState.priceQuote!.toStringAsFixed(0)} FCFA'
                               : 'Sur devis — vous serez contacté(e)',
                           icon: Icons.attach_money_rounded,
@@ -1841,7 +1836,7 @@ class _MapSelectorScreenState extends State<MapSelectorScreen> {
   String _selectedAddress = "";
   bool _isGeocoding = false;
   final MapController _mapController = MapController();
-  
+
   final TextEditingController _searchController = TextEditingController();
   List<dynamic> _searchResults = [];
   bool _isSearching = false;
@@ -1898,17 +1893,17 @@ class _MapSelectorScreenState extends State<MapSelectorScreen> {
     }
 
     if (mounted) setState(() => _isSearching = true);
-    
+
     try {
       final url = Uri.parse(
         'https://nominatim.openstreetmap.org/search?q=${Uri.encodeComponent(query)}&format=json&limit=5&addressdetails=1',
       );
-      
+
       final response = await http.get(
         url,
         headers: {'User-Agent': 'CameliaLogistics/1.0'},
       );
-      
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         if (mounted) {
@@ -1951,7 +1946,7 @@ class _MapSelectorScreenState extends State<MapSelectorScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -1998,7 +1993,7 @@ class _MapSelectorScreenState extends State<MapSelectorScreen> {
               ),
             ],
           ),
-          
+
           // Marqueur central
           Center(
             child: Padding(
@@ -2010,7 +2005,7 @@ class _MapSelectorScreenState extends State<MapSelectorScreen> {
               ),
             ),
           ),
-          
+
           // Barre de recherche
           Positioned(
             top: 16,
@@ -2051,14 +2046,14 @@ class _MapSelectorScreenState extends State<MapSelectorScreen> {
                               ),
                             )
                           : _searchController.text.isNotEmpty
-                              ? IconButton(
-                                  icon: const Icon(Icons.close_rounded),
-                                  onPressed: () {
-                                    _searchController.clear();
-                                    setState(() => _searchResults = []);
-                                  },
-                                )
-                              : null,
+                          ? IconButton(
+                              icon: const Icon(Icons.close_rounded),
+                              onPressed: () {
+                                _searchController.clear();
+                                setState(() => _searchResults = []);
+                              },
+                            )
+                          : null,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide.none,
@@ -2068,7 +2063,7 @@ class _MapSelectorScreenState extends State<MapSelectorScreen> {
                     ),
                   ),
                 ),
-                
+
                 // Résultats de recherche
                 if (_searchResults.isNotEmpty)
                   Container(
@@ -2109,7 +2104,7 @@ class _MapSelectorScreenState extends State<MapSelectorScreen> {
               ],
             ),
           ),
-          
+
           // Panneau de confirmation
           Positioned(
             bottom: 20,

@@ -4,26 +4,32 @@ class DeleteReviewVariablesBuilder {
   String movieId;
 
   final FirebaseDataConnect _dataConnect;
-  DeleteReviewVariablesBuilder(this._dataConnect, {required  this.movieId,});
-  Deserializer<DeleteReviewData> dataDeserializer = (dynamic json)  => DeleteReviewData.fromJson(jsonDecode(json));
-  Serializer<DeleteReviewVariables> varsSerializer = (DeleteReviewVariables vars) => jsonEncode(vars.toJson());
+  DeleteReviewVariablesBuilder(this._dataConnect, {required this.movieId});
+  Deserializer<DeleteReviewData> dataDeserializer = (dynamic json) =>
+      DeleteReviewData.fromJson(jsonDecode(json));
+  Serializer<DeleteReviewVariables> varsSerializer =
+      (DeleteReviewVariables vars) => jsonEncode(vars.toJson());
   Future<OperationResult<DeleteReviewData, DeleteReviewVariables>> execute() {
     return ref().execute();
   }
 
   MutationRef<DeleteReviewData, DeleteReviewVariables> ref() {
-    DeleteReviewVariables vars= DeleteReviewVariables(movieId: movieId,);
-    return _dataConnect.mutation("DeleteReview", dataDeserializer, varsSerializer, vars);
+    DeleteReviewVariables vars = DeleteReviewVariables(movieId: movieId);
+    return _dataConnect.mutation(
+      "DeleteReview",
+      dataDeserializer,
+      varsSerializer,
+      vars,
+    );
   }
 }
 
 class DeleteReviewReviewDelete {
   String userId;
   String movieId;
-  DeleteReviewReviewDelete.fromJson(dynamic json):
-  
-  userId = nativeFromJson<String>(json['userId']),
-  movieId = nativeFromJson<String>(json['movieId']);
+  DeleteReviewReviewDelete.fromJson(dynamic json)
+    : userId = nativeFromJson<String>(json['userId']),
+      movieId = nativeFromJson<String>(json['movieId']);
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> json = {};
@@ -32,17 +38,15 @@ class DeleteReviewReviewDelete {
     return json;
   }
 
-  DeleteReviewReviewDelete({
-    required this.userId,
-    required this.movieId,
-  });
+  DeleteReviewReviewDelete({required this.userId, required this.movieId});
 }
 
 class DeleteReviewData {
   DeleteReviewReviewDelete? review_delete;
-  DeleteReviewData.fromJson(dynamic json):
-  
-  review_delete = json['review_delete'] == null ? null : DeleteReviewReviewDelete.fromJson(json['review_delete']);
+  DeleteReviewData.fromJson(dynamic json)
+    : review_delete = json['review_delete'] == null
+          ? null
+          : DeleteReviewReviewDelete.fromJson(json['review_delete']);
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> json = {};
@@ -52,17 +56,16 @@ class DeleteReviewData {
     return json;
   }
 
-  DeleteReviewData({
-    this.review_delete,
-  });
+  DeleteReviewData({this.review_delete});
 }
 
 class DeleteReviewVariables {
   String movieId;
-  @Deprecated('fromJson is deprecated for Variable classes as they are no longer required for deserialization.')
-  DeleteReviewVariables.fromJson(Map<String, dynamic> json):
-  
-  movieId = nativeFromJson<String>(json['movieId']);
+  @Deprecated(
+    'fromJson is deprecated for Variable classes as they are no longer required for deserialization.',
+  )
+  DeleteReviewVariables.fromJson(Map<String, dynamic> json)
+    : movieId = nativeFromJson<String>(json['movieId']);
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> json = {};
@@ -70,8 +73,5 @@ class DeleteReviewVariables {
     return json;
   }
 
-  DeleteReviewVariables({
-    required this.movieId,
-  });
+  DeleteReviewVariables({required this.movieId});
 }
-

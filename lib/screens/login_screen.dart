@@ -12,13 +12,15 @@ import 'package:camelia/models/services/launch_url.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:pinput/pinput.dart';
 import 'dart:async';
+
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
   @override
   LoginPageState createState() => LoginPageState();
 }
 
-class LoginPageState extends State<LoginPage> with SingleTickerProviderStateMixin {
+class LoginPageState extends State<LoginPage>
+    with SingleTickerProviderStateMixin {
   final AdminService admin = AdminService();
   bool _isAuthInProgress = false;
 
@@ -28,8 +30,10 @@ class LoginPageState extends State<LoginPage> with SingleTickerProviderStateMixi
 
   bool _otpInProgress = false;
 
-  final GlobalKey<_LoginTabContentState> _loginTabKey = GlobalKey<_LoginTabContentState>();
-  final GlobalKey<_SignupTabContentState> _signupTabKey = GlobalKey<_SignupTabContentState>();
+  final GlobalKey<_LoginTabContentState> _loginTabKey =
+      GlobalKey<_LoginTabContentState>();
+  final GlobalKey<_SignupTabContentState> _signupTabKey =
+      GlobalKey<_SignupTabContentState>();
 
   @override
   void initState() {
@@ -39,9 +43,11 @@ class LoginPageState extends State<LoginPage> with SingleTickerProviderStateMixi
   }
 
   void _onTabChanged() {
-    if (!_isProgrammaticChange && _otpInProgress && _tabController.index != _previousTabIndex) {
-      _tabController.animateTo(_previousTabIndex); 
-      _showConfirmationDialog(); 
+    if (!_isProgrammaticChange &&
+        _otpInProgress &&
+        _tabController.index != _previousTabIndex) {
+      _tabController.animateTo(_previousTabIndex);
+      _showConfirmationDialog();
     } else {
       _previousTabIndex = _tabController.index;
     }
@@ -64,7 +70,10 @@ class LoginPageState extends State<LoginPage> with SingleTickerProviderStateMixi
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: Text('Annuler', style: GoogleFonts.poppins(color: Colors.grey.shade600)),
+            child: Text(
+              'Annuler',
+              style: GoogleFonts.poppins(color: Colors.grey.shade600),
+            ),
           ),
           TextButton(
             onPressed: () {
@@ -76,7 +85,10 @@ class LoginPageState extends State<LoginPage> with SingleTickerProviderStateMixi
               _tabController.animateTo(newIndex);
               _previousTabIndex = newIndex;
             },
-            child: Text('Confirmer', style: GoogleFonts.poppins(color: const Color(0xFF6C63FF))),
+            child: Text(
+              'Confirmer',
+              style: GoogleFonts.poppins(color: const Color(0xFF6C63FF)),
+            ),
           ),
         ],
       ),
@@ -128,8 +140,8 @@ class LoginPageState extends State<LoginPage> with SingleTickerProviderStateMixi
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    const Color(0xFF6C63FF).withValues(alpha:0.95),
-                    const Color(0xFF8B84FF).withValues(alpha:0.95),
+                    const Color(0xFF6C63FF).withValues(alpha: 0.95),
+                    const Color(0xFF8B84FF).withValues(alpha: 0.95),
                     Colors.white,
                   ],
                   stops: const [0.0, 0.3, 0.3],
@@ -155,7 +167,7 @@ class LoginPageState extends State<LoginPage> with SingleTickerProviderStateMixi
                                   width: 40,
                                   height: 40,
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withValues(alpha:0.2),
+                                    color: Colors.white.withValues(alpha: 0.2),
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: const Icon(
@@ -177,7 +189,7 @@ class LoginPageState extends State<LoginPage> with SingleTickerProviderStateMixi
                                   width: 40,
                                   height: 40,
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withValues(alpha:0.2),
+                                    color: Colors.white.withValues(alpha: 0.2),
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: const Icon(
@@ -202,7 +214,9 @@ class LoginPageState extends State<LoginPage> with SingleTickerProviderStateMixi
                                   borderRadius: BorderRadius.circular(20),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withValues(alpha:0.2),
+                                      color: Colors.black.withValues(
+                                        alpha: 0.2,
+                                      ),
                                       blurRadius: 20,
                                       spreadRadius: 2,
                                     ),
@@ -229,7 +243,7 @@ class LoginPageState extends State<LoginPage> with SingleTickerProviderStateMixi
                                 style: GoogleFonts.poppins(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w500,
-                                  color: Colors.white.withValues(alpha:0.85),
+                                  color: Colors.white.withValues(alpha: 0.85),
                                 ),
                               ),
                             ],
@@ -249,7 +263,7 @@ class LoginPageState extends State<LoginPage> with SingleTickerProviderStateMixi
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha:0.05),
+                            color: Colors.black.withValues(alpha: 0.05),
                             blurRadius: 30,
                             spreadRadius: 5,
                           ),
@@ -272,12 +286,17 @@ class LoginPageState extends State<LoginPage> with SingleTickerProviderStateMixi
                               unselectedLabelColor: Colors.grey.shade700,
                               indicator: BoxDecoration(
                                 gradient: const LinearGradient(
-                                  colors: [Color(0xFF6C63FF), Color(0xFF8B84FF)],
+                                  colors: [
+                                    Color(0xFF6C63FF),
+                                    Color(0xFF8B84FF),
+                                  ],
                                 ),
                                 borderRadius: BorderRadius.circular(16),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: const Color(0xFF6C63FF).withValues(alpha:0.3),
+                                    color: const Color(
+                                      0xFF6C63FF,
+                                    ).withValues(alpha: 0.3),
                                     blurRadius: 10,
                                     spreadRadius: 2,
                                   ),
@@ -301,7 +320,9 @@ class LoginPageState extends State<LoginPage> with SingleTickerProviderStateMixi
                           Expanded(
                             child: TabBarView(
                               controller: _tabController,
-                              physics: _otpInProgress ? const NeverScrollableScrollPhysics() : null,
+                              physics: _otpInProgress
+                                  ? const NeverScrollableScrollPhysics()
+                                  : null,
                               children: [
                                 LoginTabContent(
                                   key: _loginTabKey,
@@ -451,11 +472,15 @@ class _LoginTabContentState extends State<LoginTabContent> {
     if (!phoneNumber.startsWith('+')) phoneNumber = '+$phoneNumber';
 
     // Vérifier l'existence du compte
-    final existingProfile = await UserProfileService().getProfileByPhone(phoneNumber);
+    final existingProfile = await UserProfileService().getProfileByPhone(
+      phoneNumber,
+    );
     if (existingProfile == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Aucun compte trouvé pour ce numéro. Veuillez vous inscrire.'),
+          content: Text(
+            'Aucun compte trouvé pour ce numéro. Veuillez vous inscrire.',
+          ),
           backgroundColor: Colors.red,
         ),
       );
@@ -479,7 +504,10 @@ class _LoginTabContentState extends State<LoginTabContent> {
             widget.onAuthInProgressChanged(false);
             _startCountdown();
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Code envoyé'), backgroundColor: Colors.green),
+              const SnackBar(
+                content: Text('Code envoyé'),
+                backgroundColor: Colors.green,
+              ),
             );
           }
         },
@@ -493,7 +521,10 @@ class _LoginTabContentState extends State<LoginTabContent> {
             }
             final errorMessage = _errorHandler.handleError(Exception(message));
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
+              SnackBar(
+                content: Text(errorMessage),
+                backgroundColor: Colors.red,
+              ),
             );
           }
         },
@@ -502,7 +533,9 @@ class _LoginTabContentState extends State<LoginTabContent> {
         },
         onAutoVerified: (PhoneAuthCredential credential) async {
           try {
-            final userCredential = await _phoneAuthService.signInWithCredential(credential);
+            final userCredential = await _phoneAuthService.signInWithCredential(
+              credential,
+            );
             await _onLoggedIn(userCredential);
           } catch (e) {
             if (mounted) {
@@ -512,7 +545,10 @@ class _LoginTabContentState extends State<LoginTabContent> {
                 widget.onOtpEnded();
               }
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(_errorHandler.handleError(e)), backgroundColor: Colors.red),
+                SnackBar(
+                  content: Text(_errorHandler.handleError(e)),
+                  backgroundColor: Colors.red,
+                ),
               );
             }
           }
@@ -530,7 +566,9 @@ class _LoginTabContentState extends State<LoginTabContent> {
           }
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Timeout de vérification dépassé. Veuillez réessayer.'),
+              content: Text(
+                'Timeout de vérification dépassé. Veuillez réessayer.',
+              ),
               backgroundColor: Colors.orange,
             ),
           );
@@ -543,7 +581,10 @@ class _LoginTabContentState extends State<LoginTabContent> {
         widget.onOtpEnded();
       }
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(_errorHandler.handleError(e)), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text(_errorHandler.handleError(e)),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }
@@ -559,10 +600,15 @@ class _LoginTabContentState extends State<LoginTabContent> {
       );
 
       if (user != null && mounted) {
-        final userProfile = await UserProfileService().getProfileFresh(user.uid);
+        final userProfile = await UserProfileService().getProfileFresh(
+          user.uid,
+        );
         if (userProfile != null) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Connexion réussie !'), backgroundColor: Colors.green),
+            const SnackBar(
+              content: Text('Connexion réussie !'),
+              backgroundColor: Colors.green,
+            ),
           );
           if (userProfile.role == 'admin') {
             context.go('/admin');
@@ -576,7 +622,10 @@ class _LoginTabContentState extends State<LoginTabContent> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(_errorHandler.handleError(e)), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text(_errorHandler.handleError(e)),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     } finally {
@@ -599,19 +648,24 @@ class _LoginTabContentState extends State<LoginTabContent> {
         verificationId: _verificationId!,
         smsCode: _otpController.text.trim(),
       );
-      if (userCredential == null) throw Exception('Échec de l’authentification.');
+      if (userCredential == null)
+        throw Exception('Échec de l’authentification.');
       await _onLoggedIn(userCredential);
     } catch (e) {
       _setAuthInProgress(false);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(_errorHandler.handleError(e)), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text(_errorHandler.handleError(e)),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }
 
   Future<void> _onLoggedIn(UserCredential userCredential) async {
     final user = userCredential.user;
-    if (user == null) throw Exception('Utilisateur introuvable après authentification.');
+    if (user == null)
+      throw Exception('Utilisateur introuvable après authentification.');
     final userProfile = await UserProfileService().getProfileFresh(user.uid);
     if (userProfile == null) throw Exception('Profil utilisateur introuvable.');
     if (!userProfile.isActive) throw Exception('Compte désactivé.');
@@ -664,7 +718,9 @@ class _LoginTabContentState extends State<LoginTabContent> {
             child: Container(
               height: 46,
               decoration: BoxDecoration(
-                color: _useEmail ? Colors.grey.shade100 : const Color(0xFF6C63FF),
+                color: _useEmail
+                    ? Colors.grey.shade100
+                    : const Color(0xFF6C63FF),
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(color: const Color(0xFF6C63FF)),
               ),
@@ -687,7 +743,9 @@ class _LoginTabContentState extends State<LoginTabContent> {
             child: Container(
               height: 46,
               decoration: BoxDecoration(
-                color: _useEmail ? const Color(0xFF6C63FF) : Colors.grey.shade100,
+                color: _useEmail
+                    ? const Color(0xFF6C63FF)
+                    : Colors.grey.shade100,
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(color: const Color(0xFF6C63FF)),
               ),
@@ -732,7 +790,10 @@ class _LoginTabContentState extends State<LoginTabContent> {
                 ),
                 Text(
                   l10n.gladToSeeYou,
-                  style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey.shade600),
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    color: Colors.grey.shade600,
+                  ),
                 ),
               ],
             ),
@@ -745,7 +806,13 @@ class _LoginTabContentState extends State<LoginTabContent> {
               Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
-                  boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha:0.1), blurRadius: 15, spreadRadius: 2)],
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withValues(alpha: 0.1),
+                      blurRadius: 15,
+                      spreadRadius: 2,
+                    ),
+                  ],
                 ),
                 child: TextFormField(
                   controller: _emailController,
@@ -756,16 +823,27 @@ class _LoginTabContentState extends State<LoginTabContent> {
                     hintStyle: GoogleFonts.poppins(color: Colors.grey.shade400),
                     prefixIcon: Container(
                       margin: const EdgeInsets.all(12),
-                      child: const Icon(Icons.email_rounded, color: Color(0xFF6C63FF), size: 22),
+                      child: const Icon(
+                        Icons.email_rounded,
+                        color: Color(0xFF6C63FF),
+                        size: 22,
+                      ),
                     ),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide.none,
+                    ),
                     filled: true,
                     fillColor: Colors.white,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+                    contentPadding: const EdgeInsets.symmetric(
+                      vertical: 18,
+                      horizontal: 20,
+                    ),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) return 'Email requis';
-                    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) return 'Email invalide';
+                    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value))
+                      return 'Email invalide';
                     return null;
                   },
                 ),
@@ -774,7 +852,13 @@ class _LoginTabContentState extends State<LoginTabContent> {
               Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
-                  boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha:0.1), blurRadius: 15, spreadRadius: 2)],
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withValues(alpha: 0.1),
+                      blurRadius: 15,
+                      spreadRadius: 2,
+                    ),
+                  ],
                 ),
                 child: TextFormField(
                   controller: _passwordController,
@@ -785,22 +869,36 @@ class _LoginTabContentState extends State<LoginTabContent> {
                     hintStyle: GoogleFonts.poppins(color: Colors.grey.shade400),
                     prefixIcon: Container(
                       margin: const EdgeInsets.all(12),
-                      child: const Icon(Icons.lock_rounded, color: Color(0xFF6C63FF), size: 22),
+                      child: const Icon(
+                        Icons.lock_rounded,
+                        color: Color(0xFF6C63FF),
+                        size: 22,
+                      ),
                     ),
                     suffixIcon: IconButton(
                       icon: Icon(
-                        _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                        _obscurePassword
+                            ? Icons.visibility_off
+                            : Icons.visibility,
                         color: Colors.grey.shade400,
                       ),
-                      onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                      onPressed: () =>
+                          setState(() => _obscurePassword = !_obscurePassword),
                     ),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide.none,
+                    ),
                     filled: true,
                     fillColor: Colors.white,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+                    contentPadding: const EdgeInsets.symmetric(
+                      vertical: 18,
+                      horizontal: 20,
+                    ),
                   ),
                   validator: (value) {
-                    if (value == null || value.isEmpty) return 'Mot de passe requis';
+                    if (value == null || value.isEmpty)
+                      return 'Mot de passe requis';
                     if (value.length < 6) return 'Minimum 6 caractères';
                     return null;
                   },
@@ -821,7 +919,9 @@ class _LoginTabContentState extends State<LoginTabContent> {
                       return;
                     }
                     try {
-                      await _authService.resetPassword(_emailController.text.trim());
+                      await _authService.resetPassword(
+                        _emailController.text.trim(),
+                      );
                       if (mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
@@ -843,7 +943,10 @@ class _LoginTabContentState extends State<LoginTabContent> {
                   },
                   child: Text(
                     'Mot de passe oublié ?',
-                    style: GoogleFonts.poppins(color: const Color(0xFF6C63FF), fontWeight: FontWeight.w600),
+                    style: GoogleFonts.poppins(
+                      color: const Color(0xFF6C63FF),
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ),
@@ -851,15 +954,24 @@ class _LoginTabContentState extends State<LoginTabContent> {
               Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
-                  boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha:0.1), blurRadius: 15, spreadRadius: 2)],
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withValues(alpha: 0.1),
+                      blurRadius: 15,
+                      spreadRadius: 2,
+                    ),
+                  ],
                 ),
                 child: IntlPhoneField(
                   initialCountryCode: 'CM',
                   enabled: !_isLoading && !_otpSent,
-                  onChanged: (phone) => _loginPhoneNumber = phone.completeNumber,
+                  onChanged: (phone) =>
+                      _loginPhoneNumber = phone.completeNumber,
                   validator: (value) {
-                    if (value == null || value.number.isEmpty) return l10n.phoneRequired;
-                    if (value.number.length < 8 || value.number.length > 15) return l10n.invalidPhone;
+                    if (value == null || value.number.isEmpty)
+                      return l10n.phoneRequired;
+                    if (value.number.length < 8 || value.number.length > 15)
+                      return l10n.invalidPhone;
                     return null;
                   },
                   decoration: InputDecoration(
@@ -867,7 +979,11 @@ class _LoginTabContentState extends State<LoginTabContent> {
                     hintStyle: GoogleFonts.poppins(color: Colors.grey.shade400),
                     prefixIcon: Container(
                       margin: const EdgeInsets.all(12),
-                      child: const Icon(Icons.phone_rounded, color: Color(0xFF6C63FF), size: 22),
+                      child: const Icon(
+                        Icons.phone_rounded,
+                        color: Color(0xFF6C63FF),
+                        size: 22,
+                      ),
                     ),
                   ),
                 ),
@@ -876,7 +992,10 @@ class _LoginTabContentState extends State<LoginTabContent> {
               if (_otpSent)
                 Column(
                   children: [
-                    Text('Entrez le code OTP ($_countdown s)', style: GoogleFonts.poppins(color: Colors.grey.shade700)),
+                    Text(
+                      'Entrez le code OTP ($_countdown s)',
+                      style: GoogleFonts.poppins(color: Colors.grey.shade700),
+                    ),
                     const SizedBox(height: 10),
                     Pinput(
                       controller: _otpController,
@@ -887,8 +1006,12 @@ class _LoginTabContentState extends State<LoginTabContent> {
                     TextButton(
                       onPressed: _countdown == 0 ? _sendOtp : null,
                       child: Text(
-                        _countdown == 0 ? 'Renvoyer le code' : 'Renvoyer dans $_countdown s',
-                        style: GoogleFonts.poppins(color: const Color(0xFF6C63FF)),
+                        _countdown == 0
+                            ? 'Renvoyer le code'
+                            : 'Renvoyer dans $_countdown s',
+                        style: GoogleFonts.poppins(
+                          color: const Color(0xFF6C63FF),
+                        ),
                       ),
                     ),
                   ],
@@ -903,7 +1026,7 @@ class _LoginTabContentState extends State<LoginTabContent> {
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF6C63FF).withValues(alpha:0.4),
+                    color: const Color(0xFF6C63FF).withValues(alpha: 0.4),
                     blurRadius: 20,
                     spreadRadius: 2,
                     offset: const Offset(0, 5),
@@ -928,10 +1051,23 @@ class _LoginTabContentState extends State<LoginTabContent> {
                     ),
                     child: Center(
                       child: _isLoading
-                          ? const SizedBox(height: 24, width: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5))
+                          ? const SizedBox(
+                              height: 24,
+                              width: 24,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2.5,
+                              ),
+                            )
                           : Text(
-                              _useEmail ? 'Se connecter' : (_otpSent ? 'Vérifier OTP' : 'Envoyer OTP'),
-                              style: GoogleFonts.poppins(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700),
+                              _useEmail
+                                  ? 'Se connecter'
+                                  : (_otpSent ? 'Vérifier OTP' : 'Envoyer OTP'),
+                              style: GoogleFonts.poppins(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
                     ),
                   ),
@@ -944,16 +1080,30 @@ class _LoginTabContentState extends State<LoginTabContent> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(l10n.noAccount, style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey.shade600)),
+                Text(
+                  l10n.noAccount,
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    color: Colors.grey.shade600,
+                  ),
+                ),
                 GestureDetector(
                   onTap: () {
-                    if (context.findAncestorStateOfType<LoginPageState>() != null) {
-                      context.findAncestorStateOfType<LoginPageState>()?._tabController.animateTo(1);
+                    if (context.findAncestorStateOfType<LoginPageState>() !=
+                        null) {
+                      context
+                          .findAncestorStateOfType<LoginPageState>()
+                          ?._tabController
+                          .animateTo(1);
                     }
                   },
                   child: Text(
                     l10n.signUp,
-                    style: GoogleFonts.poppins(fontSize: 14, color: const Color(0xFF6C63FF), fontWeight: FontWeight.w700),
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: const Color(0xFF6C63FF),
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
               ],
@@ -992,7 +1142,8 @@ class _SignupTabContentState extends State<SignupTabContent> {
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _otpController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
   final ErrorHandlerService _errorHandler = ErrorHandlerService();
   final AuthService _authService = AuthService();
 
@@ -1062,15 +1213,22 @@ class _SignupTabContentState extends State<SignupTabContent> {
 
     if (_completePhoneNumber.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.phoneRequired), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text(l10n.phoneRequired),
+          backgroundColor: Colors.red,
+        ),
       );
       return;
     }
-    final existingProfile = await UserProfileService().getProfileByPhone(_completePhoneNumber);
+    final existingProfile = await UserProfileService().getProfileByPhone(
+      _completePhoneNumber,
+    );
     if (existingProfile != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Un compte existe déjà pour ce numéro. Veuillez vous connecter.'),
+          content: Text(
+            'Un compte existe déjà pour ce numéro. Veuillez vous connecter.',
+          ),
           backgroundColor: Colors.red,
         ),
       );
@@ -1102,7 +1260,10 @@ class _SignupTabContentState extends State<SignupTabContent> {
               widget.onOtpEnded();
             }
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('${l10n.error}: $error'), backgroundColor: Colors.red),
+              SnackBar(
+                content: Text('${l10n.error}: $error'),
+                backgroundColor: Colors.red,
+              ),
             );
           }
         },
@@ -1120,7 +1281,10 @@ class _SignupTabContentState extends State<SignupTabContent> {
               widget.onOtpEnded();
             }
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(l10n.phoneVerified), backgroundColor: Colors.green),
+              SnackBar(
+                content: Text(l10n.phoneVerified),
+                backgroundColor: Colors.green,
+              ),
             );
           }
         },
@@ -1136,7 +1300,9 @@ class _SignupTabContentState extends State<SignupTabContent> {
           }
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Timeout de vérification dépassé. Veuillez réessayer.'),
+              content: Text(
+                'Timeout de vérification dépassé. Veuillez réessayer.',
+              ),
               backgroundColor: Colors.orange,
             ),
           );
@@ -1149,7 +1315,10 @@ class _SignupTabContentState extends State<SignupTabContent> {
         widget.onOtpEnded();
       }
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(_errorHandler.handleError(e)), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text(_errorHandler.handleError(e)),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }
@@ -1180,14 +1349,20 @@ class _SignupTabContentState extends State<SignupTabContent> {
           widget.onOtpEnded();
         }
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(l10n.phoneVerified), backgroundColor: Colors.green),
+          SnackBar(
+            content: Text(l10n.phoneVerified),
+            backgroundColor: Colors.green,
+          ),
         );
         _submitForm();
       }
     } catch (e) {
       setState(() => _isLoading = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(_errorHandler.handleError(e)), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text(_errorHandler.handleError(e)),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }
@@ -1197,20 +1372,28 @@ class _SignupTabContentState extends State<SignupTabContent> {
     if (!_formKey.currentState!.validate()) return;
     if (_passwordController.text != _confirmPasswordController.text) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Les mots de passe ne correspondent pas'), backgroundColor: Colors.red),
+        const SnackBar(
+          content: Text('Les mots de passe ne correspondent pas'),
+          backgroundColor: Colors.red,
+        ),
       );
       return;
     }
     if (_completePhoneNumber.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.phoneRequired), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text(l10n.phoneRequired),
+          backgroundColor: Colors.red,
+        ),
       );
       return;
     }
 
     _setAuthInProgress(true);
     try {
-      final fullName = '${_firstNameController.text.trim()} ${_nameController.text.trim()}'.trim();
+      final fullName =
+          '${_firstNameController.text.trim()} ${_nameController.text.trim()}'
+              .trim();
       final user = await _authService.signUpWithEmail(
         name: fullName,
         email: _emailController.text.trim(),
@@ -1220,14 +1403,22 @@ class _SignupTabContentState extends State<SignupTabContent> {
 
       if (user != null && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Inscription réussie ! Vérifiez votre email pour confirmer votre compte.\nN\'oubliez pas de vérifier vos spams.'), backgroundColor: Colors.green),
+          const SnackBar(
+            content: Text(
+              'Inscription réussie ! Vérifiez votre email pour confirmer votre compte.\nN\'oubliez pas de vérifier vos spams.',
+            ),
+            backgroundColor: Colors.green,
+          ),
         );
         widget.onTabChanged(0);
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(_errorHandler.handleError(e)), backgroundColor: Colors.red),
+          SnackBar(
+            content: Text(_errorHandler.handleError(e)),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     } finally {
@@ -1245,7 +1436,10 @@ class _SignupTabContentState extends State<SignupTabContent> {
     if (!_formKey.currentState!.validate()) return;
     if (!_isPhoneVerified) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.verifyPhoneFirst), backgroundColor: Colors.red),
+        SnackBar(
+          content: Text(l10n.verifyPhoneFirst),
+          backgroundColor: Colors.red,
+        ),
       );
       return;
     }
@@ -1271,7 +1465,9 @@ class _SignupTabContentState extends State<SignupTabContent> {
             ),
             backgroundColor: Colors.green,
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
             elevation: 10,
           ),
         );
@@ -1295,7 +1491,9 @@ class _SignupTabContentState extends State<SignupTabContent> {
             ),
             backgroundColor: Colors.red,
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
             elevation: 10,
           ),
         );
@@ -1330,7 +1528,9 @@ class _SignupTabContentState extends State<SignupTabContent> {
             child: Container(
               height: 46,
               decoration: BoxDecoration(
-                color: _useEmail ? Colors.grey.shade100 : const Color(0xFF6C63FF),
+                color: _useEmail
+                    ? Colors.grey.shade100
+                    : const Color(0xFF6C63FF),
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(color: const Color(0xFF6C63FF)),
               ),
@@ -1353,7 +1553,9 @@ class _SignupTabContentState extends State<SignupTabContent> {
             child: Container(
               height: 46,
               decoration: BoxDecoration(
-                color: _useEmail ? const Color(0xFF6C63FF) : Colors.grey.shade100,
+                color: _useEmail
+                    ? const Color(0xFF6C63FF)
+                    : Colors.grey.shade100,
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(color: const Color(0xFF6C63FF)),
               ),
@@ -1398,7 +1600,10 @@ class _SignupTabContentState extends State<SignupTabContent> {
                 ),
                 Text(
                   l10n.joinCommunity,
-                  style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey.shade600),
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    color: Colors.grey.shade600,
+                  ),
                 ),
               ],
             ),
@@ -1410,7 +1615,13 @@ class _SignupTabContentState extends State<SignupTabContent> {
               Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
-                  boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha:0.1), blurRadius: 15, spreadRadius: 2)],
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withValues(alpha: 0.1),
+                      blurRadius: 15,
+                      spreadRadius: 2,
+                    ),
+                  ],
                 ),
                 child: TextFormField(
                   controller: _firstNameController,
@@ -1420,21 +1631,38 @@ class _SignupTabContentState extends State<SignupTabContent> {
                     hintStyle: GoogleFonts.poppins(color: Colors.grey.shade400),
                     prefixIcon: Container(
                       margin: const EdgeInsets.all(12),
-                      child: const Icon(Icons.person_outline_rounded, color: Color(0xFF6C63FF), size: 22),
+                      child: const Icon(
+                        Icons.person_outline_rounded,
+                        color: Color(0xFF6C63FF),
+                        size: 22,
+                      ),
                     ),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide.none,
+                    ),
                     filled: true,
                     fillColor: Colors.white,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+                    contentPadding: const EdgeInsets.symmetric(
+                      vertical: 18,
+                      horizontal: 20,
+                    ),
                   ),
-                  validator: (value) => value == null || value.isEmpty ? 'Prénom requis' : null,
+                  validator: (value) =>
+                      value == null || value.isEmpty ? 'Prénom requis' : null,
                 ),
               ),
               const SizedBox(height: 20),
               Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
-                  boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha:0.1), blurRadius: 15, spreadRadius: 2)],
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withValues(alpha: 0.1),
+                      blurRadius: 15,
+                      spreadRadius: 2,
+                    ),
+                  ],
                 ),
                 child: TextFormField(
                   controller: _nameController,
@@ -1444,21 +1672,38 @@ class _SignupTabContentState extends State<SignupTabContent> {
                     hintStyle: GoogleFonts.poppins(color: Colors.grey.shade400),
                     prefixIcon: Container(
                       margin: const EdgeInsets.all(12),
-                      child: const Icon(Icons.person_outline_rounded, color: Color(0xFF6C63FF), size: 22),
+                      child: const Icon(
+                        Icons.person_outline_rounded,
+                        color: Color(0xFF6C63FF),
+                        size: 22,
+                      ),
                     ),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide.none,
+                    ),
                     filled: true,
                     fillColor: Colors.white,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+                    contentPadding: const EdgeInsets.symmetric(
+                      vertical: 18,
+                      horizontal: 20,
+                    ),
                   ),
-                  validator: (value) => value == null || value.isEmpty ? 'Nom requis' : null,
+                  validator: (value) =>
+                      value == null || value.isEmpty ? 'Nom requis' : null,
                 ),
               ),
               const SizedBox(height: 20),
               Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
-                  boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha:0.1), blurRadius: 15, spreadRadius: 2)],
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withValues(alpha: 0.1),
+                      blurRadius: 15,
+                      spreadRadius: 2,
+                    ),
+                  ],
                 ),
                 child: TextFormField(
                   controller: _emailController,
@@ -1469,16 +1714,27 @@ class _SignupTabContentState extends State<SignupTabContent> {
                     hintStyle: GoogleFonts.poppins(color: Colors.grey.shade400),
                     prefixIcon: Container(
                       margin: const EdgeInsets.all(12),
-                      child: const Icon(Icons.email_rounded, color: Color(0xFF6C63FF), size: 22),
+                      child: const Icon(
+                        Icons.email_rounded,
+                        color: Color(0xFF6C63FF),
+                        size: 22,
+                      ),
                     ),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide.none,
+                    ),
                     filled: true,
                     fillColor: Colors.white,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+                    contentPadding: const EdgeInsets.symmetric(
+                      vertical: 18,
+                      horizontal: 20,
+                    ),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) return 'Email requis';
-                    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) return 'Email invalide';
+                    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value))
+                      return 'Email invalide';
                     return null;
                   },
                 ),
@@ -1487,7 +1743,13 @@ class _SignupTabContentState extends State<SignupTabContent> {
               Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
-                  boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha:0.1), blurRadius: 15, spreadRadius: 2)],
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withValues(alpha: 0.1),
+                      blurRadius: 15,
+                      spreadRadius: 2,
+                    ),
+                  ],
                 ),
                 child: IntlPhoneField(
                   controller: _phoneController,
@@ -1495,15 +1757,23 @@ class _SignupTabContentState extends State<SignupTabContent> {
                   decoration: InputDecoration(
                     hintText: l10n.phoneHint,
                     hintStyle: GoogleFonts.poppins(color: Colors.grey.shade400),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide.none,
+                    ),
                     filled: true,
                     fillColor: Colors.white,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+                    contentPadding: const EdgeInsets.symmetric(
+                      vertical: 18,
+                      horizontal: 20,
+                    ),
                   ),
                   initialCountryCode: 'CM',
-                  onChanged: (phone) => _completePhoneNumber = phone.completeNumber,
+                  onChanged: (phone) =>
+                      _completePhoneNumber = phone.completeNumber,
                   validator: (value) {
-                    if (value == null || value.number.isEmpty) return 'Téléphone requis';
+                    if (value == null || value.number.isEmpty)
+                      return 'Téléphone requis';
                     if (value.number.length < 8) return 'Numéro invalide';
                     return null;
                   },
@@ -1513,7 +1783,13 @@ class _SignupTabContentState extends State<SignupTabContent> {
               Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
-                  boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha:0.1), blurRadius: 15, spreadRadius: 2)],
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withValues(alpha: 0.1),
+                      blurRadius: 15,
+                      spreadRadius: 2,
+                    ),
+                  ],
                 ),
                 child: TextFormField(
                   controller: _passwordController,
@@ -1524,22 +1800,36 @@ class _SignupTabContentState extends State<SignupTabContent> {
                     hintStyle: GoogleFonts.poppins(color: Colors.grey.shade400),
                     prefixIcon: Container(
                       margin: const EdgeInsets.all(12),
-                      child: const Icon(Icons.lock_rounded, color: Color(0xFF6C63FF), size: 22),
+                      child: const Icon(
+                        Icons.lock_rounded,
+                        color: Color(0xFF6C63FF),
+                        size: 22,
+                      ),
                     ),
                     suffixIcon: IconButton(
                       icon: Icon(
-                        _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                        _obscurePassword
+                            ? Icons.visibility_off
+                            : Icons.visibility,
                         color: Colors.grey.shade400,
                       ),
-                      onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                      onPressed: () =>
+                          setState(() => _obscurePassword = !_obscurePassword),
                     ),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide.none,
+                    ),
                     filled: true,
                     fillColor: Colors.white,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+                    contentPadding: const EdgeInsets.symmetric(
+                      vertical: 18,
+                      horizontal: 20,
+                    ),
                   ),
                   validator: (value) {
-                    if (value == null || value.isEmpty) return 'Mot de passe requis';
+                    if (value == null || value.isEmpty)
+                      return 'Mot de passe requis';
                     if (value.length < 6) return 'Minimum 6 caractères';
                     return null;
                   },
@@ -1549,7 +1839,13 @@ class _SignupTabContentState extends State<SignupTabContent> {
               Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
-                  boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha:0.1), blurRadius: 15, spreadRadius: 2)],
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withValues(alpha: 0.1),
+                      blurRadius: 15,
+                      spreadRadius: 2,
+                    ),
+                  ],
                 ),
                 child: TextFormField(
                   controller: _confirmPasswordController,
@@ -1560,23 +1856,40 @@ class _SignupTabContentState extends State<SignupTabContent> {
                     hintStyle: GoogleFonts.poppins(color: Colors.grey.shade400),
                     prefixIcon: Container(
                       margin: const EdgeInsets.all(12),
-                      child: const Icon(Icons.lock_rounded, color: Color(0xFF6C63FF), size: 22),
+                      child: const Icon(
+                        Icons.lock_rounded,
+                        color: Color(0xFF6C63FF),
+                        size: 22,
+                      ),
                     ),
                     suffixIcon: IconButton(
                       icon: Icon(
-                        _obscureConfirmPassword ? Icons.visibility_off : Icons.visibility,
+                        _obscureConfirmPassword
+                            ? Icons.visibility_off
+                            : Icons.visibility,
                         color: Colors.grey.shade400,
                       ),
-                      onPressed: () => setState(() => _obscureConfirmPassword = !_obscureConfirmPassword),
+                      onPressed: () => setState(
+                        () =>
+                            _obscureConfirmPassword = !_obscureConfirmPassword,
+                      ),
                     ),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide.none,
+                    ),
                     filled: true,
                     fillColor: Colors.white,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+                    contentPadding: const EdgeInsets.symmetric(
+                      vertical: 18,
+                      horizontal: 20,
+                    ),
                   ),
                   validator: (value) {
-                    if (value == null || value.isEmpty) return 'Confirmation requise';
-                    if (value != _passwordController.text) return 'Les mots de passe ne correspondent pas';
+                    if (value == null || value.isEmpty)
+                      return 'Confirmation requise';
+                    if (value != _passwordController.text)
+                      return 'Les mots de passe ne correspondent pas';
                     return null;
                   },
                 ),
@@ -1585,7 +1898,13 @@ class _SignupTabContentState extends State<SignupTabContent> {
               Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
-                  boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha:0.1), blurRadius: 15, spreadRadius: 2)],
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withValues(alpha: 0.1),
+                      blurRadius: 15,
+                      spreadRadius: 2,
+                    ),
+                  ],
                 ),
                 child: TextFormField(
                   controller: _nameController,
@@ -1595,21 +1914,38 @@ class _SignupTabContentState extends State<SignupTabContent> {
                     hintStyle: GoogleFonts.poppins(color: Colors.grey.shade400),
                     prefixIcon: Container(
                       margin: const EdgeInsets.all(12),
-                      child: const Icon(Icons.person_outline_rounded, color: Color(0xFF6C63FF), size: 22),
+                      child: const Icon(
+                        Icons.person_outline_rounded,
+                        color: Color(0xFF6C63FF),
+                        size: 22,
+                      ),
                     ),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide.none,
+                    ),
                     filled: true,
                     fillColor: Colors.white,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+                    contentPadding: const EdgeInsets.symmetric(
+                      vertical: 18,
+                      horizontal: 20,
+                    ),
                   ),
-                  validator: (value) => value == null || value.isEmpty ? l10n.nameRequired : null,
+                  validator: (value) =>
+                      value == null || value.isEmpty ? l10n.nameRequired : null,
                 ),
               ),
               const SizedBox(height: 20),
               Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
-                  boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha:0.1), blurRadius: 15, spreadRadius: 2)],
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withValues(alpha: 0.1),
+                      blurRadius: 15,
+                      spreadRadius: 2,
+                    ),
+                  ],
                 ),
                 child: TextFormField(
                   controller: _emailController,
@@ -1619,16 +1955,28 @@ class _SignupTabContentState extends State<SignupTabContent> {
                     hintStyle: GoogleFonts.poppins(color: Colors.grey.shade400),
                     prefixIcon: Container(
                       margin: const EdgeInsets.all(12),
-                      child: const Icon(Icons.email_rounded, color: Color(0xFF6C63FF), size: 22),
+                      child: const Icon(
+                        Icons.email_rounded,
+                        color: Color(0xFF6C63FF),
+                        size: 22,
+                      ),
                     ),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide.none,
+                    ),
                     filled: true,
                     fillColor: Colors.white,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+                    contentPadding: const EdgeInsets.symmetric(
+                      vertical: 18,
+                      horizontal: 20,
+                    ),
                   ),
                   validator: (value) {
-                    if (value == null || value.isEmpty) return l10n.emailRequired;
-                    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) return l10n.invalidEmail;
+                    if (value == null || value.isEmpty)
+                      return l10n.emailRequired;
+                    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value))
+                      return l10n.invalidEmail;
                     return null;
                   },
                 ),
@@ -1637,7 +1985,13 @@ class _SignupTabContentState extends State<SignupTabContent> {
               Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
-                  boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha:0.1), blurRadius: 15, spreadRadius: 2)],
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withValues(alpha: 0.1),
+                      blurRadius: 15,
+                      spreadRadius: 2,
+                    ),
+                  ],
                 ),
                 child: IntlPhoneField(
                   controller: _phoneController,
@@ -1645,15 +1999,23 @@ class _SignupTabContentState extends State<SignupTabContent> {
                   decoration: InputDecoration(
                     hintText: l10n.phoneHint,
                     hintStyle: GoogleFonts.poppins(color: Colors.grey.shade400),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide.none,
+                    ),
                     filled: true,
                     fillColor: Colors.white,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+                    contentPadding: const EdgeInsets.symmetric(
+                      vertical: 18,
+                      horizontal: 20,
+                    ),
                   ),
                   initialCountryCode: 'CM',
-                  onChanged: (phone) => _completePhoneNumber = phone.completeNumber,
+                  onChanged: (phone) =>
+                      _completePhoneNumber = phone.completeNumber,
                   validator: (value) {
-                    if (value == null || value.number.isEmpty) return l10n.phoneRequired;
+                    if (value == null || value.number.isEmpty)
+                      return l10n.phoneRequired;
                     if (value.number.length < 8) return l10n.invalidPhone;
                     return null;
                   },
@@ -1667,7 +2029,10 @@ class _SignupTabContentState extends State<SignupTabContent> {
                     onPressed: _isVerifyingPhone ? null : _sendSmsCode,
                     child: Text(
                       _isVerifyingPhone ? l10n.sendingCode : l10n.verifyPhone,
-                      style: GoogleFonts.poppins(color: const Color(0xFF6C63FF), fontWeight: FontWeight.w600),
+                      style: GoogleFonts.poppins(
+                        color: const Color(0xFF6C63FF),
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ),
@@ -1677,7 +2042,11 @@ class _SignupTabContentState extends State<SignupTabContent> {
                     const SizedBox(height: 20),
                     Text(
                       l10n.enterOtp,
-                      style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.grey.shade700),
+                      style: GoogleFonts.poppins(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey.shade700,
+                      ),
                     ),
                     const SizedBox(height: 10),
                     Pinput(
@@ -1686,14 +2055,28 @@ class _SignupTabContentState extends State<SignupTabContent> {
                       defaultPinTheme: PinTheme(
                         width: 50,
                         height: 50,
-                        textStyle: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.w600, color: const Color(0xFF6C63FF)),
-                        decoration: BoxDecoration(border: Border.all(color: Colors.grey.shade300), borderRadius: BorderRadius.circular(12)),
+                        textStyle: GoogleFonts.poppins(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                          color: const Color(0xFF6C63FF),
+                        ),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey.shade300),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
                       focusedPinTheme: PinTheme(
                         width: 50,
                         height: 50,
-                        textStyle: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.w600, color: const Color(0xFF6C63FF)),
-                        decoration: BoxDecoration(border: Border.all(color: const Color(0xFF6C63FF)), borderRadius: BorderRadius.circular(12)),
+                        textStyle: GoogleFonts.poppins(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                          color: const Color(0xFF6C63FF),
+                        ),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: const Color(0xFF6C63FF)),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
                       onCompleted: (pin) => _verifyOtp(),
                     ),
@@ -1702,13 +2085,23 @@ class _SignupTabContentState extends State<SignupTabContent> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          _countdown > 0 ? '${l10n.resendIn} $_countdown s' : l10n.resendCode,
-                          style: GoogleFonts.poppins(color: Colors.grey.shade600),
+                          _countdown > 0
+                              ? '${l10n.resendIn} $_countdown s'
+                              : l10n.resendCode,
+                          style: GoogleFonts.poppins(
+                            color: Colors.grey.shade600,
+                          ),
                         ),
                         if (_countdown == 0)
                           TextButton(
                             onPressed: _sendSmsCode,
-                            child: Text(l10n.resend, style: GoogleFonts.poppins(color: const Color(0xFF6C63FF), fontWeight: FontWeight.w600)),
+                            child: Text(
+                              l10n.resend,
+                              style: GoogleFonts.poppins(
+                                color: const Color(0xFF6C63FF),
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                           ),
                       ],
                     ),
@@ -1724,11 +2117,18 @@ class _SignupTabContentState extends State<SignupTabContent> {
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.check_circle_rounded, color: Colors.green, size: 24),
+                      const Icon(
+                        Icons.check_circle_rounded,
+                        color: Colors.green,
+                        size: 24,
+                      ),
                       const SizedBox(width: 10),
                       Text(
                         l10n.phoneVerified,
-                        style: GoogleFonts.poppins(color: Colors.green.shade700, fontWeight: FontWeight.w600),
+                        style: GoogleFonts.poppins(
+                          color: Colors.green.shade700,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ],
                   ),
@@ -1741,7 +2141,7 @@ class _SignupTabContentState extends State<SignupTabContent> {
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF6C63FF).withValues(alpha:0.4),
+                    color: const Color(0xFF6C63FF).withValues(alpha: 0.4),
                     blurRadius: 20,
                     spreadRadius: 2,
                     offset: const Offset(0, 5),
@@ -1766,10 +2166,21 @@ class _SignupTabContentState extends State<SignupTabContent> {
                     ),
                     child: Center(
                       child: _isLoading
-                          ? const SizedBox(height: 24, width: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5))
+                          ? const SizedBox(
+                              height: 24,
+                              width: 24,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2.5,
+                              ),
+                            )
                           : Text(
                               _useEmail ? 'S\'inscrire' : l10n.createMyAccount,
-                              style: GoogleFonts.poppins(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700),
+                              style: GoogleFonts.poppins(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
                     ),
                   ),
@@ -1782,16 +2193,31 @@ class _SignupTabContentState extends State<SignupTabContent> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(l10n.alreadyHaveAccount, style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey.shade600)),
+                Text(
+                  l10n.alreadyHaveAccount,
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    color: Colors.grey.shade600,
+                  ),
+                ),
                 GestureDetector(
                   onTap: () {
-                    if (context.findAncestorStateOfType<_EmailTabContentState>() != null) {
-                      context.findAncestorStateOfType<_EmailTabContentState>()?._emailTabController.animateTo(0);
+                    if (context
+                            .findAncestorStateOfType<_EmailTabContentState>() !=
+                        null) {
+                      context
+                          .findAncestorStateOfType<_EmailTabContentState>()
+                          ?._emailTabController
+                          .animateTo(0);
                     }
                   },
                   child: Text(
                     l10n.login,
-                    style: GoogleFonts.poppins(fontSize: 14, color: const Color(0xFF6C63FF), fontWeight: FontWeight.w700),
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: const Color(0xFF6C63FF),
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
               ],
@@ -1807,19 +2233,19 @@ class _SignupTabContentState extends State<SignupTabContent> {
 class EmailTabContent extends StatefulWidget {
   final ValueChanged<bool> onAuthInProgressChanged;
 
-  const EmailTabContent({
-    super.key,
-    required this.onAuthInProgressChanged,
-  });
+  const EmailTabContent({super.key, required this.onAuthInProgressChanged});
 
   @override
   State<EmailTabContent> createState() => _EmailTabContentState();
 }
 
-class _EmailTabContentState extends State<EmailTabContent> with SingleTickerProviderStateMixin {
+class _EmailTabContentState extends State<EmailTabContent>
+    with SingleTickerProviderStateMixin {
   late TabController _emailTabController;
-  final GlobalKey<_EmailLoginContentState> _loginKey = GlobalKey<_EmailLoginContentState>();
-  final GlobalKey<_EmailSignupContentState> _signupKey = GlobalKey<_EmailSignupContentState>();
+  final GlobalKey<_EmailLoginContentState> _loginKey =
+      GlobalKey<_EmailLoginContentState>();
+  final GlobalKey<_EmailSignupContentState> _signupKey =
+      GlobalKey<_EmailSignupContentState>();
 
   @override
   void initState() {
@@ -1897,10 +2323,7 @@ class _EmailTabContentState extends State<EmailTabContent> with SingleTickerProv
 class EmailLoginContent extends StatefulWidget {
   final ValueChanged<bool> onAuthInProgressChanged;
 
-  const EmailLoginContent({
-    super.key,
-    required this.onAuthInProgressChanged,
-  });
+  const EmailLoginContent({super.key, required this.onAuthInProgressChanged});
 
   @override
   State<EmailLoginContent> createState() => _EmailLoginContentState();
@@ -1934,7 +2357,9 @@ class _EmailLoginContentState extends State<EmailLoginContent> {
       );
 
       if (user != null && mounted) {
-        final userProfile = await UserProfileService().getProfileFresh(user.uid);
+        final userProfile = await UserProfileService().getProfileFresh(
+          user.uid,
+        );
         if (userProfile != null) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -1998,7 +2423,10 @@ class _EmailLoginContentState extends State<EmailLoginContent> {
                 ),
                 Text(
                   'Utilisez votre email et mot de passe',
-                  style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey.shade600),
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    color: Colors.grey.shade600,
+                  ),
                 ),
               ],
             ),
@@ -2008,7 +2436,13 @@ class _EmailLoginContentState extends State<EmailLoginContent> {
             Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
-                boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha:0.1), blurRadius: 15, spreadRadius: 2)],
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withValues(alpha: 0.1),
+                    blurRadius: 15,
+                    spreadRadius: 2,
+                  ),
+                ],
               ),
               child: TextFormField(
                 controller: _emailController,
@@ -2019,16 +2453,27 @@ class _EmailLoginContentState extends State<EmailLoginContent> {
                   hintStyle: GoogleFonts.poppins(color: Colors.grey.shade400),
                   prefixIcon: Container(
                     margin: const EdgeInsets.all(12),
-                    child: const Icon(Icons.email_rounded, color: Color(0xFF6C63FF), size: 22),
+                    child: const Icon(
+                      Icons.email_rounded,
+                      color: Color(0xFF6C63FF),
+                      size: 22,
+                    ),
                   ),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide.none,
+                  ),
                   filled: true,
                   fillColor: Colors.white,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+                  contentPadding: const EdgeInsets.symmetric(
+                    vertical: 18,
+                    horizontal: 20,
+                  ),
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) return 'Email requis';
-                  if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) return 'Email invalide';
+                  if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value))
+                    return 'Email invalide';
                   return null;
                 },
               ),
@@ -2039,7 +2484,13 @@ class _EmailLoginContentState extends State<EmailLoginContent> {
             Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
-                boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha:0.1), blurRadius: 15, spreadRadius: 2)],
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withValues(alpha: 0.1),
+                    blurRadius: 15,
+                    spreadRadius: 2,
+                  ),
+                ],
               ),
               child: TextFormField(
                 controller: _passwordController,
@@ -2050,22 +2501,36 @@ class _EmailLoginContentState extends State<EmailLoginContent> {
                   hintStyle: GoogleFonts.poppins(color: Colors.grey.shade400),
                   prefixIcon: Container(
                     margin: const EdgeInsets.all(12),
-                    child: const Icon(Icons.lock_rounded, color: Color(0xFF6C63FF), size: 22),
+                    child: const Icon(
+                      Icons.lock_rounded,
+                      color: Color(0xFF6C63FF),
+                      size: 22,
+                    ),
                   ),
                   suffixIcon: IconButton(
                     icon: Icon(
-                      _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                      _obscurePassword
+                          ? Icons.visibility_off
+                          : Icons.visibility,
                       color: Colors.grey.shade400,
                     ),
-                    onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                    onPressed: () =>
+                        setState(() => _obscurePassword = !_obscurePassword),
                   ),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide.none,
+                  ),
                   filled: true,
                   fillColor: Colors.white,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+                  contentPadding: const EdgeInsets.symmetric(
+                    vertical: 18,
+                    horizontal: 20,
+                  ),
                 ),
                 validator: (value) {
-                  if (value == null || value.isEmpty) return 'Mot de passe requis';
+                  if (value == null || value.isEmpty)
+                    return 'Mot de passe requis';
                   if (value.length < 6) return 'Minimum 6 caractères';
                   return null;
                 },
@@ -2088,7 +2553,9 @@ class _EmailLoginContentState extends State<EmailLoginContent> {
                     return;
                   }
                   try {
-                    await _authService.resetPassword(_emailController.text.trim());
+                    await _authService.resetPassword(
+                      _emailController.text.trim(),
+                    );
                     if (mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
@@ -2110,7 +2577,10 @@ class _EmailLoginContentState extends State<EmailLoginContent> {
                 },
                 child: Text(
                   'Mot de passe oublié ?',
-                  style: GoogleFonts.poppins(color: const Color(0xFF6C63FF), fontWeight: FontWeight.w600),
+                  style: GoogleFonts.poppins(
+                    color: const Color(0xFF6C63FF),
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ),
@@ -2122,7 +2592,7 @@ class _EmailLoginContentState extends State<EmailLoginContent> {
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF6C63FF).withValues(alpha:0.4),
+                    color: const Color(0xFF6C63FF).withValues(alpha: 0.4),
                     blurRadius: 20,
                     spreadRadius: 2,
                     offset: const Offset(0, 5),
@@ -2147,10 +2617,21 @@ class _EmailLoginContentState extends State<EmailLoginContent> {
                     ),
                     child: Center(
                       child: _isLoading
-                          ? const SizedBox(height: 24, width: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5))
+                          ? const SizedBox(
+                              height: 24,
+                              width: 24,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2.5,
+                              ),
+                            )
                           : Text(
                               'Se connecter',
-                              style: GoogleFonts.poppins(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700),
+                              style: GoogleFonts.poppins(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
                     ),
                   ),
@@ -2163,16 +2644,30 @@ class _EmailLoginContentState extends State<EmailLoginContent> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text('Pas de compte ? ', style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey.shade600)),
+                Text(
+                  'Pas de compte ? ',
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    color: Colors.grey.shade600,
+                  ),
+                ),
                 GestureDetector(
                   onTap: () {
-                    if (context.findAncestorStateOfType<LoginPageState>() != null) {
-                      context.findAncestorStateOfType<LoginPageState>()?._tabController.animateTo(1);
+                    if (context.findAncestorStateOfType<LoginPageState>() !=
+                        null) {
+                      context
+                          .findAncestorStateOfType<LoginPageState>()
+                          ?._tabController
+                          .animateTo(1);
                     }
                   },
                   child: Text(
                     'S\'inscrire',
-                    style: GoogleFonts.poppins(fontSize: 14, color: const Color(0xFF6C63FF), fontWeight: FontWeight.w700),
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: const Color(0xFF6C63FF),
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
               ],
@@ -2206,7 +2701,8 @@ class _EmailSignupContentState extends State<EmailSignupContent> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
   final AuthService _authService = AuthService();
   final ErrorHandlerService _errorHandler = ErrorHandlerService();
 
@@ -2237,7 +2733,9 @@ class _EmailSignupContentState extends State<EmailSignupContent> {
 
     _setAuthInProgress(true);
     try {
-      final fullName = '${_firstNameController.text.trim()} ${_nameController.text.trim()}'.trim();
+      final fullName =
+          '${_firstNameController.text.trim()} ${_nameController.text.trim()}'
+              .trim();
       final user = await _authService.signUpWithEmail(
         name: fullName,
         email: _emailController.text.trim(),
@@ -2248,7 +2746,9 @@ class _EmailSignupContentState extends State<EmailSignupContent> {
       if (user != null && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Inscription réussie ! Vérifiez votre email pour confirmer votre compte.\nN\'oubliez pas de vérifier vos spams.'),
+            content: Text(
+              'Inscription réussie ! Vérifiez votre email pour confirmer votre compte.\nN\'oubliez pas de vérifier vos spams.',
+            ),
             backgroundColor: Colors.green,
           ),
         );
@@ -2305,7 +2805,10 @@ class _EmailSignupContentState extends State<EmailSignupContent> {
                 ),
                 Text(
                   'Créez votre compte avec email et mot de passe',
-                  style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey.shade600),
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    color: Colors.grey.shade600,
+                  ),
                 ),
               ],
             ),
@@ -2315,7 +2818,13 @@ class _EmailSignupContentState extends State<EmailSignupContent> {
             Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
-                boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha:0.1), blurRadius: 15, spreadRadius: 2)],
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withValues(alpha: 0.1),
+                    blurRadius: 15,
+                    spreadRadius: 2,
+                  ),
+                ],
               ),
               child: TextFormField(
                 controller: _firstNameController,
@@ -2325,14 +2834,25 @@ class _EmailSignupContentState extends State<EmailSignupContent> {
                   hintStyle: GoogleFonts.poppins(color: Colors.grey.shade400),
                   prefixIcon: Container(
                     margin: const EdgeInsets.all(12),
-                    child: const Icon(Icons.person_outline_rounded, color: Color(0xFF6C63FF), size: 22),
+                    child: const Icon(
+                      Icons.person_outline_rounded,
+                      color: Color(0xFF6C63FF),
+                      size: 22,
+                    ),
                   ),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide.none,
+                  ),
                   filled: true,
                   fillColor: Colors.white,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+                  contentPadding: const EdgeInsets.symmetric(
+                    vertical: 18,
+                    horizontal: 20,
+                  ),
                 ),
-                validator: (value) => value == null || value.isEmpty ? 'Prénom requis' : null,
+                validator: (value) =>
+                    value == null || value.isEmpty ? 'Prénom requis' : null,
               ),
             ),
             const SizedBox(height: 20),
@@ -2341,7 +2861,13 @@ class _EmailSignupContentState extends State<EmailSignupContent> {
             Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
-                boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha:0.1), blurRadius: 15, spreadRadius: 2)],
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withValues(alpha: 0.1),
+                    blurRadius: 15,
+                    spreadRadius: 2,
+                  ),
+                ],
               ),
               child: TextFormField(
                 controller: _nameController,
@@ -2351,14 +2877,25 @@ class _EmailSignupContentState extends State<EmailSignupContent> {
                   hintStyle: GoogleFonts.poppins(color: Colors.grey.shade400),
                   prefixIcon: Container(
                     margin: const EdgeInsets.all(12),
-                    child: const Icon(Icons.person_outline_rounded, color: Color(0xFF6C63FF), size: 22),
+                    child: const Icon(
+                      Icons.person_outline_rounded,
+                      color: Color(0xFF6C63FF),
+                      size: 22,
+                    ),
                   ),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide.none,
+                  ),
                   filled: true,
                   fillColor: Colors.white,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+                  contentPadding: const EdgeInsets.symmetric(
+                    vertical: 18,
+                    horizontal: 20,
+                  ),
                 ),
-                validator: (value) => value == null || value.isEmpty ? 'Nom requis' : null,
+                validator: (value) =>
+                    value == null || value.isEmpty ? 'Nom requis' : null,
               ),
             ),
             const SizedBox(height: 20),
@@ -2367,7 +2904,13 @@ class _EmailSignupContentState extends State<EmailSignupContent> {
             Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
-                boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha:0.1), blurRadius: 15, spreadRadius: 2)],
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withValues(alpha: 0.1),
+                    blurRadius: 15,
+                    spreadRadius: 2,
+                  ),
+                ],
               ),
               child: TextFormField(
                 controller: _emailController,
@@ -2378,16 +2921,27 @@ class _EmailSignupContentState extends State<EmailSignupContent> {
                   hintStyle: GoogleFonts.poppins(color: Colors.grey.shade400),
                   prefixIcon: Container(
                     margin: const EdgeInsets.all(12),
-                    child: const Icon(Icons.email_rounded, color: Color(0xFF6C63FF), size: 22),
+                    child: const Icon(
+                      Icons.email_rounded,
+                      color: Color(0xFF6C63FF),
+                      size: 22,
+                    ),
                   ),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide.none,
+                  ),
                   filled: true,
                   fillColor: Colors.white,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+                  contentPadding: const EdgeInsets.symmetric(
+                    vertical: 18,
+                    horizontal: 20,
+                  ),
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) return 'Email requis';
-                  if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) return 'Email invalide';
+                  if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value))
+                    return 'Email invalide';
                   return null;
                 },
               ),
@@ -2398,7 +2952,13 @@ class _EmailSignupContentState extends State<EmailSignupContent> {
             Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
-                boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha:0.1), blurRadius: 15, spreadRadius: 2)],
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withValues(alpha: 0.1),
+                    blurRadius: 15,
+                    spreadRadius: 2,
+                  ),
+                ],
               ),
               child: IntlPhoneField(
                 controller: _phoneController,
@@ -2406,15 +2966,23 @@ class _EmailSignupContentState extends State<EmailSignupContent> {
                 decoration: InputDecoration(
                   hintText: l10n.phoneHint,
                   hintStyle: GoogleFonts.poppins(color: Colors.grey.shade400),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide.none,
+                  ),
                   filled: true,
                   fillColor: Colors.white,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+                  contentPadding: const EdgeInsets.symmetric(
+                    vertical: 18,
+                    horizontal: 20,
+                  ),
                 ),
                 initialCountryCode: 'CM',
-                onChanged: (phone) => _completePhoneNumber = phone.completeNumber,
+                onChanged: (phone) =>
+                    _completePhoneNumber = phone.completeNumber,
                 validator: (value) {
-                  if (value == null || value.number.isEmpty) return 'Téléphone requis';
+                  if (value == null || value.number.isEmpty)
+                    return 'Téléphone requis';
                   if (value.number.length < 8) return 'Numéro invalide';
                   return null;
                 },
@@ -2426,7 +2994,13 @@ class _EmailSignupContentState extends State<EmailSignupContent> {
             Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
-                boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha:0.1), blurRadius: 15, spreadRadius: 2)],
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withValues(alpha: 0.1),
+                    blurRadius: 15,
+                    spreadRadius: 2,
+                  ),
+                ],
               ),
               child: TextFormField(
                 controller: _passwordController,
@@ -2437,22 +3011,36 @@ class _EmailSignupContentState extends State<EmailSignupContent> {
                   hintStyle: GoogleFonts.poppins(color: Colors.grey.shade400),
                   prefixIcon: Container(
                     margin: const EdgeInsets.all(12),
-                    child: const Icon(Icons.lock_rounded, color: Color(0xFF6C63FF), size: 22),
+                    child: const Icon(
+                      Icons.lock_rounded,
+                      color: Color(0xFF6C63FF),
+                      size: 22,
+                    ),
                   ),
                   suffixIcon: IconButton(
                     icon: Icon(
-                      _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                      _obscurePassword
+                          ? Icons.visibility_off
+                          : Icons.visibility,
                       color: Colors.grey.shade400,
                     ),
-                    onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
+                    onPressed: () =>
+                        setState(() => _obscurePassword = !_obscurePassword),
                   ),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide.none,
+                  ),
                   filled: true,
                   fillColor: Colors.white,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+                  contentPadding: const EdgeInsets.symmetric(
+                    vertical: 18,
+                    horizontal: 20,
+                  ),
                 ),
                 validator: (value) {
-                  if (value == null || value.isEmpty) return 'Mot de passe requis';
+                  if (value == null || value.isEmpty)
+                    return 'Mot de passe requis';
                   if (value.length < 6) return 'Minimum 6 caractères';
                   return null;
                 },
@@ -2464,7 +3052,13 @@ class _EmailSignupContentState extends State<EmailSignupContent> {
             Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
-                boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha:0.1), blurRadius: 15, spreadRadius: 2)],
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withValues(alpha: 0.1),
+                    blurRadius: 15,
+                    spreadRadius: 2,
+                  ),
+                ],
               ),
               child: TextFormField(
                 controller: _confirmPasswordController,
@@ -2475,23 +3069,39 @@ class _EmailSignupContentState extends State<EmailSignupContent> {
                   hintStyle: GoogleFonts.poppins(color: Colors.grey.shade400),
                   prefixIcon: Container(
                     margin: const EdgeInsets.all(12),
-                    child: const Icon(Icons.lock_rounded, color: Color(0xFF6C63FF), size: 22),
+                    child: const Icon(
+                      Icons.lock_rounded,
+                      color: Color(0xFF6C63FF),
+                      size: 22,
+                    ),
                   ),
                   suffixIcon: IconButton(
                     icon: Icon(
-                      _obscureConfirmPassword ? Icons.visibility_off : Icons.visibility,
+                      _obscureConfirmPassword
+                          ? Icons.visibility_off
+                          : Icons.visibility,
                       color: Colors.grey.shade400,
                     ),
-                    onPressed: () => setState(() => _obscureConfirmPassword = !_obscureConfirmPassword),
+                    onPressed: () => setState(
+                      () => _obscureConfirmPassword = !_obscureConfirmPassword,
+                    ),
                   ),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide.none,
+                  ),
                   filled: true,
                   fillColor: Colors.white,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+                  contentPadding: const EdgeInsets.symmetric(
+                    vertical: 18,
+                    horizontal: 20,
+                  ),
                 ),
                 validator: (value) {
-                  if (value == null || value.isEmpty) return 'Confirmation requise';
-                  if (value != _passwordController.text) return 'Les mots de passe ne correspondent pas';
+                  if (value == null || value.isEmpty)
+                    return 'Confirmation requise';
+                  if (value != _passwordController.text)
+                    return 'Les mots de passe ne correspondent pas';
                   return null;
                 },
               ),
@@ -2504,7 +3114,7 @@ class _EmailSignupContentState extends State<EmailSignupContent> {
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF6C63FF).withValues(alpha:0.4),
+                    color: const Color(0xFF6C63FF).withValues(alpha: 0.4),
                     blurRadius: 20,
                     spreadRadius: 2,
                     offset: const Offset(0, 5),
@@ -2529,10 +3139,21 @@ class _EmailSignupContentState extends State<EmailSignupContent> {
                     ),
                     child: Center(
                       child: _isLoading
-                          ? const SizedBox(height: 24, width: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5))
+                          ? const SizedBox(
+                              height: 24,
+                              width: 24,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2.5,
+                              ),
+                            )
                           : Text(
                               'S\'inscrire',
-                              style: GoogleFonts.poppins(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700),
+                              style: GoogleFonts.poppins(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
                     ),
                   ),
@@ -2545,12 +3166,22 @@ class _EmailSignupContentState extends State<EmailSignupContent> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text('Déjà un compte ? ', style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey.shade600)),
+                Text(
+                  'Déjà un compte ? ',
+                  style: GoogleFonts.poppins(
+                    fontSize: 14,
+                    color: Colors.grey.shade600,
+                  ),
+                ),
                 GestureDetector(
                   onTap: () => widget.onTabChanged(0),
                   child: Text(
                     'Se connecter',
-                    style: GoogleFonts.poppins(fontSize: 14, color: const Color(0xFF6C63FF), fontWeight: FontWeight.w700),
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: const Color(0xFF6C63FF),
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
               ],

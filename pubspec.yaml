@@ -31,11 +31,24 @@ dependencies:
   # Géolocalisation & Cartes
   geolocator: ^13.0.1
   geocoding: ^3.0.0
-  flutter_map: ^7.0.2
-  latlong2: ^0.9.0
+  # Carte de l'écran A4 de la V2 (sélection d'adresses, seul écran à carte —
+  # règle n°11). Affichage mobile gratuit et illimité **sans Map ID** : ne
+  # jamais passer `cloudMapId`, qui ferait basculer sur un quota limité.
+  google_maps_flutter: ^2.9.0
+  # `flutter_map` et `latlong2` restent pour la **V1 encore publiée**, qui a
+  # ses propres cartes OSM (`lib/screens/`) : admin, panneau collaborateur,
+  # détail de course, sélecteur de position. À retirer à la bascule vers la
+  # V2, pas avant — `test/features/client/map_scope_test.dart` garantit déjà
+  # qu'aucun écran V2 ne les importe.
+  flutter_map: ^8.3.2
+  latlong2: ^0.10.1
 
   # Réseau
   http: ^1.2.0
+  # Type MediaType des envois multipart (POST /v1/orders/, preuves de course).
+  # Déjà résolu en transitif par `http` ; déclaré explicitement car importé
+  # directement dans lib/core/api/api_client.dart.
+  http_parser: ^4.1.2
 
   # Charts
   fl_chart: ^1.1.1               # ← version originale
@@ -67,6 +80,7 @@ dependencies:
   pinput: ^6.0.2
 
   cupertino_icons: ^1.0.8
+  animations: ^3.0.0
 
 dev_dependencies:
   flutter_test:
@@ -83,6 +97,20 @@ flutter:
   uses-material-design: true
   assets:
     - assets/
+  # Icônes Phosphor (MIT, voir assets/fonts/phosphor/LICENSE) embarquées
+  # directement : le paquet `phosphor_flutter` n'est plus maintenu et ne
+  # compile plus depuis que `IconData` est une classe `final`. Élaguées au
+  # build release comme toute police d'icônes. Voir lib/core/theme/app_icons.dart.
+  fonts:
+    - family: PhosphorRegular
+      fonts:
+        - asset: assets/fonts/phosphor/Phosphor-Regular.ttf
+    - family: PhosphorFill
+      fonts:
+        - asset: assets/fonts/phosphor/Phosphor-Fill.ttf
+    - family: PhosphorBold
+      fonts:
+        - asset: assets/fonts/phosphor/Phosphor-Bold.ttf
 
 flutter_launcher_icons:
   android: true

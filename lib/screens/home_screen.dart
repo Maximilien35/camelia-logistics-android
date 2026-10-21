@@ -56,7 +56,8 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    if (l10n == null) return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    if (l10n == null)
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
 
     final screenHeight = MediaQuery.of(context).size.height;
     final isSmallScreen = MediaQuery.of(context).size.width < 380;
@@ -67,10 +68,10 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           PageView.builder(
             controller: _pageController,
-            physics: const BouncingScrollPhysics(), 
+            physics: const BouncingScrollPhysics(),
             onPageChanged: (index) {
               setState(() => _currentPage = index);
-              _startAutoPlay(); 
+              _startAutoPlay();
             },
             itemCount: _services.length,
             itemBuilder: (context, index) {
@@ -81,7 +82,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 height: double.infinity,
                 color: Colors.black.withValues(alpha: 0.3),
                 colorBlendMode: BlendMode.darken,
-                errorBuilder: (context, error, stackTrace) => Container(color: Colors.grey[900]),
+                errorBuilder: (context, error, stackTrace) =>
+                    Container(color: Colors.grey[900]),
               );
             },
           ),
@@ -110,7 +112,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
           SafeArea(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 24.0,
+                vertical: 20.0,
+              ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.end,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -144,7 +149,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   const SizedBox(height: 32),
 
                   _buildPrimaryButton(l10n, isSmallScreen, context),
-                  
+
                   const SizedBox(height: 24),
 
                   _buildPageIndicators(),
@@ -187,14 +192,20 @@ class _HomeScreenState extends State<HomeScreen> {
       children: List.generate(_services.length, (index) {
         bool isActive = _currentPage == index;
         return GestureDetector(
-          onTap: () => _pageController.animateToPage(index, duration: const Duration(milliseconds: 500), curve: Curves.easeInOut),
+          onTap: () => _pageController.animateToPage(
+            index,
+            duration: const Duration(milliseconds: 500),
+            curve: Curves.easeInOut,
+          ),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 300),
             margin: const EdgeInsets.symmetric(horizontal: 4),
             width: isActive ? 28 : 8,
             height: 4,
             decoration: BoxDecoration(
-              color: isActive ? primaryColor : Colors.white.withValues(alpha: 0.3),
+              color: isActive
+                  ? primaryColor
+                  : Colors.white.withValues(alpha: 0.3),
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -203,14 +214,22 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildPrimaryButton(AppLocalizations l10n, bool isSmallScreen, BuildContext context) {
+  Widget _buildPrimaryButton(
+    AppLocalizations l10n,
+    bool isSmallScreen,
+    BuildContext context,
+  ) {
     return Container(
       height: 64,
       decoration: BoxDecoration(
         color: primaryColor,
         borderRadius: BorderRadius.circular(32),
         boxShadow: [
-          BoxShadow(color: primaryColor.withValues(alpha: 0.3), blurRadius: 20, offset: const Offset(0, 10)),
+          BoxShadow(
+            color: primaryColor.withValues(alpha: 0.3),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
         ],
       ),
       child: Material(
@@ -225,8 +244,15 @@ class _HomeScreenState extends State<HomeScreen> {
                 Container(
                   width: 48,
                   height: 48,
-                  decoration: const BoxDecoration(color: Colors.white24, shape: BoxShape.circle),
-                  child: const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white, size: 18),
+                  decoration: const BoxDecoration(
+                    color: Colors.white24,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.arrow_forward_ios_rounded,
+                    color: Colors.white,
+                    size: 18,
+                  ),
                 ),
                 Expanded(
                   child: Center(
@@ -240,7 +266,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(width: 48), 
+                const SizedBox(width: 48),
               ],
             ),
           ),

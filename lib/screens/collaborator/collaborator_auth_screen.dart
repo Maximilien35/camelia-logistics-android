@@ -72,12 +72,7 @@ class _CollaboratorAuthScreenState extends State<CollaboratorAuthScreen> {
           children: [
             const Icon(Icons.error_outline_rounded, color: Colors.white),
             const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                message,
-                style: GoogleFonts.poppins(),
-              ),
-            ),
+            Expanded(child: Text(message, style: GoogleFonts.poppins())),
           ],
         ),
         backgroundColor: Colors.red.shade600,
@@ -158,7 +153,9 @@ class _CollaboratorAuthScreenState extends State<CollaboratorAuthScreen> {
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide(color: primaryColor, width: 2),
                         ),
-                        contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                        contentPadding: const EdgeInsets.symmetric(
+                          vertical: 14,
+                        ),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -180,7 +177,10 @@ class _CollaboratorAuthScreenState extends State<CollaboratorAuthScreen> {
                             onCompleted: (_) => _submitLogin(),
                           ),
                           const SizedBox(height: 8),
-                          Text('Entrez le code envoyé par SMS', style: GoogleFonts.poppins(fontSize: 12)),
+                          Text(
+                            'Entrez le code envoyé par SMS',
+                            style: GoogleFonts.poppins(fontSize: 12),
+                          ),
                         ],
                       ),
                     const SizedBox(height: 32),
@@ -226,9 +226,11 @@ class _CollaboratorAuthScreenState extends State<CollaboratorAuthScreen> {
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: primaryColor.withValues(alpha:0.05),
+                  color: primaryColor.withValues(alpha: 0.05),
                   borderRadius: BorderRadius.circular(18),
-                  border: Border.all(color: primaryColor.withValues(alpha:0.1)),
+                  border: Border.all(
+                    color: primaryColor.withValues(alpha: 0.1),
+                  ),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

@@ -9,10 +9,7 @@ import '/l10n/app_localizations.dart';
 class DeliveryFormWidget extends StatefulWidget {
   final VoidCallback onProceed;
 
-  const DeliveryFormWidget({
-    required this.onProceed,
-    super.key,
-  });
+  const DeliveryFormWidget({required this.onProceed, super.key});
 
   @override
   State<DeliveryFormWidget> createState() => _DeliveryFormWidgetState();
@@ -43,7 +40,9 @@ class _DeliveryFormWidgetState extends State<DeliveryFormWidget> {
 
   void _pickAndAddPhoto() async {
     final ImagePicker picker = ImagePicker();
-    final XFile? pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    final XFile? pickedFile = await picker.pickImage(
+      source: ImageSource.gallery,
+    );
     if (pickedFile != null) {
       final File imageFile = File(pickedFile.path);
       final orderState = Provider.of<OrderStateModel>(context, listen: false);
@@ -71,17 +70,30 @@ class _DeliveryFormWidgetState extends State<DeliveryFormWidget> {
               right: 6,
               child: GestureDetector(
                 onTap: () {
-                  final orderState = Provider.of<OrderStateModel>(context, listen: false);
+                  final orderState = Provider.of<OrderStateModel>(
+                    context,
+                    listen: false,
+                  );
                   orderState.removePhoto(file);
                 },
                 child: Container(
                   decoration: const BoxDecoration(
                     color: Colors.redAccent,
                     shape: BoxShape.circle,
-                    boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2))],
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 4,
+                        offset: Offset(0, 2),
+                      ),
+                    ],
                   ),
                   padding: const EdgeInsets.all(4),
-                  child: const Icon(Icons.close_rounded, size: 14, color: Colors.white),
+                  child: const Icon(
+                    Icons.close_rounded,
+                    size: 14,
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ),
@@ -123,7 +135,11 @@ class _DeliveryFormWidgetState extends State<DeliveryFormWidget> {
                     color: Colors.white.withValues(alpha: 0.18),
                     borderRadius: BorderRadius.circular(16),
                   ),
-                  child: const Icon(Icons.delivery_dining_rounded, color: Colors.white, size: 28),
+                  child: const Icon(
+                    Icons.delivery_dining_rounded,
+                    color: Colors.white,
+                    size: 28,
+                  ),
                 ),
                 const SizedBox(height: 18),
                 Text(
@@ -155,18 +171,25 @@ class _DeliveryFormWidgetState extends State<DeliveryFormWidget> {
             child: Consumer<OrderStateModel>(
               builder: (context, orderState, child) {
                 final hasPhotos = orderState.selectedFiles.isNotEmpty;
-                final hasPackage = orderState.packageNature?.isNotEmpty ?? false;
+                final hasPackage =
+                    orderState.packageNature?.isNotEmpty ?? false;
                 final isValid = hasPhotos && hasPackage;
 
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // ── Photos ───────────────────────────────────
-                    _buildSectionLabel(l10n.photosRequired, Icons.photo_camera_rounded),
+                    _buildSectionLabel(
+                      l10n.photosRequired,
+                      Icons.photo_camera_rounded,
+                    ),
                     const SizedBox(height: 4),
                     Text(
                       l10n.photosRequiredHint,
-                      style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey.shade500),
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        color: Colors.grey.shade500,
+                      ),
                     ),
                     const SizedBox(height: 12),
                     if (hasPhotos)
@@ -174,36 +197,71 @@ class _DeliveryFormWidgetState extends State<DeliveryFormWidget> {
                     else
                       _buildPhotoPlaceholder(onTap: _pickAndAddPhoto),
                     const SizedBox(height: 12),
-                    _buildOutlinedPhotoButton(label: l10n.takeOrChoosePhoto, onTap: _pickAndAddPhoto),
+                    _buildOutlinedPhotoButton(
+                      label: l10n.takeOrChoosePhoto,
+                      onTap: _pickAndAddPhoto,
+                    ),
                     const SizedBox(height: 24),
 
                     // ── Package type ─────────────────────────────
-                    _buildSectionLabel(l10n.packageType, Icons.category_rounded),
+                    _buildSectionLabel(
+                      l10n.packageType,
+                      Icons.category_rounded,
+                    ),
                     const SizedBox(height: 4),
                     Text(
                       l10n.selectPackageTypeHint,
-                      style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey.shade500),
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        color: Colors.grey.shade500,
+                      ),
                     ),
                     const SizedBox(height: 14),
                     Wrap(
                       spacing: 10,
                       runSpacing: 10,
                       children: [
-                        _buildPackageTypeChip(l10n.goods, Icons.local_shipping_rounded, orderState.packageNature),
-                        _buildPackageTypeChip(l10n.electronics, Icons.laptop_mac_rounded, orderState.packageNature),
-                        _buildPackageTypeChip(l10n.food, Icons.restaurant_rounded, orderState.packageNature),
-                        _buildPackageTypeChip(l10n.fragile, Icons.warning_rounded, orderState.packageNature),
-                        _buildPackageTypeChip(l10n.other, Icons.more_horiz_rounded, orderState.packageNature),
+                        _buildPackageTypeChip(
+                          l10n.goods,
+                          Icons.local_shipping_rounded,
+                          orderState.packageNature,
+                        ),
+                        _buildPackageTypeChip(
+                          l10n.electronics,
+                          Icons.laptop_mac_rounded,
+                          orderState.packageNature,
+                        ),
+                        _buildPackageTypeChip(
+                          l10n.food,
+                          Icons.restaurant_rounded,
+                          orderState.packageNature,
+                        ),
+                        _buildPackageTypeChip(
+                          l10n.fragile,
+                          Icons.warning_rounded,
+                          orderState.packageNature,
+                        ),
+                        _buildPackageTypeChip(
+                          l10n.other,
+                          Icons.more_horiz_rounded,
+                          orderState.packageNature,
+                        ),
                       ],
                     ),
                     const SizedBox(height: 24),
 
                     // ── Description ──────────────────────────────
-                    _buildSectionLabel(l10n.descriptionOptional, Icons.notes_rounded),
+                    _buildSectionLabel(
+                      l10n.descriptionOptional,
+                      Icons.notes_rounded,
+                    ),
                     const SizedBox(height: 4),
                     Text(
                       l10n.describeYourPackageHint,
-                      style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey.shade500),
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        color: Colors.grey.shade500,
+                      ),
                     ),
                     const SizedBox(height: 12),
                     _buildCard(
@@ -212,11 +270,17 @@ class _DeliveryFormWidgetState extends State<DeliveryFormWidget> {
                         maxLines: 3,
                         decoration: InputDecoration(
                           hintText: l10n.specialInstructionsHint,
-                          hintStyle: GoogleFonts.poppins(color: Colors.grey.shade400, fontSize: 13),
+                          hintStyle: GoogleFonts.poppins(
+                            color: Colors.grey.shade400,
+                            fontSize: 13,
+                          ),
                           border: InputBorder.none,
                           contentPadding: EdgeInsets.zero,
                         ),
-                        style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey.shade800),
+                        style: GoogleFonts.poppins(
+                          fontSize: 14,
+                          color: Colors.grey.shade800,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 32),
@@ -233,7 +297,11 @@ class _DeliveryFormWidgetState extends State<DeliveryFormWidget> {
     );
   }
 
-  Widget _buildPackageTypeChip(String label, IconData icon, String? currentSelection) {
+  Widget _buildPackageTypeChip(
+    String label,
+    IconData icon,
+    String? currentSelection,
+  ) {
     final isSelected = currentSelection == label;
     return GestureDetector(
       onTap: () {
@@ -246,7 +314,11 @@ class _DeliveryFormWidgetState extends State<DeliveryFormWidget> {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
           gradient: isSelected
-              ? const LinearGradient(colors: [_primary, Color(0xFF8B85FF)], begin: Alignment.topLeft, end: Alignment.bottomRight)
+              ? const LinearGradient(
+                  colors: [_primary, Color(0xFF8B85FF)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                )
               : null,
           color: isSelected ? null : Colors.white,
           borderRadius: BorderRadius.circular(30),
@@ -256,7 +328,9 @@ class _DeliveryFormWidgetState extends State<DeliveryFormWidget> {
           ),
           boxShadow: [
             BoxShadow(
-              color: isSelected ? _primary.withValues(alpha: 0.25) : Colors.black.withValues(alpha: 0.04),
+              color: isSelected
+                  ? _primary.withValues(alpha: 0.25)
+                  : Colors.black.withValues(alpha: 0.04),
               blurRadius: isSelected ? 12 : 6,
               offset: const Offset(0, 3),
             ),
@@ -265,7 +339,11 @@ class _DeliveryFormWidgetState extends State<DeliveryFormWidget> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 16, color: isSelected ? Colors.white : Colors.grey.shade600),
+            Icon(
+              icon,
+              size: 16,
+              color: isSelected ? Colors.white : Colors.grey.shade600,
+            ),
             const SizedBox(width: 7),
             Text(
               label,
@@ -318,8 +396,16 @@ class _DeliveryFormWidgetState extends State<DeliveryFormWidget> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
-          BoxShadow(color: _primary.withValues(alpha: 0.07), blurRadius: 18, offset: const Offset(0, 4)),
-          BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8, offset: const Offset(0, 2)),
+          BoxShadow(
+            color: _primary.withValues(alpha: 0.07),
+            blurRadius: 18,
+            offset: const Offset(0, 4),
+          ),
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
         ],
       ),
       child: child,
@@ -334,27 +420,53 @@ class _DeliveryFormWidgetState extends State<DeliveryFormWidget> {
         decoration: BoxDecoration(
           color: const Color(0xFFF7F6FF),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: _primary.withValues(alpha: 0.2), width: 1.5),
+          border: Border.all(
+            color: _primary.withValues(alpha: 0.2),
+            width: 1.5,
+          ),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
               padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(color: _primary.withValues(alpha: 0.08), shape: BoxShape.circle),
-              child: const Icon(Icons.camera_alt_rounded, size: 32, color: _primary),
+              decoration: BoxDecoration(
+                color: _primary.withValues(alpha: 0.08),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.camera_alt_rounded,
+                size: 32,
+                color: _primary,
+              ),
             ),
             const SizedBox(height: 10),
-            Text('Ajouter une photo du colis', style: GoogleFonts.poppins(fontSize: 13, color: _primary, fontWeight: FontWeight.w600)),
+            Text(
+              'Ajouter une photo du colis',
+              style: GoogleFonts.poppins(
+                fontSize: 13,
+                color: _primary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
             const SizedBox(height: 4),
-            Text('Obligatoire', style: GoogleFonts.poppins(fontSize: 11, color: Colors.grey.shade400)),
+            Text(
+              'Obligatoire',
+              style: GoogleFonts.poppins(
+                fontSize: 11,
+                color: Colors.grey.shade400,
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildOutlinedPhotoButton({required String label, required VoidCallback onTap}) {
+  Widget _buildOutlinedPhotoButton({
+    required String label,
+    required VoidCallback onTap,
+  }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -363,15 +475,31 @@ class _DeliveryFormWidgetState extends State<DeliveryFormWidget> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: _primary.withValues(alpha: 0.35), width: 1.5),
-          boxShadow: [BoxShadow(color: _primary.withValues(alpha: 0.06), blurRadius: 8, offset: const Offset(0, 2))],
+          border: Border.all(
+            color: _primary.withValues(alpha: 0.35),
+            width: 1.5,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: _primary.withValues(alpha: 0.06),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Icon(Icons.add_a_photo_rounded, color: _primary, size: 20),
             const SizedBox(width: 8),
-            Text(label, style: GoogleFonts.poppins(color: _primary, fontWeight: FontWeight.w600, fontSize: 14)),
+            Text(
+              label,
+              style: GoogleFonts.poppins(
+                color: _primary,
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
+              ),
+            ),
           ],
         ),
       ),
@@ -387,12 +515,22 @@ class _DeliveryFormWidgetState extends State<DeliveryFormWidget> {
         padding: const EdgeInsets.symmetric(vertical: 17),
         decoration: BoxDecoration(
           gradient: isValid
-              ? const LinearGradient(colors: [_secondary, _primary], begin: Alignment.centerLeft, end: Alignment.centerRight)
+              ? const LinearGradient(
+                  colors: [_secondary, _primary],
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                )
               : null,
           color: isValid ? null : const Color(0xFFE8E8E8),
           borderRadius: BorderRadius.circular(16),
           boxShadow: isValid
-              ? [BoxShadow(color: _primary.withValues(alpha: 0.38), blurRadius: 22, offset: const Offset(0, 8))]
+              ? [
+                  BoxShadow(
+                    color: _primary.withValues(alpha: 0.38),
+                    blurRadius: 22,
+                    offset: const Offset(0, 8),
+                  ),
+                ]
               : [],
         ),
         child: Row(
@@ -409,7 +547,11 @@ class _DeliveryFormWidgetState extends State<DeliveryFormWidget> {
             ),
             if (isValid) ...[
               const SizedBox(width: 8),
-              const Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 18),
+              const Icon(
+                Icons.arrow_forward_rounded,
+                color: Colors.white,
+                size: 18,
+              ),
             ],
           ],
         ),

@@ -89,9 +89,9 @@ class PartnerService {
   /// Retourne la nouvelle clé API en clair : à afficher UNE SEULE FOIS à l'admin.
   Future<String> rotateApiKey(String partnerId) async {
     try {
-      final result = await _functions
-          .httpsCallable('rotatePartnerApiKey')
-          .call({'partnerId': partnerId});
+      final result = await _functions.httpsCallable('rotatePartnerApiKey').call(
+        {'partnerId': partnerId},
+      );
       return result.data['apiKey'] as String;
     } on FirebaseFunctionsException catch (e) {
       throw Exception(_errorHandler.handleCloudFunctionsError(e));

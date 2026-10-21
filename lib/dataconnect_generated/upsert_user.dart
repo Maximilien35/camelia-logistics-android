@@ -4,24 +4,30 @@ class UpsertUserVariablesBuilder {
   String username;
 
   final FirebaseDataConnect _dataConnect;
-  UpsertUserVariablesBuilder(this._dataConnect, {required  this.username,});
-  Deserializer<UpsertUserData> dataDeserializer = (dynamic json)  => UpsertUserData.fromJson(jsonDecode(json));
-  Serializer<UpsertUserVariables> varsSerializer = (UpsertUserVariables vars) => jsonEncode(vars.toJson());
+  UpsertUserVariablesBuilder(this._dataConnect, {required this.username});
+  Deserializer<UpsertUserData> dataDeserializer = (dynamic json) =>
+      UpsertUserData.fromJson(jsonDecode(json));
+  Serializer<UpsertUserVariables> varsSerializer = (UpsertUserVariables vars) =>
+      jsonEncode(vars.toJson());
   Future<OperationResult<UpsertUserData, UpsertUserVariables>> execute() {
     return ref().execute();
   }
 
   MutationRef<UpsertUserData, UpsertUserVariables> ref() {
-    UpsertUserVariables vars= UpsertUserVariables(username: username,);
-    return _dataConnect.mutation("UpsertUser", dataDeserializer, varsSerializer, vars);
+    UpsertUserVariables vars = UpsertUserVariables(username: username);
+    return _dataConnect.mutation(
+      "UpsertUser",
+      dataDeserializer,
+      varsSerializer,
+      vars,
+    );
   }
 }
 
 class UpsertUserUserUpsert {
   String id;
-  UpsertUserUserUpsert.fromJson(dynamic json):
-  
-  id = nativeFromJson<String>(json['id']);
+  UpsertUserUserUpsert.fromJson(dynamic json)
+    : id = nativeFromJson<String>(json['id']);
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> json = {};
@@ -29,16 +35,13 @@ class UpsertUserUserUpsert {
     return json;
   }
 
-  UpsertUserUserUpsert({
-    required this.id,
-  });
+  UpsertUserUserUpsert({required this.id});
 }
 
 class UpsertUserData {
   UpsertUserUserUpsert user_upsert;
-  UpsertUserData.fromJson(dynamic json):
-  
-  user_upsert = UpsertUserUserUpsert.fromJson(json['user_upsert']);
+  UpsertUserData.fromJson(dynamic json)
+    : user_upsert = UpsertUserUserUpsert.fromJson(json['user_upsert']);
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> json = {};
@@ -46,17 +49,16 @@ class UpsertUserData {
     return json;
   }
 
-  UpsertUserData({
-    required this.user_upsert,
-  });
+  UpsertUserData({required this.user_upsert});
 }
 
 class UpsertUserVariables {
   String username;
-  @Deprecated('fromJson is deprecated for Variable classes as they are no longer required for deserialization.')
-  UpsertUserVariables.fromJson(Map<String, dynamic> json):
-  
-  username = nativeFromJson<String>(json['username']);
+  @Deprecated(
+    'fromJson is deprecated for Variable classes as they are no longer required for deserialization.',
+  )
+  UpsertUserVariables.fromJson(Map<String, dynamic> json)
+    : username = nativeFromJson<String>(json['username']);
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> json = {};
@@ -64,8 +66,5 @@ class UpsertUserVariables {
     return json;
   }
 
-  UpsertUserVariables({
-    required this.username,
-  });
+  UpsertUserVariables({required this.username});
 }
-

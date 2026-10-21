@@ -23,9 +23,13 @@ class OrderRouteMap extends StatelessWidget {
   Future<void> _launchUrl(BuildContext context, String url) async {
     Uri? primaryUri;
 
-    if (pickupLat != null && pickupLng != null && dropoffLat != null && dropoffLng != null) {
+    if (pickupLat != null &&
+        pickupLng != null &&
+        dropoffLat != null &&
+        dropoffLng != null) {
       primaryUri = Uri.parse(
-          'comgooglemaps://?saddr=$pickupLat,$pickupLng&daddr=$dropoffLat,$dropoffLng&directionsmode=driving');
+        'comgooglemaps://?saddr=$pickupLat,$pickupLng&daddr=$dropoffLat,$dropoffLng&directionsmode=driving',
+      );
     } else if (pickupLat != null && pickupLng != null) {
       primaryUri = Uri.parse('comgooglemaps://?q=$pickupLat,$pickupLng');
     }
@@ -36,8 +40,13 @@ class OrderRouteMap extends StatelessWidget {
     }
 
     Uri? appleUri;
-    if (pickupLat != null && pickupLng != null && dropoffLat != null && dropoffLng != null) {
-      appleUri = Uri.parse('maps://?saddr=$pickupLat,$pickupLng&daddr=$dropoffLat,$dropoffLng');
+    if (pickupLat != null &&
+        pickupLng != null &&
+        dropoffLat != null &&
+        dropoffLng != null) {
+      appleUri = Uri.parse(
+        'maps://?saddr=$pickupLat,$pickupLng&daddr=$dropoffLat,$dropoffLng',
+      );
     } else if (pickupLat != null && pickupLng != null) {
       appleUri = Uri.parse('maps://?q=$pickupLat,$pickupLng');
     }
@@ -71,7 +80,10 @@ class OrderRouteMap extends StatelessWidget {
 
   String _getGoogleMapsUrl() {
     // Format: https://www.google.com/maps/dir/origin/destination
-    if (pickupLat != null && pickupLng != null && dropoffLat != null && dropoffLng != null) {
+    if (pickupLat != null &&
+        pickupLng != null &&
+        dropoffLat != null &&
+        dropoffLng != null) {
       return 'https://www.google.com/maps/dir/$pickupLat,$pickupLng/$dropoffLat,$dropoffLng';
     } else if (pickupLat != null && pickupLng != null) {
       return 'https://www.google.com/maps/search/?api=1&query=$pickupLat,$pickupLng';
@@ -85,7 +97,10 @@ class OrderRouteMap extends StatelessWidget {
 
   String _getAppleMapsUrl() {
     // Format: https://maps.apple.com/?daddr=destination&saddr=origin
-    if (pickupLat != null && pickupLng != null && dropoffLat != null && dropoffLng != null) {
+    if (pickupLat != null &&
+        pickupLng != null &&
+        dropoffLat != null &&
+        dropoffLng != null) {
       return 'https://maps.apple.com/?saddr=$pickupLat,$pickupLng&daddr=$dropoffLat,$dropoffLng';
     } else if (pickupLat != null && pickupLng != null) {
       return 'https://maps.apple.com/?q=$pickupLat,$pickupLng';
@@ -107,7 +122,7 @@ class OrderRouteMap extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: _getServiceTypeColor().withValues(alpha:0.1),
+                color: _getServiceTypeColor().withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
@@ -124,14 +139,14 @@ class OrderRouteMap extends StatelessWidget {
                   Text(
                     'Itinéraire - $serviceType',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   Text(
                     'Navigation et suivi en temps réel',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.grey[600],
-                        ),
+                    style: Theme.of(
+                      context,
+                    ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
                   ),
                 ],
               ),
@@ -168,10 +183,7 @@ class OrderRouteMap extends StatelessWidget {
                       const SizedBox(height: 8),
                       Text(
                         'Carte statique de l\'itinéraire',
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 13,
-                        ),
+                        style: TextStyle(color: Colors.grey[600], fontSize: 13),
                       ),
                     ],
                   ),
@@ -231,7 +243,7 @@ class OrderRouteMap extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha:0.1),
+                        color: Colors.black.withValues(alpha: 0.1),
                         blurRadius: 8,
                         offset: const Offset(0, 2),
                       ),
@@ -246,28 +258,29 @@ class OrderRouteMap extends StatelessWidget {
                         _launchUrl(context, _getAppleMapsUrl());
                       }
                     },
-                    itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                      const PopupMenuItem<String>(
-                        value: 'google',
-                        child: Row(
-                          children: [
-                            Icon(Icons.map, size: 18, color: Colors.blue),
-                            SizedBox(width: 12),
-                            Text('Google Maps'),
-                          ],
-                        ),
-                      ),
-                      const PopupMenuItem<String>(
-                        value: 'apple',
-                        child: Row(
-                          children: [
-                            Icon(Icons.map, size: 18, color: Colors.grey),
-                            SizedBox(width: 12),
-                            Text('Apple Maps'),
-                          ],
-                        ),
-                      ),
-                    ],
+                    itemBuilder: (BuildContext context) =>
+                        <PopupMenuEntry<String>>[
+                          const PopupMenuItem<String>(
+                            value: 'google',
+                            child: Row(
+                              children: [
+                                Icon(Icons.map, size: 18, color: Colors.blue),
+                                SizedBox(width: 12),
+                                Text('Google Maps'),
+                              ],
+                            ),
+                          ),
+                          const PopupMenuItem<String>(
+                            value: 'apple',
+                            child: Row(
+                              children: [
+                                Icon(Icons.map, size: 18, color: Colors.grey),
+                                SizedBox(width: 12),
+                                Text('Apple Maps'),
+                              ],
+                            ),
+                          ),
+                        ],
                     child: Padding(
                       padding: const EdgeInsets.all(8),
                       child: Icon(
@@ -318,7 +331,8 @@ class OrderRouteMap extends StatelessWidget {
                           children: [
                             Text(
                               'Point de départ',
-                              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                              style: Theme.of(context).textTheme.labelMedium
+                                  ?.copyWith(
                                     fontWeight: FontWeight.bold,
                                     color: Colors.green.shade700,
                                   ),
@@ -343,9 +357,8 @@ class OrderRouteMap extends StatelessWidget {
                         if (pickupLat != null && pickupLng != null)
                           Text(
                             '${pickupLat!.toStringAsFixed(6)}, ${pickupLng!.toStringAsFixed(6)}',
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: Colors.grey[600],
-                                ),
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(color: Colors.grey[600]),
                           ),
                       ],
                     ),
@@ -382,7 +395,8 @@ class OrderRouteMap extends StatelessWidget {
                           children: [
                             Text(
                               'Destination',
-                              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                              style: Theme.of(context).textTheme.labelMedium
+                                  ?.copyWith(
                                     fontWeight: FontWeight.bold,
                                     color: Colors.red.shade700,
                                   ),
@@ -407,9 +421,8 @@ class OrderRouteMap extends StatelessWidget {
                         if (dropoffLat != null && dropoffLng != null)
                           Text(
                             '${dropoffLat!.toStringAsFixed(6)}, ${dropoffLng!.toStringAsFixed(6)}',
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: Colors.grey[600],
-                                ),
+                            style: Theme.of(context).textTheme.bodySmall
+                                ?.copyWith(color: Colors.grey[600]),
                           ),
                       ],
                     ),
@@ -444,9 +457,9 @@ class OrderRouteMap extends StatelessWidget {
                   Text(
                     'Conseils de navigation',
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.amber.shade800,
-                        ),
+                      fontWeight: FontWeight.bold,
+                      color: Colors.amber.shade800,
+                    ),
                   ),
                 ],
               ),
@@ -454,9 +467,9 @@ class OrderRouteMap extends StatelessWidget {
               Text(
                 '• Utilisez Google Maps ou Apple Maps pour une navigation précise\n• L\'itinéraire affiché est statique et peut varier selon le trafic\n• Vérifiez les conditions météo avant le départ\n• Respectez les limitations de vitesse et les règles de circulation',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.amber.shade700,
-                      height: 1.4,
-                    ),
+                  color: Colors.amber.shade700,
+                  height: 1.4,
+                ),
               ),
             ],
           ),

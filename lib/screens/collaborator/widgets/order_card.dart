@@ -70,8 +70,10 @@ class OrderCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final status = order['status'] as String? ?? 'PENDING';
     final serviceType = order['serviceType'] as String? ?? 'LIVRAISON';
-    final pickupAddress = order['pickupAddress'] as String? ?? 'Adresse à chercher';
-    final dropoffAddress = order['dropoffAddress'] as String? ?? 'Adresse à chercher';
+    final pickupAddress =
+        order['pickupAddress'] as String? ?? 'Adresse à chercher';
+    final dropoffAddress =
+        order['dropoffAddress'] as String? ?? 'Adresse à chercher';
     final price = order['priceQuote'] as num?;
     final isQuote = order['isQuote'] as bool? ?? false;
     final isFromPartner = order['source'] == 'partner_api';
@@ -90,10 +92,7 @@ class OrderCard extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
             border: Border(
-              left: BorderSide(
-                color: _getStatusColor(status),
-                width: 4,
-              ),
+              left: BorderSide(color: _getStatusColor(status), width: 4),
             ),
           ),
           child: Column(
@@ -109,16 +108,18 @@ class OrderCard extends StatelessWidget {
                         Flexible(
                           child: Text(
                             _getServiceTypeLabel(serviceType),
-                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                ),
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(fontWeight: FontWeight.bold),
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
                         if (isFromPartner) ...[
                           const SizedBox(width: 8),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 3,
+                            ),
                             decoration: BoxDecoration(
                               color: Colors.deepPurple.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(20),
@@ -137,10 +138,12 @@ class OrderCard extends StatelessWidget {
                     ),
                   ),
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
                     decoration: BoxDecoration(
-                      color: _getStatusColor(status).withValues(alpha:0.2),
+                      color: _getStatusColor(status).withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
@@ -192,10 +195,8 @@ class OrderCard extends StatelessWidget {
                       children: [
                         Text(
                           'Départ',
-                          style:
-                              Theme.of(context).textTheme.labelSmall?.copyWith(
-                                    color: Colors.grey[600],
-                                  ),
+                          style: Theme.of(context).textTheme.labelSmall
+                              ?.copyWith(color: Colors.grey[600]),
                         ),
                         Text(
                           pickupAddress.length > 50
@@ -208,10 +209,8 @@ class OrderCard extends StatelessWidget {
                         const SizedBox(height: 8),
                         Text(
                           'Destination',
-                          style:
-                              Theme.of(context).textTheme.labelSmall?.copyWith(
-                                    color: Colors.grey[600],
-                                  ),
+                          style: Theme.of(context).textTheme.labelSmall
+                              ?.copyWith(color: Colors.grey[600]),
                         ),
                         Text(
                           dropoffAddress.length > 50
@@ -238,12 +237,13 @@ class OrderCard extends StatelessWidget {
                       Text(
                         'Rémunération',
                         style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              color: Colors.grey[600],
-                            ),
+                          color: Colors.grey[600],
+                        ),
                       ),
                       Text(
                         formattedPrice,
-                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(
                               fontWeight: FontWeight.bold,
                               color: Colors.green.shade700,
                             ),

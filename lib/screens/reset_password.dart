@@ -71,11 +71,7 @@ class _ResetPasswordScreenState extends State<ResetPassword> {
           SnackBar(
             content: const Row(
               children: [
-                Icon(
-                  Icons.check_circle_rounded,
-                  color: Colors.white,
-                  size: 20,
-                ),
+                Icon(Icons.check_circle_rounded, color: Colors.white, size: 20),
                 SizedBox(width: 8),
                 Expanded(
                   child: Text(
@@ -157,11 +153,13 @@ class _ResetPasswordScreenState extends State<ResetPassword> {
               color: Colors.grey.shade700,
             ),
           ),
-          onPressed: () {if (Navigator.canPop(context)) {
-            Navigator.pop(context);
-          } else {
-            context.go('/login');
-          }}
+          onPressed: () {
+            if (Navigator.canPop(context)) {
+              Navigator.pop(context);
+            } else {
+              context.go('/login');
+            }
+          },
         ),
       ),
       body: _isLoading
@@ -183,7 +181,9 @@ class _ResetPasswordScreenState extends State<ResetPassword> {
                           width: 80,
                           height: 80,
                           decoration: BoxDecoration(
-                            color: const Color(0xFF6C63FF).withValues(alpha:0.1),
+                            color: const Color(
+                              0xFF6C63FF,
+                            ).withValues(alpha: 0.1),
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(
@@ -193,7 +193,7 @@ class _ResetPasswordScreenState extends State<ResetPassword> {
                           ),
                         ),
                         const SizedBox(height: 20),
-                         Text(
+                        Text(
                           'Réinitialiser votre mot de passe',
                           style: GoogleFonts.poppins(
                             fontSize: 28,
@@ -223,7 +223,7 @@ class _ResetPasswordScreenState extends State<ResetPassword> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                           Text(
+                          Text(
                             'Adresse email',
                             style: GoogleFonts.montserrat(
                               fontSize: 14,
@@ -263,8 +263,8 @@ class _ResetPasswordScreenState extends State<ResetPassword> {
                                 return 'L\'adresse email est requise';
                               }
                               if (!RegExp(
-                                      r'^[^@]+@[^@]+\.[^@]+')
-                                  .hasMatch(value)) {
+                                r'^[^@]+@[^@]+\.[^@]+',
+                              ).hasMatch(value)) {
                                 return 'Veuillez entrer une adresse email valide';
                               }
                               return null;
@@ -296,13 +296,14 @@ class _ResetPasswordScreenState extends State<ResetPassword> {
                               onTap: _isLoading ? null : _resetPassword,
                               borderRadius: BorderRadius.circular(12),
                               child: Container(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 16),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 16,
+                                ),
                                 decoration: BoxDecoration(
                                   gradient: const LinearGradient(
                                     colors: [
                                       Color(0xFF6C63FF),
-                                      Color(0xFF8B84FF)
+                                      Color(0xFF8B84FF),
                                     ],
                                   ),
                                   borderRadius: BorderRadius.circular(12),
@@ -317,7 +318,7 @@ class _ResetPasswordScreenState extends State<ResetPassword> {
                                             strokeWidth: 2.5,
                                           ),
                                         )
-                                      :  Text(
+                                      : Text(
                                           'Envoyer le lien de réinitialisation',
                                           style: GoogleFonts.montserrat(
                                             fontSize: 16,
@@ -342,7 +343,6 @@ class _ResetPasswordScreenState extends State<ResetPassword> {
                                 color: Colors.grey.shade600,
                               ),
                             ),
-                         
                           ],
                         ),
                       ],
@@ -355,10 +355,10 @@ class _ResetPasswordScreenState extends State<ResetPassword> {
                     child: Container(
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF6C63FF).withValues(alpha:0.05),
+                        color: const Color(0xFF6C63FF).withValues(alpha: 0.05),
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
-                          color: const Color(0xFF6C63FF).withValues(alpha:0.2),
+                          color: const Color(0xFF6C63FF).withValues(alpha: 0.2),
                         ),
                       ),
                       child: Row(
@@ -383,9 +383,7 @@ class _ResetPasswordScreenState extends State<ResetPassword> {
                     ),
                   ),
                 ),
-                const SliverToBoxAdapter(
-                  child: SizedBox(height: 32),
-                ),
+                const SliverToBoxAdapter(child: SizedBox(height: 32)),
               ],
             ),
     );

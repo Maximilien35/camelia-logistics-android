@@ -52,6 +52,9 @@ key.properties
 ios/Flutter/App.framework
 ios/Flutter/Flutter.framework
 ios/Flutter/Generated.xcconfig
+# Clé du SDK Google Maps iOS (règle n°10). Le modèle commité est
+# `Secrets.example.xcconfig`.
+ios/Flutter/Secrets.xcconfig
 ios/Flutter/app.flx
 ios/Flutter/app.zip
 ios/Flutter/flutter_assets/
@@ -73,7 +76,6 @@ macos/flutter/ephemeral/
 
 # Web
 web/icons/ # Seulement si générés automatiquement, sinon gardez-les
-lib/generated_plugin_registrant.dart
 
 
 android/app/google-services.json
@@ -83,4 +85,19 @@ firebase_options.dart
 # Environnement
 .env
 .env.*
-/docs
+
+lib/generated_plugin_registrant.dart
+
+# Notes de travail locales, non versionnées : le dossier reste ignoré par
+# défaut, seules les références partagées avec l'équipe sont ré-incluses
+# nommément ci-dessous. `/docs/*` (et non `/docs`) est indispensable : git
+# refuse de ré-inclure un fichier dont le dossier parent est lui-même exclu.
+/docs/*
+!/docs/backend-contract.md
+!/docs/design-api-map.md
+!/docs/mode-simule.md
+!/docs/backend-a-implementer.md
+
+# Dumps mémoire et journaux de plantage de la JVM (Gradle)
+*.hprof
+hs_err_pid*.log

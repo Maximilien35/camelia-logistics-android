@@ -35,7 +35,8 @@ class UserProfileService {
       }
 
       // Générer un UID unique au lieu de créer un compte Firebase Auth
-      final uid = '${DateTime.now().millisecondsSinceEpoch}_${Random().nextInt(999999)}';
+      final uid =
+          '${DateTime.now().millisecondsSinceEpoch}_${Random().nextInt(999999)}';
 
       final newDeliverer = UserProfile(
         uid: uid,
@@ -242,9 +243,7 @@ class UserProfileService {
       query = query.where('serviceZone', isEqualTo: zone);
     }
 
-    final snapshot = await query
-        .limit(limit)
-        .get();
+    final snapshot = await query.limit(limit).get();
     return snapshot.docs.map((doc) {
       final data = doc.data() as Map<String, dynamic>;
       return UserProfile.fromJson(data);
@@ -377,7 +376,9 @@ class UserProfileService {
       }
     } on FirebaseFunctionsException catch (e) {
       if (kDebugMode) {
-        print('Erreur Cloud Function lors de la suppression du compte : ${e.code} - ${e.message}');
+        print(
+          'Erreur Cloud Function lors de la suppression du compte : ${e.code} - ${e.message}',
+        );
       }
       rethrow;
     } catch (e) {

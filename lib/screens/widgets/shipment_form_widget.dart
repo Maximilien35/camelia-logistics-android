@@ -9,20 +9,20 @@ import '/l10n/app_localizations.dart';
 class ShipmentFormWidget extends StatefulWidget {
   final VoidCallback onProceed;
 
-  const ShipmentFormWidget({
-    required this.onProceed,
-    super.key,
-  });
+  const ShipmentFormWidget({required this.onProceed, super.key});
 
   @override
   State<ShipmentFormWidget> createState() => _ShipmentFormWidgetState();
 }
 
 class _ShipmentFormWidgetState extends State<ShipmentFormWidget> {
-  final TextEditingController _recipientNameController = TextEditingController();
-  final TextEditingController _recipientPhoneController = TextEditingController();
+  final TextEditingController _recipientNameController =
+      TextEditingController();
+  final TextEditingController _recipientPhoneController =
+      TextEditingController();
   final TextEditingController _weightController = TextEditingController();
-  final TextEditingController _packageNatureController = TextEditingController();
+  final TextEditingController _packageNatureController =
+      TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
 
   static const Color _primary = Color(0xFF6C63FF);
@@ -51,7 +51,9 @@ class _ShipmentFormWidgetState extends State<ShipmentFormWidget> {
 
   void _pickAndAddPhoto() async {
     final ImagePicker picker = ImagePicker();
-    final XFile? pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    final XFile? pickedFile = await picker.pickImage(
+      source: ImageSource.gallery,
+    );
     if (pickedFile != null) {
       final File imageFile = File(pickedFile.path);
       final orderState = Provider.of<OrderStateModel>(context, listen: false);
@@ -79,17 +81,30 @@ class _ShipmentFormWidgetState extends State<ShipmentFormWidget> {
               right: 6,
               child: GestureDetector(
                 onTap: () {
-                  final orderState = Provider.of<OrderStateModel>(context, listen: false);
+                  final orderState = Provider.of<OrderStateModel>(
+                    context,
+                    listen: false,
+                  );
                   orderState.removePhoto(file);
                 },
                 child: Container(
                   decoration: const BoxDecoration(
                     color: Colors.redAccent,
                     shape: BoxShape.circle,
-                    boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2))],
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 4,
+                        offset: Offset(0, 2),
+                      ),
+                    ],
                   ),
                   padding: const EdgeInsets.all(4),
-                  child: const Icon(Icons.close_rounded, size: 14, color: Colors.white),
+                  child: const Icon(
+                    Icons.close_rounded,
+                    size: 14,
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ),
@@ -131,7 +146,11 @@ class _ShipmentFormWidgetState extends State<ShipmentFormWidget> {
                     color: Colors.white.withValues(alpha: 0.18),
                     borderRadius: BorderRadius.circular(16),
                   ),
-                  child: const Icon(Icons.local_shipping_rounded, color: Colors.white, size: 28),
+                  child: const Icon(
+                    Icons.local_shipping_rounded,
+                    color: Colors.white,
+                    size: 28,
+                  ),
                 ),
                 const SizedBox(height: 18),
                 Text(
@@ -162,7 +181,8 @@ class _ShipmentFormWidgetState extends State<ShipmentFormWidget> {
             padding: const EdgeInsets.fromLTRB(20, 28, 20, 24),
             child: Consumer<OrderStateModel>(
               builder: (context, orderState, child) {
-                final isValid = _recipientNameController.text.isNotEmpty &&
+                final isValid =
+                    _recipientNameController.text.isNotEmpty &&
                     _recipientPhoneController.text.isNotEmpty &&
                     _weightController.text.isNotEmpty &&
                     _packageNatureController.text.isNotEmpty;
@@ -172,68 +192,99 @@ class _ShipmentFormWidgetState extends State<ShipmentFormWidget> {
                   children: [
                     _buildSectionLabel('Destinataire', Icons.person_rounded),
                     const SizedBox(height: 12),
-                    _buildCard(child: Column(children: [
-                      _buildFormField(
-                        label: l10n.recipientName,
-                        hint: l10n.fullNameHint,
-                        icon: Icons.person_outline_rounded,
-                        controller: _recipientNameController,
-                        onChanged: (_) => _updateAdditionalDetails(),
-                        required: true,
+                    _buildCard(
+                      child: Column(
+                        children: [
+                          _buildFormField(
+                            label: l10n.recipientName,
+                            hint: l10n.fullNameHint,
+                            icon: Icons.person_outline_rounded,
+                            controller: _recipientNameController,
+                            onChanged: (_) => _updateAdditionalDetails(),
+                            required: true,
+                          ),
+                          const SizedBox(height: 16),
+                          _buildFormField(
+                            label: l10n.recipientPhone,
+                            hint: l10n.phoneHint,
+                            icon: Icons.phone_outlined,
+                            controller: _recipientPhoneController,
+                            onChanged: (_) => _updateAdditionalDetails(),
+                            keyboardType: TextInputType.phone,
+                            required: true,
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 16),
-                      _buildFormField(
-                        label: l10n.recipientPhone,
-                        hint: l10n.phoneHint,
-                        icon: Icons.phone_outlined,
-                        controller: _recipientPhoneController,
-                        onChanged: (_) => _updateAdditionalDetails(),
-                        keyboardType: TextInputType.phone,
-                        required: true,
-                      ),
-                    ])),
+                    ),
                     const SizedBox(height: 22),
 
                     _buildSectionLabel('Colis', Icons.inventory_2_rounded),
                     const SizedBox(height: 12),
-                    _buildCard(child: Column(children: [
-                      _buildFormField(
-                        label: l10n.estimatedWeight,
-                        hint: l10n.weightInKgHint,
-                        icon: Icons.scale_outlined,
-                        controller: _weightController,
-                        onChanged: (_) => _updateAdditionalDetails(),
-                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                        suffix: 'kg',
-                        required: true,
+                    _buildCard(
+                      child: Column(
+                        children: [
+                          _buildFormField(
+                            label: l10n.estimatedWeight,
+                            hint: l10n.weightInKgHint,
+                            icon: Icons.scale_outlined,
+                            controller: _weightController,
+                            onChanged: (_) => _updateAdditionalDetails(),
+                            keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true,
+                            ),
+                            suffix: 'kg',
+                            required: true,
+                          ),
+                          const SizedBox(height: 16),
+                          _buildFormField(
+                            label: l10n.packageNatureOfItem,
+                            hint: l10n.describeWhat,
+                            icon: Icons.inventory_2_outlined,
+                            controller: _packageNatureController,
+                            onChanged: (_) => _updateAdditionalDetails(),
+                            required: true,
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 16),
-                      _buildFormField(
-                        label: l10n.packageNatureOfItem,
-                        hint: l10n.describeWhat,
-                        icon: Icons.inventory_2_outlined,
-                        controller: _packageNatureController,
-                        onChanged: (_) => _updateAdditionalDetails(),
-                        required: true,
-                      ),
-                    ])),
+                    ),
                     const SizedBox(height: 22),
 
-                    _buildSectionLabel(l10n.photosOptional, Icons.photo_library_rounded),
+                    _buildSectionLabel(
+                      l10n.photosOptional,
+                      Icons.photo_library_rounded,
+                    ),
                     const SizedBox(height: 4),
-                    Text(l10n.photosHelpsIdentify, style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey.shade500)),
+                    Text(
+                      l10n.photosHelpsIdentify,
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        color: Colors.grey.shade500,
+                      ),
+                    ),
                     const SizedBox(height: 12),
                     if (orderState.selectedFiles.isNotEmpty)
                       _buildPhotoGrid(orderState.selectedFiles)
                     else
                       _buildPhotoPlaceholder(onTap: _pickAndAddPhoto),
                     const SizedBox(height: 12),
-                    _buildOutlinedPhotoButton(label: l10n.addPhoto, onTap: _pickAndAddPhoto),
+                    _buildOutlinedPhotoButton(
+                      label: l10n.addPhoto,
+                      onTap: _pickAndAddPhoto,
+                    ),
                     const SizedBox(height: 22),
 
-                    _buildSectionLabel(l10n.additionalNotes, Icons.notes_rounded),
+                    _buildSectionLabel(
+                      l10n.additionalNotes,
+                      Icons.notes_rounded,
+                    ),
                     const SizedBox(height: 4),
-                    Text(l10n.addAnySpecialInstructions, style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey.shade500)),
+                    Text(
+                      l10n.addAnySpecialInstructions,
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        color: Colors.grey.shade500,
+                      ),
+                    ),
                     const SizedBox(height: 12),
                     _buildCard(
                       child: TextFormField(
@@ -242,11 +293,17 @@ class _ShipmentFormWidgetState extends State<ShipmentFormWidget> {
                         maxLines: 3,
                         decoration: InputDecoration(
                           hintText: l10n.specialInstructionsHint,
-                          hintStyle: GoogleFonts.poppins(color: Colors.grey.shade400, fontSize: 13),
+                          hintStyle: GoogleFonts.poppins(
+                            color: Colors.grey.shade400,
+                            fontSize: 13,
+                          ),
                           border: InputBorder.none,
                           contentPadding: EdgeInsets.zero,
                         ),
-                        style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey.shade800),
+                        style: GoogleFonts.poppins(
+                          fontSize: 14,
+                          color: Colors.grey.shade800,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 32),
@@ -300,8 +357,16 @@ class _ShipmentFormWidgetState extends State<ShipmentFormWidget> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
-          BoxShadow(color: _primary.withValues(alpha: 0.07), blurRadius: 18, offset: const Offset(0, 4)),
-          BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8, offset: const Offset(0, 2)),
+          BoxShadow(
+            color: _primary.withValues(alpha: 0.07),
+            blurRadius: 18,
+            offset: const Offset(0, 4),
+          ),
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
         ],
       ),
       child: child,
@@ -325,11 +390,19 @@ class _ShipmentFormWidgetState extends State<ShipmentFormWidget> {
           children: [
             Text(
               label,
-              style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.grey.shade500, letterSpacing: 0.5),
+              style: GoogleFonts.poppins(
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                color: Colors.grey.shade500,
+                letterSpacing: 0.5,
+              ),
             ),
             if (required) ...[
               const SizedBox(width: 3),
-              const Text('*', style: TextStyle(color: _primary, fontWeight: FontWeight.w700)),
+              const Text(
+                '*',
+                style: TextStyle(color: _primary, fontWeight: FontWeight.w700),
+              ),
             ],
           ],
         ),
@@ -340,25 +413,49 @@ class _ShipmentFormWidgetState extends State<ShipmentFormWidget> {
           keyboardType: keyboardType,
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: GoogleFonts.poppins(color: Colors.grey.shade300, fontSize: 14),
+            hintStyle: GoogleFonts.poppins(
+              color: Colors.grey.shade300,
+              fontSize: 14,
+            ),
             prefixIcon: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 14),
-              child: Icon(icon, color: _primary.withValues(alpha: 0.55), size: 20),
+              child: Icon(
+                icon,
+                color: _primary.withValues(alpha: 0.55),
+                size: 20,
+              ),
             ),
             prefixIconConstraints: const BoxConstraints(minWidth: 48),
             suffixText: suffix,
-            suffixStyle: GoogleFonts.poppins(color: _primary, fontWeight: FontWeight.w600, fontSize: 13),
+            suffixStyle: GoogleFonts.poppins(
+              color: _primary,
+              fontWeight: FontWeight.w600,
+              fontSize: 13,
+            ),
             filled: true,
             fillColor: const Color(0xFFF5F4FF),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
-            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide.none,
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide.none,
+            ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14),
               borderSide: const BorderSide(color: _primary, width: 2),
             ),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 14,
+            ),
           ),
-          style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.grey.shade800),
+          style: GoogleFonts.poppins(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: Colors.grey.shade800,
+          ),
         ),
       ],
     );
@@ -372,25 +469,45 @@ class _ShipmentFormWidgetState extends State<ShipmentFormWidget> {
         decoration: BoxDecoration(
           color: const Color(0xFFF7F6FF),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: _primary.withValues(alpha: 0.2), width: 1.5),
+          border: Border.all(
+            color: _primary.withValues(alpha: 0.2),
+            width: 1.5,
+          ),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
               padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(color: _primary.withValues(alpha: 0.08), shape: BoxShape.circle),
-              child: const Icon(Icons.add_photo_alternate_rounded, size: 30, color: _primary),
+              decoration: BoxDecoration(
+                color: _primary.withValues(alpha: 0.08),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.add_photo_alternate_rounded,
+                size: 30,
+                color: _primary,
+              ),
             ),
             const SizedBox(height: 10),
-            Text('Ajouter une photo', style: GoogleFonts.poppins(fontSize: 13, color: _primary, fontWeight: FontWeight.w600)),
+            Text(
+              'Ajouter une photo',
+              style: GoogleFonts.poppins(
+                fontSize: 13,
+                color: _primary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildOutlinedPhotoButton({required String label, required VoidCallback onTap}) {
+  Widget _buildOutlinedPhotoButton({
+    required String label,
+    required VoidCallback onTap,
+  }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -399,15 +516,31 @@ class _ShipmentFormWidgetState extends State<ShipmentFormWidget> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: _primary.withValues(alpha: 0.35), width: 1.5),
-          boxShadow: [BoxShadow(color: _primary.withValues(alpha: 0.06), blurRadius: 8, offset: const Offset(0, 2))],
+          border: Border.all(
+            color: _primary.withValues(alpha: 0.35),
+            width: 1.5,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: _primary.withValues(alpha: 0.06),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Icon(Icons.add_a_photo_rounded, color: _primary, size: 18),
             const SizedBox(width: 8),
-            Text(label, style: GoogleFonts.poppins(color: _primary, fontWeight: FontWeight.w600, fontSize: 14)),
+            Text(
+              label,
+              style: GoogleFonts.poppins(
+                color: _primary,
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
+              ),
+            ),
           ],
         ),
       ),
@@ -423,12 +556,22 @@ class _ShipmentFormWidgetState extends State<ShipmentFormWidget> {
         padding: const EdgeInsets.symmetric(vertical: 17),
         decoration: BoxDecoration(
           gradient: isValid
-              ? const LinearGradient(colors: [_primary, _secondary], begin: Alignment.centerLeft, end: Alignment.centerRight)
+              ? const LinearGradient(
+                  colors: [_primary, _secondary],
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                )
               : null,
           color: isValid ? null : const Color(0xFFE8E8E8),
           borderRadius: BorderRadius.circular(16),
           boxShadow: isValid
-              ? [BoxShadow(color: _primary.withValues(alpha: 0.38), blurRadius: 22, offset: const Offset(0, 8))]
+              ? [
+                  BoxShadow(
+                    color: _primary.withValues(alpha: 0.38),
+                    blurRadius: 22,
+                    offset: const Offset(0, 8),
+                  ),
+                ]
               : [],
         ),
         child: Row(
@@ -445,7 +588,11 @@ class _ShipmentFormWidgetState extends State<ShipmentFormWidget> {
             ),
             if (isValid) ...[
               const SizedBox(width: 8),
-              const Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 18),
+              const Icon(
+                Icons.arrow_forward_rounded,
+                color: Colors.white,
+                size: 18,
+              ),
             ],
           ],
         ),

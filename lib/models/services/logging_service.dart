@@ -164,9 +164,7 @@ class LoggingService {
 
   /// Récupère les logs pour l'interface admin
   /// Seulement accessible aux administrateurs
-  Stream<QuerySnapshot> getLogsForAdmin({
-    int limitDays = 7,
-  }) {
+  Stream<QuerySnapshot> getLogsForAdmin({int limitDays = 7}) {
     final startDate = DateTime.now().subtract(Duration(days: limitDays));
 
     return _firestore

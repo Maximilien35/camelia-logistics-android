@@ -1044,4 +1044,1996 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get internationalTransportServiceDescription =>
       'Send your packages internationally with our reliable and secure transport service. Contact us at +237 657519744 for more information.';
+
+  @override
+  String get apiErrorOtpRateLimited =>
+      'Too many code requests. Try again in an hour.';
+
+  @override
+  String get apiErrorInvalidOtp =>
+      'Incorrect code. Check the 6 digits sent to your email.';
+
+  @override
+  String get apiErrorOtpExpired => 'This code has expired. Request a new one.';
+
+  @override
+  String get apiErrorOtpMaxAttempts =>
+      'Too many attempts with this code. Request a new one.';
+
+  @override
+  String get apiErrorInvalidCredentials => 'Incorrect email or password.';
+
+  @override
+  String get apiErrorAccountInactive =>
+      'This account is disabled. Please contact support.';
+
+  @override
+  String get apiErrorEmailNotVerified => 'Verify your email before signing in.';
+
+  @override
+  String get apiErrorInvalidToken =>
+      'Your session has expired. Please sign in again.';
+
+  @override
+  String get apiErrorDriverProfileRequired =>
+      'This action is restricted to driver accounts.';
+
+  @override
+  String get apiErrorDriverNotApproved =>
+      'Your driver account has not been approved yet.';
+
+  @override
+  String get apiErrorInvalidDriverStatusTransition =>
+      'This status change is not allowed.';
+
+  @override
+  String get apiErrorDocumentRejectionReasonRequired =>
+      'A rejection reason is required.';
+
+  @override
+  String get apiErrorDriverDocumentsLocked =>
+      'Your documents can no longer be changed.';
+
+  @override
+  String get apiErrorAccountDeletionBlocked =>
+      'Your account cannot be deleted at the moment.';
+
+  @override
+  String get apiErrorVehicleNotAllowedForHousingType =>
+      'This vehicle is not offered for this housing type.';
+
+  @override
+  String get apiErrorNoVehicleForDeclaredWeight =>
+      'No vehicle matches the declared weight.';
+
+  @override
+  String get apiErrorDistanceExceedsMaximum =>
+      'The distance exceeds our service limit.';
+
+  @override
+  String get apiErrorInvalidOrderTransition =>
+      'This action is not possible at this stage of the order.';
+
+  @override
+  String get apiErrorDriverNotAssignedToOrder =>
+      'You are not assigned to this job.';
+
+  @override
+  String get apiErrorOrderNotCancellable =>
+      'This order can no longer be cancelled.';
+
+  @override
+  String get apiErrorReturnNotRequired =>
+      'No return is expected for this order.';
+
+  @override
+  String get apiErrorReturnAlreadyConfirmed =>
+      'The return has already been confirmed.';
+
+  @override
+  String get apiErrorWhatsappContactNotConfigured =>
+      'Service unavailable: no contact is configured.';
+
+  @override
+  String get apiErrorUniqueValueGenerationFailed =>
+      'Technical error. Please try again.';
+
+  @override
+  String get apiErrorUnknownVehicleType => 'This vehicle type does not exist.';
+
+  @override
+  String get apiErrorVehicleTypeNotAvailableForDelivery =>
+      'This vehicle is not offered for delivery.';
+
+  @override
+  String get apiErrorPricingConfigurationMissing =>
+      'No price available for this request. Please contact support.';
+
+  @override
+  String get apiErrorPromoCodeNotFound => 'This promo code does not exist.';
+
+  @override
+  String get apiErrorPromoCodeExpired => 'This promo code has expired.';
+
+  @override
+  String get apiErrorPromoCodeMinOrderAmountNotMet =>
+      'The order amount is too low for this code.';
+
+  @override
+  String get apiErrorPromoCodeGlobalQuotaExceeded =>
+      'This promo code has reached its usage limit.';
+
+  @override
+  String get apiErrorPromoCodeUserQuotaExceeded =>
+      'You have already used this promo code.';
+
+  @override
+  String get apiErrorOfferNotFound => 'This offer no longer exists.';
+
+  @override
+  String get apiErrorOfferNoLongerAvailable =>
+      'This offer is no longer available.';
+
+  @override
+  String get apiErrorOrderAlreadyAssigned =>
+      'This job has already been assigned.';
+
+  @override
+  String get apiErrorOrderNotDelivered =>
+      'Payment is only possible after delivery.';
+
+  @override
+  String get apiErrorOrderManagedByPartner =>
+      'This order is managed by a partner.';
+
+  @override
+  String get apiErrorCancellationFeeConfigurationMissing =>
+      'Cancellation fees unavailable. Please contact support.';
+
+  @override
+  String get apiErrorWithdrawalConfigurationMissing =>
+      'Withdrawals are unavailable at the moment.';
+
+  @override
+  String get apiErrorWithdrawalAmountBelowMinimum =>
+      'Amount is below the minimum withdrawal.';
+
+  @override
+  String get apiErrorWithdrawalAmountExceedsBalance =>
+      'Amount exceeds your available balance.';
+
+  @override
+  String get apiErrorWithdrawalTransferFailed =>
+      'The transfer failed. Try again or contact support.';
+
+  @override
+  String get apiErrorAmbassadorCodeRequired =>
+      'An ambassador code is required.';
+
+  @override
+  String get apiErrorGeneric => 'Something went wrong. Please try again.';
+
+  @override
+  String get apiErrorNetwork => 'No connection. Please check your network.';
+
+  @override
+  String get apiErrorThrottled => 'Too many attempts. Please wait a moment.';
+
+  @override
+  String get authBrandName => 'Camelia';
+
+  @override
+  String get authBrandTagline => 'Logistics';
+
+  @override
+  String get authContinue => 'Continue';
+
+  @override
+  String get authBack => 'Back';
+
+  @override
+  String get authSignInTitle => 'Enter your email';
+
+  @override
+  String get authSignInSubtitle =>
+      'Sign in to track your orders and create new ones.';
+
+  @override
+  String get authEmailLabel => 'Email address';
+
+  @override
+  String get authEmailHint => 'you@example.cm';
+
+  @override
+  String get authEmailInvalid => 'Invalid email address.';
+
+  @override
+  String get authPasswordLabel => 'Password';
+
+  @override
+  String get authPasswordHint => 'At least 8 characters';
+
+  @override
+  String get authPasswordTooShort =>
+      'The password must be at least 8 characters long.';
+
+  @override
+  String get authSignInAction => 'Sign in';
+
+  @override
+  String get authTermsPrefix => 'By continuing, you accept the ';
+
+  @override
+  String get authTermsLink => 'Terms of Use';
+
+  @override
+  String get authOtherMethod => 'Use another sign-in method';
+
+  @override
+  String get authNoAccount => 'No account yet?';
+
+  @override
+  String get authCreateAccountLink => 'Create an account';
+
+  @override
+  String get authMethodTitle => 'How do you want to sign in?';
+
+  @override
+  String get authMethodSubtitle => 'Choose your verification method.';
+
+  @override
+  String get authMethodPasswordTitle => 'Password';
+
+  @override
+  String get authMethodPasswordSubtitle => 'Enter your account password';
+
+  @override
+  String get authMethodCodeTitle => 'Code by email';
+
+  @override
+  String get authMethodCodeSubtitle => 'Receive a 6-digit code by email';
+
+  @override
+  String get authOtpTitle => 'Verification';
+
+  @override
+  String get authOtpSentTo => 'Code sent to';
+
+  @override
+  String get authOtpVerifyAction => 'Verify';
+
+  @override
+  String get authOtpResendIn => 'Resend the code in';
+
+  @override
+  String get authOtpResendAction => 'Resend the code';
+
+  @override
+  String get authOtpResent => 'A new code has just been sent.';
+
+  @override
+  String get authOtpIncomplete => 'Enter all 6 digits of the code.';
+
+  @override
+  String get authRegisterTitle => 'Create your account';
+
+  @override
+  String get authRegisterSubtitle =>
+      'A verification code will be sent to you by email.';
+
+  @override
+  String get authFirstNameLabel => 'First name';
+
+  @override
+  String get authFirstNameHint => 'Aicha';
+
+  @override
+  String get authLastNameLabel => 'Last name';
+
+  @override
+  String get authLastNameHint => 'Ngo Bell';
+
+  @override
+  String get authPhoneLabel => 'Phone number';
+
+  @override
+  String get authPhoneHint => '+237 6 XX XX XX XX';
+
+  @override
+  String get authPhoneInvalid =>
+      'International format required, e.g. +237690000000.';
+
+  @override
+  String get authRequiredField => 'This field is required.';
+
+  @override
+  String get authRegisterAction => 'Create my account';
+
+  @override
+  String get authRegisterAsDriver => 'I want to become a driver';
+
+  @override
+  String get authRegisterDriverNotice =>
+      'Your driver account must be approved by Camelia before you receive jobs.';
+
+  @override
+  String get authHasAccount => 'Already have an account?';
+
+  @override
+  String get authSignInLink => 'Sign in';
+
+  @override
+  String get authUnsupportedRoleTitle => 'Administrator account';
+
+  @override
+  String get authUnsupportedRoleBody =>
+      'Administrator accounts are managed from the web back-office, not from the mobile app.';
+
+  @override
+  String get authSignOutAction => 'Sign out';
+
+  @override
+  String get authLoadingSession => 'Connecting to Camelia…';
+
+  @override
+  String get authRetryAction => 'Try again';
+
+  @override
+  String get homeClientTitle => 'Client area';
+
+  @override
+  String get homeDriverTitle => 'Driver area';
+
+  @override
+  String get homeSignedInAs => 'SIGNED IN AS';
+
+  @override
+  String get homeRoleLabel => 'Role';
+
+  @override
+  String get homeChangeLanguage => 'Interface language';
+
+  @override
+  String get homeLanguageFrench => 'French';
+
+  @override
+  String get homeLanguageEnglish => 'English';
+
+  @override
+  String get homeUnderConstructionTitle => 'Screens under construction';
+
+  @override
+  String get homeUnderConstructionBody =>
+      'Authentication is wired to the backend. The screens for this experience are coming in this order:';
+
+  @override
+  String get homeStepClientOrder =>
+      'Ordering: home, addresses, package details';
+
+  @override
+  String get homeStepClientQuote =>
+      'Price estimate (total returned by the server)';
+
+  @override
+  String get homeStepClientTracking => 'Tracking with the 5-step status ribbon';
+
+  @override
+  String get homeStepClientPayment => 'Payment on delivery, by explicit action';
+
+  @override
+  String get homeStepDriverStatus => 'Approval status and online toggle';
+
+  @override
+  String get homeStepDriverOffers => 'Job offers, accept and decline';
+
+  @override
+  String get homeStepDriverProofs => 'Pickup and delivery proofs';
+
+  @override
+  String get homeStepDriverWallet => 'Wallet and withdrawal request';
+
+  @override
+  String get navHome => 'Home';
+
+  @override
+  String get navOrders => 'Orders';
+
+  @override
+  String get navWallet => 'Wallet';
+
+  @override
+  String get navAccount => 'Account';
+
+  @override
+  String get navJobs => 'Jobs';
+
+  @override
+  String get navEarnings => 'Earnings';
+
+  @override
+  String get navProfile => 'Profile';
+
+  @override
+  String get homeGreeting => 'Hello';
+
+  @override
+  String get homeServicesTitle => 'Our services';
+
+  @override
+  String get homeServicesSeeAll => 'See all';
+
+  @override
+  String get serviceDelivery => 'Parcel';
+
+  @override
+  String get serviceMoving => 'Moving';
+
+  @override
+  String get serviceShipping => 'Shipping';
+
+  @override
+  String get serviceStorage => 'Storage';
+
+  @override
+  String get serviceDeliveryHint => 'In-city delivery';
+
+  @override
+  String get serviceMovingHint => 'Truck and handling';
+
+  @override
+  String get serviceShippingHint => 'Manual quote';
+
+  @override
+  String get serviceStorageHint => 'Manual quote';
+
+  @override
+  String get backendMissingTitle => 'Waiting on the backend';
+
+  @override
+  String get backendMissingBody =>
+      'This screen needs an endpoint the server does not expose yet. Nothing is faked here, so as not to suggest the feature exists.';
+
+  @override
+  String get backendMissingEndpointLabel => 'Expected endpoint';
+
+  @override
+  String get screenComingTitle => 'Screen to build';
+
+  @override
+  String get screenComingBody =>
+      'The endpoint exists and responds. The screen from the mockup is coming in the next slice.';
+
+  @override
+  String get backendMissingJobsNote =>
+      'Job offers arrive by push notification, then by REST refresh — never over an open connection.';
+
+  @override
+  String get driverStatusApproved => 'Account approved';
+
+  @override
+  String get driverStatusPendingDocuments => 'Documents required';
+
+  @override
+  String get driverStatusPendingReview => 'Awaiting approval';
+
+  @override
+  String get driverStatusRejected => 'Account rejected';
+
+  @override
+  String get driverStatusSuspended => 'Account suspended';
+
+  @override
+  String get driverDocsTitle => 'My documents';
+
+  @override
+  String get driverDocsHintPending =>
+      'Send a photo of each of these three documents: Camelia checks them before activating your account.';
+
+  @override
+  String get driverDocsHintReview =>
+      'Your documents are being reviewed. You\'ll be notified as soon as they are approved.';
+
+  @override
+  String get driverDocsHintRejected =>
+      'A document was rejected. Replace it to restart the review.';
+
+  @override
+  String get driverDocIdCard => 'National ID card';
+
+  @override
+  String get driverDocDrivingLicence => 'Driving licence';
+
+  @override
+  String get driverDocVehicleRegistration => 'Vehicle registration';
+
+  @override
+  String get driverDocStateMissing => 'Required';
+
+  @override
+  String get driverDocStatePending => 'Under review';
+
+  @override
+  String get driverDocStateApproved => 'Approved';
+
+  @override
+  String get driverDocStateRejected => 'Rejected';
+
+  @override
+  String driverDocRejectionReason(String reason) {
+    return 'Reason: $reason';
+  }
+
+  @override
+  String get driverDocUpload => 'Upload';
+
+  @override
+  String get driverDocReplace => 'Replace';
+
+  @override
+  String get driverDocSent => 'Document sent.';
+
+  @override
+  String get driverOnlineLabel => 'Available';
+
+  @override
+  String get driverOfflineLabel => 'Offline';
+
+  @override
+  String get driverOnlineHint => 'You receive job offers.';
+
+  @override
+  String get driverOfflineHint => 'No offers will be sent to you.';
+
+  @override
+  String get driverCannotGoOnline =>
+      'Your account must be approved before going online.';
+
+  @override
+  String get driverVehicleLabel => 'Vehicle';
+
+  @override
+  String get driverRatingLabel => 'Rating';
+
+  @override
+  String get driverDocumentsTitle => 'Supporting documents';
+
+  @override
+  String get driverDocPending => 'Awaiting review';
+
+  @override
+  String get driverDocApproved => 'Approved';
+
+  @override
+  String get driverDocRejected => 'Rejected';
+
+  @override
+  String get driverOffersTitle => 'Offers';
+
+  @override
+  String get driverOffersEmptyOnline =>
+      'No offers right now. They arrive by notification.';
+
+  @override
+  String get driverOffersEmptyOffline => 'Go online to receive offers.';
+
+  @override
+  String get driverLocationPermissionNeeded =>
+      'Location denied: no job can be offered to you. Allow location for Camelia in your phone settings.';
+
+  @override
+  String get driverLocationServiceOff =>
+      'GPS is off: no job can be offered to you. Turn on location on your phone.';
+
+  @override
+  String get driverOfferAccept => 'Accept';
+
+  @override
+  String get driverOfferDecline => 'Decline';
+
+  @override
+  String get driverOfferAccepted => 'Job accepted';
+
+  @override
+  String get driverOfferDeclined => 'Offer declined';
+
+  @override
+  String get driverOfferStatusSent => 'New';
+
+  @override
+  String get driverOfferStatusAccepted => 'Accepted';
+
+  @override
+  String get driverOfferStatusDeclined => 'Declined';
+
+  @override
+  String get driverOfferStatusExpired => 'Expired';
+
+  @override
+  String get driverOfferDistance => 'Distance';
+
+  @override
+  String get driverOfferPickup => 'Pickup';
+
+  @override
+  String get driverOfferDropoff => 'Drop-off';
+
+  @override
+  String get walletBalanceLabel => 'Available balance';
+
+  @override
+  String get walletTotalEarnedLabel => 'Total earned';
+
+  @override
+  String get walletHistoryTitle => 'History';
+
+  @override
+  String get walletHistoryEmpty => 'No entries yet.';
+
+  @override
+  String get walletWithdrawAction => 'Request a withdrawal';
+
+  @override
+  String get walletWithdrawTitle => 'Mobile money withdrawal';
+
+  @override
+  String get walletWithdrawAmountLabel => 'Amount';
+
+  @override
+  String get walletWithdrawHint => 'Minimum 2,000 FCFA';
+
+  @override
+  String get walletWithdrawConfirm => 'Confirm withdrawal';
+
+  @override
+  String get walletWithdrawPending =>
+      'Request recorded. The transfer will be confirmed shortly.';
+
+  @override
+  String get walletWithdrawAmountRequired => 'Enter an amount.';
+
+  @override
+  String get ambassadorTitle => 'Referrals';
+
+  @override
+  String get ambassadorUsageCount => 'Uses';
+
+  @override
+  String get ambassadorConversionCount => 'Conversions';
+
+  @override
+  String get ambassadorRecentTitle => 'Latest commissions';
+
+  @override
+  String get ledgerPaymentIn => 'Client payment';
+
+  @override
+  String get ledgerCommission => 'Camelia commission';
+
+  @override
+  String get ledgerDriverCredit => 'Job credit';
+
+  @override
+  String get ledgerWithdrawal => 'Withdrawal';
+
+  @override
+  String get ledgerRefund => 'Refund';
+
+  @override
+  String get ledgerBonusReferral => 'Referral bonus';
+
+  @override
+  String get ledgerAmbassadorCommission => 'Ambassador commission';
+
+  @override
+  String get commonRetry => 'Try again';
+
+  @override
+  String get commonClose => 'Close';
+
+  @override
+  String get commonCancel => 'Cancel';
+
+  @override
+  String get commonRefresh => 'Refresh';
+
+  @override
+  String get ribbonOrderReceived => 'Order received';
+
+  @override
+  String get ribbonDriverAssigned => 'Driver assigned';
+
+  @override
+  String get ribbonPickedUp => 'Parcel picked up';
+
+  @override
+  String get ribbonEnRoute => 'On the way to delivery';
+
+  @override
+  String get ribbonDelivered => 'Delivered';
+
+  @override
+  String get ribbonShortReceived => 'Received';
+
+  @override
+  String get ribbonShortAssigned => 'Assigned';
+
+  @override
+  String get ribbonShortPickedUp => 'Picked up';
+
+  @override
+  String get ribbonShortEnRoute => 'En route';
+
+  @override
+  String get ribbonShortDelivered => 'Delivered';
+
+  @override
+  String get ribbonPending => 'Pending';
+
+  @override
+  String get orderStatusDraft => 'Quote in progress';
+
+  @override
+  String get orderStatusSearchingDriver => 'Searching';
+
+  @override
+  String get orderStatusDriverAssigned => 'Assigned';
+
+  @override
+  String get orderStatusEnRoutePickup => 'To pickup';
+
+  @override
+  String get orderStatusPickedUp => 'Picked up';
+
+  @override
+  String get orderStatusInTransit => 'En route';
+
+  @override
+  String get orderStatusDelivered => 'Delivered';
+
+  @override
+  String get orderStatusCompleted => 'Completed';
+
+  @override
+  String get orderStatusCancelledByClient => 'Cancelled';
+
+  @override
+  String get orderStatusCancelledBySystem => 'No driver';
+
+  @override
+  String get orderStatusDisputed => 'Disputed';
+
+  @override
+  String get commonContinue => 'Continue';
+
+  @override
+  String get commonBackHome => 'Back to home';
+
+  @override
+  String get fieldRequired => 'This field is required.';
+
+  @override
+  String get fieldTooLong => 'This text is too long.';
+
+  @override
+  String get fieldInvalidPhone =>
+      'Invalid number. Example: +237 6 90 00 00 00.';
+
+  @override
+  String get photoTake => 'Take a photo';
+
+  @override
+  String get photoChooseGallery => 'Choose from gallery';
+
+  @override
+  String get photoRetake => 'Retake';
+
+  @override
+  String get photoRequired => 'A photo is required.';
+
+  @override
+  String get photoFailed => 'Could not read the photo. Try again.';
+
+  @override
+  String get externalOpenFailed => 'Could not open the matching app.';
+
+  @override
+  String get orderAddressesTitle => 'Addresses';
+
+  @override
+  String get orderPickupLabel => 'Pickup';
+
+  @override
+  String get orderDropoffLabel => 'Drop-off';
+
+  @override
+  String get orderAddressHint => 'Neighbourhood, street, landmark';
+
+  @override
+  String get orderAddressesTip =>
+      'Add a well-known landmark (building, junction): our servers locate the address and compute the distance.';
+
+  @override
+  String get orderDetailsTitle => 'Parcel details';
+
+  @override
+  String get orderManualDetailsTitle => 'Your request';
+
+  @override
+  String get orderPhotoLabel => 'Parcel photo';
+
+  @override
+  String get orderPhotoEmpty => 'Add a photo of the parcel';
+
+  @override
+  String get orderParcelKindLabel => 'Parcel type';
+
+  @override
+  String get parcelKindDocument => 'Document';
+
+  @override
+  String get parcelKindStandard => 'Standard parcel';
+
+  @override
+  String get parcelKindFragile => 'Fragile';
+
+  @override
+  String get parcelKindBulky => 'Bulky';
+
+  @override
+  String get orderWeightLabel => 'Estimated weight';
+
+  @override
+  String orderWeightValue(Object weight) {
+    return '$weight kg';
+  }
+
+  @override
+  String get orderInstructionsLabel => 'Instructions (optional)';
+
+  @override
+  String get orderInstructionsHint => 'E.g. Ring the intercom, 2nd floor…';
+
+  @override
+  String get orderDescriptionLabel => 'Describe your request';
+
+  @override
+  String get orderShippingDescriptionHint =>
+      'E.g. two boxes of documents to Yaoundé';
+
+  @override
+  String get orderStorageDescriptionHint => 'E.g. six boxes for two weeks';
+
+  @override
+  String get orderRecipientTitle => 'Recipient';
+
+  @override
+  String get orderRecipientName => 'Recipient name';
+
+  @override
+  String get orderRecipientPhone => 'Recipient phone';
+
+  @override
+  String get orderRecipientIsMe => 'It\'s me';
+
+  @override
+  String get orderReviewTitle => 'Summary';
+
+  @override
+  String get orderReviewService => 'Service';
+
+  @override
+  String get orderReviewParcel => 'Parcel';
+
+  @override
+  String get orderPromoLabel => 'Promo code';
+
+  @override
+  String get orderPromoHint => 'E.g. BIENVENUE10';
+
+  @override
+  String get orderPromoNote =>
+      'The code is checked by our servers when you confirm.';
+
+  @override
+  String get orderPriceNoticeTitle => 'Price confirmed when you order';
+
+  @override
+  String get orderPriceNoticeBody =>
+      'The total shown is the quote computed by our servers. It is recalculated when you order, promo code included: the amount charged may be lower, never higher. Cancelling is free until a driver has accepted.';
+
+  @override
+  String get orderManualNoticeTitle => 'Custom quote';
+
+  @override
+  String get orderManualNoticeBody =>
+      'This service is quoted by our team. Nothing is charged now.';
+
+  @override
+  String get orderPaymentNoticeTitle => 'Payment on delivery';
+
+  @override
+  String get orderPaymentNoticeBody =>
+      'You pay by Mobile Money once the parcel is delivered, from the tracking screen.';
+
+  @override
+  String get orderSubmit => 'Confirm order';
+
+  @override
+  String get orderFixErrors => 'Please fix the highlighted fields.';
+
+  @override
+  String get orderConfirmedTitle => 'Order confirmed';
+
+  @override
+  String get orderManualConfirmedTitle => 'Request saved';
+
+  @override
+  String orderReference(Object reference) {
+    return 'Order #$reference';
+  }
+
+  @override
+  String get orderConfirmRoute => 'Route';
+
+  @override
+  String get orderConfirmType => 'Type';
+
+  @override
+  String get orderConfirmPayment => 'Payment';
+
+  @override
+  String get orderConfirmPaymentValue => 'On delivery · Mobile Money';
+
+  @override
+  String get orderConfirmTotal => 'Total';
+
+  @override
+  String get orderConfirmQuote => 'On quote';
+
+  @override
+  String get orderTrack => 'Track my order';
+
+  @override
+  String get orderOpenWhatsApp => 'Continue on WhatsApp';
+
+  @override
+  String get orderWhatsAppNote =>
+      'An advisor finalises your quote on WhatsApp.';
+
+  @override
+  String get trackingProgress => 'Progress';
+
+  @override
+  String get trackingSearchingHeader => 'Searching';
+
+  @override
+  String get trackingSearchingTitle => 'Looking for a driver…';
+
+  @override
+  String get trackingSearchingBody =>
+      'We are contacting available drivers near your pickup point.';
+
+  @override
+  String get trackingOrderRegistered => 'Order saved';
+
+  @override
+  String get trackingPullToRefresh => 'Pull down to refresh.';
+
+  @override
+  String get trackingCancel => 'Cancel order';
+
+  @override
+  String get trackingCancelConfirmTitle => 'Cancel this order?';
+
+  @override
+  String get trackingCancelConfirmBody =>
+      'A fee may apply if a driver has already accepted the job. Our server decides.';
+
+  @override
+  String get trackingCancelConfirmYes => 'Yes, cancel';
+
+  @override
+  String get trackingCancelKeep => 'Keep order';
+
+  @override
+  String get trackingCancelledTitle => 'Order cancelled';
+
+  @override
+  String get trackingCancelledBody => 'This order has been cancelled.';
+
+  @override
+  String get trackingCancelledFeeBody =>
+      'A cancellation fee applies. Pay it by Mobile Money.';
+
+  @override
+  String get trackingPayFee => 'Pay the fee';
+
+  @override
+  String get trackingNoDriverTitle => 'No driver available in your area';
+
+  @override
+  String get trackingNoDriverBody =>
+      'No driver accepted your order in time. You have not been charged.';
+
+  @override
+  String get trackingNoDriverRetry => 'Place a new order';
+
+  @override
+  String get trackingDisputedTitle => 'Order under dispute';
+
+  @override
+  String get trackingDisputedBody =>
+      'Our team is reviewing this order and will get back to you.';
+
+  @override
+  String get trackingDraftTitle => 'Quote in progress';
+
+  @override
+  String get trackingDraftBody =>
+      'Our team is preparing your quote. You will be contacted.';
+
+  @override
+  String get trackingPickupLabel => 'Pickup';
+
+  @override
+  String get trackingDropoffLabel => 'Delivery';
+
+  @override
+  String get trackingParcel => 'Parcel';
+
+  @override
+  String get trackingToPayOnDelivery => 'To pay on delivery';
+
+  @override
+  String get trackingTotalPaid => 'Total paid';
+
+  @override
+  String get trackingPayTitle => 'Parcel delivered — payment due';
+
+  @override
+  String get trackingPayBody =>
+      'Tap the button to get the Mobile Money prompt, then approve it on your phone.';
+
+  @override
+  String trackingPayButton(Object amount) {
+    return 'Pay $amount';
+  }
+
+  @override
+  String get trackingPayPendingTitle => 'Payment being confirmed';
+
+  @override
+  String get trackingPayPendingBody =>
+      'Approve the operation on your phone, then refresh. Confirmation can take a moment.';
+
+  @override
+  String get trackingPayOpenAgain => 'Reopen payment prompt';
+
+  @override
+  String get trackingCompletedTitle => 'Parcel delivered';
+
+  @override
+  String get trackingCompletedBody =>
+      'Delivery complete and payment confirmed. Thank you for choosing Camelia.';
+
+  @override
+  String get trackingRecipient => 'Recipient';
+
+  @override
+  String get homeActiveOrderTitle => 'Current order';
+
+  @override
+  String get homeActiveOrdersError => 'Could not refresh your current orders.';
+
+  @override
+  String get driverOfferNewCourse => 'New job';
+
+  @override
+  String get driverCurrentCourseTitle => 'Current job';
+
+  @override
+  String get driverCurrentCourseOpen => 'Resume job';
+
+  @override
+  String get driverCourseToPickup => 'On the way to pickup';
+
+  @override
+  String get driverCourseToDropoff => 'On the way to delivery';
+
+  @override
+  String driverCourseAcceptedAt(Object time) {
+    return 'Accepted at $time';
+  }
+
+  @override
+  String get driverOpenInMaps => 'Open in Maps';
+
+  @override
+  String get driverArrivedPickup => 'I\'ve arrived at pickup';
+
+  @override
+  String get driverArrivedDropoff => 'I\'ve arrived';
+
+  @override
+  String get driverCallRecipient => 'Call';
+
+  @override
+  String get driverPickupProofTitle => 'Parcel pickup';
+
+  @override
+  String get driverPickupProofHint =>
+      'Photograph the whole parcel and its condition at handover. Your location is attached to the proof.';
+
+  @override
+  String get driverChecklistTitle => 'Parcel check';
+
+  @override
+  String get driverCheckPackaging => 'Packaging intact';
+
+  @override
+  String get driverCheckWeight => 'Weight as declared';
+
+  @override
+  String get driverCheckLabel => 'Recipient label checked';
+
+  @override
+  String get driverChecklistNote =>
+      'Personal reminder: these boxes are not sent.';
+
+  @override
+  String get driverConfirmPickup => 'Confirm pickup';
+
+  @override
+  String get driverDeliveryProofTitle => 'Confirm delivery';
+
+  @override
+  String get driverDeliveryProofHint =>
+      'Photograph the parcel handed to the recipient.';
+
+  @override
+  String get driverProofPhotoLabel => 'Proof of delivery';
+
+  @override
+  String get driverRecipientNameLabel => 'Received by';
+
+  @override
+  String get driverRecipientNameHint =>
+      'Name of the person receiving the parcel';
+
+  @override
+  String get driverConfirmDelivery => 'Confirm delivery';
+
+  @override
+  String get driverFinishedTitle => 'Job complete';
+
+  @override
+  String get driverFinishedBody =>
+      'The customer is prompted to pay by Mobile Money. Your earnings are credited to your wallet once payment is confirmed.';
+
+  @override
+  String get driverFinishedContinue => 'Keep receiving jobs';
+
+  @override
+  String get driverCourseStaleTitle => 'This job is no longer active';
+
+  @override
+  String get driverCourseStaleBody =>
+      'The server refused the action: the order may have been cancelled or reassigned.';
+
+  @override
+  String get driverCourseRelease => 'Release job';
+
+  @override
+  String driverDistanceKm(Object km) {
+    return '$km km';
+  }
+
+  @override
+  String get driverParcelLabel => 'Parcel';
+
+  @override
+  String get commonSave => 'Save';
+
+  @override
+  String get commonDelete => 'Delete';
+
+  @override
+  String get commonEdit => 'Edit';
+
+  @override
+  String get addressPickerSingleTitle => 'Place the address';
+
+  @override
+  String get addressPickerHint => 'Move the map to place the pin';
+
+  @override
+  String get addressPickerPendingLabel =>
+      'Confirm this point to get its address.';
+
+  @override
+  String get addressPickerResolvePoint => 'Confirm this point';
+
+  @override
+  String get addressPickerLocating => 'Looking up the address…';
+
+  @override
+  String get addressPickerLabelHint => 'Address or landmark (area, building…)';
+
+  @override
+  String get addressPickerNoLabel =>
+      'No known address here: type a landmark (building, junction).';
+
+  @override
+  String get addressPickerNotPlaced => 'Tap to place on the map';
+
+  @override
+  String get addressPickerMyLocation => 'My location';
+
+  @override
+  String get addressPickerLocatingDevice => 'Finding your location…';
+
+  @override
+  String get addressPickerLocationServiceOff =>
+      'Location is turned off on your phone.';
+
+  @override
+  String get addressPickerLocationDenied =>
+      'Location access denied: place the pin on the map or search for an address.';
+
+  @override
+  String get addressPickerLocationBlocked =>
+      'Location access is blocked. Allow it in your phone settings.';
+
+  @override
+  String get addressPickerLocationUnavailable =>
+      'Couldn\'t find your location right now. Try again, or place the pin by hand.';
+
+  @override
+  String get addressPickerLocationOutside =>
+      'You\'re outside the service area: place the pin in Cameroon.';
+
+  @override
+  String get addressPickerLocationEnable => 'Turn on';
+
+  @override
+  String get commonSettings => 'Settings';
+
+  @override
+  String get addressPickerSaveFavorite => 'Save';
+
+  @override
+  String get addressPickerSaveFavoriteTitle => 'Save this address';
+
+  @override
+  String get addressPickerFavoriteLabel => 'Name (Home, Work…)';
+
+  @override
+  String get addressPickerFavoriteSaved => 'Address saved.';
+
+  @override
+  String get addressPickerConfirmRoute => 'Confirm addresses';
+
+  @override
+  String get addressPickerConfirmPoint => 'Use this point';
+
+  @override
+  String get addressPickerSearch => 'Search';
+
+  @override
+  String get addressPickerNoResult =>
+      'No place found. Move the map to place the pin, then name the address.';
+
+  @override
+  String get addressLabelsAttribution =>
+      'Addresses © OpenStreetMap contributors';
+
+  @override
+  String orderPhotosLabel(Object count, Object max) {
+    return 'Parcel photos ($count/$max)';
+  }
+
+  @override
+  String get orderPhotoAdd => 'Add';
+
+  @override
+  String get orderPhotoRemove => 'Remove photo';
+
+  @override
+  String get orderPhotosHint =>
+      'One to three photos: the whole parcel, packaging, label.';
+
+  @override
+  String get accountPersonalInfo => 'Personal information';
+
+  @override
+  String get accountSavedAddresses => 'Saved addresses';
+
+  @override
+  String get accountReferral => 'Referral';
+
+  @override
+  String accountMemberSince(Object date) {
+    return 'Member since $date';
+  }
+
+  @override
+  String get accountLanguage => 'Language';
+
+  @override
+  String get profileSaveName => 'Save';
+
+  @override
+  String get profileSaved => 'Profile updated.';
+
+  @override
+  String get profileEmailLabel => 'Email';
+
+  @override
+  String get profileEmailReadOnly =>
+      'Your email is your sign-in identifier: it can\'t be changed here.';
+
+  @override
+  String get profilePhoneSection => 'Phone';
+
+  @override
+  String get profilePhoneCurrent => 'Current number';
+
+  @override
+  String get profilePhoneChange => 'Change number';
+
+  @override
+  String get profilePhoneNew => 'New number';
+
+  @override
+  String get profilePhoneSendCode => 'Get a code';
+
+  @override
+  String profilePhoneCodeSent(Object phone) {
+    return 'Code sent to $phone.';
+  }
+
+  @override
+  String get profilePhoneCodeLabel => 'Code received';
+
+  @override
+  String get profilePhoneVerify => 'Confirm number';
+
+  @override
+  String get profilePhoneUpdated => 'Number updated.';
+
+  @override
+  String get profilePhoneWhy =>
+      'Your number is used by the driver and for Mobile Money payment: it is verified with a code before it changes.';
+
+  @override
+  String get profileCodeInvalidLength => 'The code has 6 digits.';
+
+  @override
+  String get addressesTitle => 'Saved addresses';
+
+  @override
+  String get addressesEmpty =>
+      'No saved address yet. Add your home or work to order faster.';
+
+  @override
+  String get addressesAdd => 'Add an address';
+
+  @override
+  String addressesDeleteConfirm(Object label) {
+    return 'Delete \"$label\"?';
+  }
+
+  @override
+  String get addressesRename => 'Rename';
+
+  @override
+  String get addressesMovePoint => 'Move on the map';
+
+  @override
+  String get apiErrorPhoneAlreadyUsed =>
+      'This number is already used by another account.';
+
+  @override
+  String get apiErrorGeocodingUnavailable =>
+      'Address search is temporarily unavailable. Move the map to place the pin.';
+
+  @override
+  String get apiErrorGeocodeBusy =>
+      'Too many address searches at once. Try again in a moment, or place the pin on the map.';
+
+  @override
+  String get apiErrorMediaUploadUnavailable =>
+      'The photo could not be uploaded. Please try again in a moment.';
+
+  @override
+  String get apiErrorDocumentUploadUnavailable =>
+      'The document could not be uploaded. Please try again in a moment.';
+
+  @override
+  String get apiErrorDistanceUnavailable =>
+      'Distance calculation is temporarily unavailable. Please try again in a moment.';
+
+  @override
+  String get apiErrorCoordinatesOutsideServiceArea =>
+      'This location is outside our service area. Choose an address in Cameroon.';
+
+  @override
+  String get apiErrorInvalidDeliveryCode =>
+      'Wrong delivery code. Ask the recipient to read the code again on their tracking screen.';
+
+  @override
+  String get apiErrorDeliveryCodeAttemptsExhausted =>
+      'Three wrong codes: a new code was sent to the customer and support has been alerted. Ask them to check their screen again.';
+
+  @override
+  String get apiErrorOrderNotRatable => 'This order cannot be rated yet.';
+
+  @override
+  String get apiErrorOrderAlreadyRated => 'You have already rated this order.';
+
+  @override
+  String get apiErrorOrderHasNoDriverToRate => 'No driver handled this order.';
+
+  @override
+  String get apiErrorOrderNotRelaunchable =>
+      'The search cannot be restarted for this order.';
+
+  @override
+  String get apiErrorSearchRelaunchLimitReached =>
+      'You have reached the maximum number of retries. Please place a new order.';
+
+  @override
+  String get apiErrorEmergencyContactNotConfigured =>
+      'No emergency number is available right now.';
+
+  @override
+  String get driverDeliveryCodeLabel => 'Delivery code';
+
+  @override
+  String get driverDeliveryCodeHint => '4 digits';
+
+  @override
+  String get driverDeliveryCodeHelp =>
+      'Ask the recipient for the code: it is shown on the customer\'s tracking screen. Three wrong attempts void the code and alert support.';
+
+  @override
+  String get driverDeliveryCodeMalformed => 'The code is exactly 4 digits.';
+
+  @override
+  String get driverCodeUnavailableAction =>
+      'The recipient doesn\'t have the code';
+
+  @override
+  String get driverCodeUnavailableTitle => 'Report a missing code';
+
+  @override
+  String get driverCodeUnavailableBody =>
+      'Support will be alerted. Delivery cannot be confirmed without a valid code: ask the customer to check their tracking screen again.';
+
+  @override
+  String get driverCodeUnavailableConfirm => 'Alert support';
+
+  @override
+  String get driverCodeUnavailableReported =>
+      'Support has been alerted. Delivery still needs a valid code.';
+
+  @override
+  String get driverCourseEarnings => 'Trip earnings';
+
+  @override
+  String get driverCourseEarningsEstimated =>
+      'Estimate. The credited amount appears in your wallet once the customer has paid.';
+
+  @override
+  String get driverCourseEarningsCredited => 'Credited to your wallet.';
+
+  @override
+  String get driverCourseEarningsUnknown => 'Amount set after the quote.';
+
+  @override
+  String get driverCallClient => 'Call the sender';
+
+  @override
+  String driverOfferSearchUntil(Object time) {
+    return 'Searching until $time';
+  }
+
+  @override
+  String get driverOfferSearchEnded => 'Search ended';
+
+  @override
+  String get driverCourseRefresh => 'Refresh';
+
+  @override
+  String get driverReturnTitle => 'Parcel return';
+
+  @override
+  String get driverReturnBody =>
+      'The customer cancelled after pickup: bring the parcel back to the pickup point, then confirm with a photo.';
+
+  @override
+  String get driverConfirmReturn => 'Confirm return';
+
+  @override
+  String get driverReturnProofTitle => 'Return proof';
+
+  @override
+  String get driverEarningsWeek => 'This week';
+
+  @override
+  String get driverEarningsMonth => 'This month';
+
+  @override
+  String driverEarningsTrips(Object count) {
+    return '$count trip(s)';
+  }
+
+  @override
+  String get driverEarningsSummaryTitle => 'Summary';
+
+  @override
+  String get driverHistoryTitle => 'Past jobs';
+
+  @override
+  String get driverHistorySubtitle => 'Completed, cancelled or disputed';
+
+  @override
+  String get driverHistoryFilterAll => 'All';
+
+  @override
+  String get driverHistoryFilterCompleted => 'Completed';
+
+  @override
+  String get driverHistoryFilterCancelled => 'Cancelled';
+
+  @override
+  String get driverHistoryFilterDisputed => 'Disputed';
+
+  @override
+  String get driverHistoryEmpty =>
+      'No past jobs yet. Your finished jobs will show up here.';
+
+  @override
+  String get driverHistoryEmptyFiltered => 'No jobs in this category.';
+
+  @override
+  String get driverHistoryEarned => 'Credited';
+
+  @override
+  String get driverHistoryNotCredited => 'Nothing credited';
+
+  @override
+  String get driverHistoryLoadError => 'History unavailable';
+
+  @override
+  String get driverOfferPhotos => 'Package photos';
+
+  @override
+  String get ordersTitle => 'My orders';
+
+  @override
+  String get ordersFilterAll => 'All';
+
+  @override
+  String get ordersFilterOngoing => 'Ongoing';
+
+  @override
+  String get ordersFilterFinished => 'Completed';
+
+  @override
+  String get ordersEmptyTitle => 'No orders yet';
+
+  @override
+  String get ordersEmptyBody =>
+      'Your orders will show up here as soon as you place one.';
+
+  @override
+  String get ordersEmptyOngoing => 'No ongoing orders.';
+
+  @override
+  String get ordersEmptyFinished => 'No completed orders.';
+
+  @override
+  String get ordersLoadMore => 'Load more';
+
+  @override
+  String get ordersLoadErrorTitle => 'History unavailable';
+
+  @override
+  String get orderOptionsTitle => 'Vehicle and options';
+
+  @override
+  String get orderOptionsSubtitle =>
+      'Price depends on the vehicle: pick one to see the total before ordering.';
+
+  @override
+  String get orderHousingLabel => 'Home type';
+
+  @override
+  String get orderHandlingLabel => 'Handling';
+
+  @override
+  String get orderFloorsLabel => 'Floors';
+
+  @override
+  String get orderFloorsHint =>
+      '0 = ground floor. Floors only count towards the price when you request handling, but the driver always needs them.';
+
+  @override
+  String get orderFloorPickup => 'At pickup';
+
+  @override
+  String get orderFloorDropoff => 'At drop-off';
+
+  @override
+  String floorValue(int floor) {
+    String _temp0 = intl.Intl.pluralLogic(
+      floor,
+      locale: localeName,
+      other: 'Floor $floor',
+      zero: 'Ground floor',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get orderFloorDown => 'One floor down';
+
+  @override
+  String get orderFloorUp => 'One floor up';
+
+  @override
+  String orderFloorsSummary(Object pickup, Object dropoff) {
+    return 'Pickup: $pickup · Drop-off: $dropoff';
+  }
+
+  @override
+  String get orderVehicleLabel => 'Vehicle';
+
+  @override
+  String orderVehicleCapacity(Object weight) {
+    return 'up to $weight kg';
+  }
+
+  @override
+  String get orderVehicleNoLimit => 'No weight limit';
+
+  @override
+  String get orderVehiclePickHousingFirst => 'Pick a home type first.';
+
+  @override
+  String get orderVehicleNone => 'No vehicle available for this choice.';
+
+  @override
+  String get orderQuoteTitle => 'Estimated price';
+
+  @override
+  String orderQuoteDistance(Object km) {
+    return 'Distance used: $km km';
+  }
+
+  @override
+  String get orderQuoteRefresh => 'Calculate price';
+
+  @override
+  String get orderQuotePromoNote =>
+      'A promo code is not applied to the quote: it is deducted when you order. The charged amount may be lower, never higher.';
+
+  @override
+  String orderWeightTooHeavy(Object weight) {
+    return 'Above $weight kg you need to order a move, not a delivery.';
+  }
+
+  @override
+  String get catalogueErrorTitle => 'Catalogue unavailable';
+
+  @override
+  String get orderOptionsContinue => 'Continue';
+
+  @override
+  String get trackingDriverTitle => 'Your driver';
+
+  @override
+  String trackingDriverRating(Object average, Object count) {
+    return '$average ★ · $count rating(s)';
+  }
+
+  @override
+  String get trackingDriverNoRating => 'Not rated yet';
+
+  @override
+  String get trackingCall => 'Call';
+
+  @override
+  String trackingEta(Object minutes) {
+    return 'Estimated arrival in about $minutes min';
+  }
+
+  @override
+  String trackingRemainingKm(Object km) {
+    return '≈ $km km left, as the crow flies';
+  }
+
+  @override
+  String get trackingDeliveryCodeTitle => 'Delivery code';
+
+  @override
+  String get trackingDeliveryCodeBody =>
+      'Give this code to the driver at handover, and to no one else. After three wrong attempts a new code appears here.';
+
+  @override
+  String get trackingProofsTitle => 'Proofs';
+
+  @override
+  String get trackingProofPickup => 'Pickup';
+
+  @override
+  String get trackingProofDelivery => 'Delivery';
+
+  @override
+  String trackingProofReceivedBy(Object name) {
+    return 'Handed to $name';
+  }
+
+  @override
+  String get trackingProofNoPhoto => 'Photo unavailable';
+
+  @override
+  String get trackingRateTitle => 'Rate the driver';
+
+  @override
+  String get trackingRateBody => 'Your rating stays anonymous to the driver.';
+
+  @override
+  String get trackingRateSubmit => 'Send my rating';
+
+  @override
+  String get trackingRateCommentLabel => 'Comment (optional)';
+
+  @override
+  String get trackingRateThanks => 'Thanks, your rating has been saved.';
+
+  @override
+  String trackingRateAverage(Object average) {
+    return 'Driver\'s new average: $average ★';
+  }
+
+  @override
+  String get trackingRelaunch => 'Restart the search';
+
+  @override
+  String trackingRelaunchRemaining(Object count) {
+    return '$count retry(ies) left';
+  }
+
+  @override
+  String get trackingRelaunchPriceChanged =>
+      'The rate has changed since you ordered: check the new total before continuing.';
+
+  @override
+  String get trackingEmergency => 'Emergency';
+
+  @override
+  String get homeGreetingMorning => 'Good morning';
+
+  @override
+  String get homeGreetingAfternoon => 'Good afternoon';
+
+  @override
+  String get homeGreetingEvening => 'Good evening';
+
+  @override
+  String get homeHeroQuestion => 'What are we moving today?';
+
+  @override
+  String get homeSearchPlaceholder => 'Where should we deliver?';
+
+  @override
+  String get homeShortcutsTitle => 'Deliver to';
+
+  @override
+  String get homeShortcutAdd => 'Save an address';
+
+  @override
+  String get homeActiveOrdersSection => 'On the road';
+
+  @override
+  String get homeServiceInstant => 'Instant price';
+
+  @override
+  String get homeServiceOnQuote => 'On quote';
+
+  @override
+  String get homeHowTitle => 'How it works';
+
+  @override
+  String get homeHowStepRoute => 'Set the route';
+
+  @override
+  String get homeHowStepPrice => 'Get your price';
+
+  @override
+  String get homeHowStepTrack => 'Track every step';
+
+  @override
+  String ordersCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count orders',
+      one: '1 order',
+      zero: 'No orders',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get ordersGroupToday => 'Today';
+
+  @override
+  String get ordersGroupYesterday => 'Yesterday';
+
+  @override
+  String get ordersEmptyCta => 'Place an order';
+
+  @override
+  String get accountTitle => 'My account';
+
+  @override
+  String get accountEditProfile => 'Edit profile';
+
+  @override
+  String get accountStatOrders => 'Orders';
+
+  @override
+  String get accountStatCompleted => 'Delivered';
+
+  @override
+  String get accountStatAddresses => 'Addresses';
+
+  @override
+  String get accountSectionProfile => 'Profile';
+
+  @override
+  String get accountSectionPreferences => 'Preferences';
+
+  @override
+  String get accountReferralHint =>
+      'Share your code and track your commissions';
+
+  @override
+  String accountSavedAddressesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count addresses',
+      one: '1 address',
+      zero: 'No saved address',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get accountLanguageHint => 'App and notification language';
+
+  @override
+  String get driverSwipeOnline => 'Swipe to go online';
+
+  @override
+  String get driverGoOffline => 'Go offline';
+
+  @override
+  String get driverSwipeAccept => 'Swipe to accept';
+
+  @override
+  String get driverPlateLabel => 'Plate';
+
+  @override
+  String driverRatingCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count reviews',
+      one: '1 review',
+      zero: 'No reviews',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get driverProfileTitle => 'My profile';
+
+  @override
+  String get driverSectionVehicle => 'My vehicle';
+
+  @override
+  String get onboardingSkip => 'Skip';
+
+  @override
+  String get onboardingNext => 'Next';
+
+  @override
+  String get onboardingStart => 'Get started';
+
+  @override
+  String get onboardingEyebrow1 => 'Welcome to Camelia';
+
+  @override
+  String get onboardingTitle1 => 'Everything that moves, in one place';
+
+  @override
+  String get onboardingBody1 =>
+      'Parcels across town, moving, shipping or storage: pick the service, we take care of the journey.';
+
+  @override
+  String get onboardingEyebrow2 => 'Your route';
+
+  @override
+  String get onboardingTitle2 => 'Two addresses, and you\'re off';
+
+  @override
+  String get onboardingBody2 =>
+      'Set the pickup and the drop-off. For a parcel or a move, you see the price before you order.';
+
+  @override
+  String get onboardingPickupChip => 'Pickup';
+
+  @override
+  String get onboardingDropoffChip => 'Drop-off';
+
+  @override
+  String get onboardingInstantChip => 'Instant price';
+
+  @override
+  String get onboardingEyebrow3 => 'Tracking';
+
+  @override
+  String get onboardingTitle3 => 'Every step, without having to ask';
+
+  @override
+  String get onboardingBody3 =>
+      'A notification at every change: driver assigned, picked up, on the way, delivered.';
+
+  @override
+  String get onboardingEyebrow4 => 'Drivers';
+
+  @override
+  String get onboardingTitle4 => 'Got a vehicle? Drive with Camelia';
+
+  @override
+  String get onboardingBody4 =>
+      'Sign up as a driver. Once Camelia approves your account, jobs come straight to the app.';
+
+  @override
+  String get onboardingVerifiedChip => 'Approved account';
+
+  @override
+  String get authWelcomeBack => 'Welcome back';
+
+  @override
+  String get authHeroTagline =>
+      'Delivery, moving, shipping and storage across Cameroon.';
+
+  @override
+  String get authOrDivider => 'or';
+
+  @override
+  String get authShowPassword => 'Show password';
+
+  @override
+  String get authHidePassword => 'Hide password';
+
+  @override
+  String get authStepAccount => 'Account';
+
+  @override
+  String get authStepVerify => 'Verification';
+
+  @override
+  String get authStepReady => 'All set';
+
+  @override
+  String onboardingProgress(int current, int total) {
+    return 'Step $current of $total';
+  }
 }

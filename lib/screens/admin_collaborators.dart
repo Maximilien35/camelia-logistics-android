@@ -500,8 +500,6 @@ class _CollaboratorFormDialogState extends State<CollaboratorFormDialog> {
   late TextEditingController _serviceZoneController;
   late TextEditingController _vehicleController;
 
-
-
   final CollaboratorService _collaboratorService = CollaboratorService();
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
@@ -626,7 +624,7 @@ class _CollaboratorFormDialogState extends State<CollaboratorFormDialog> {
                       validator: (value) =>
                           value?.isEmpty ?? true ? 'Téléphone requis' : null,
                     ),
-                    
+
                     const SizedBox(height: 12),
                     _buildTextField(
                       controller: _serviceZoneController,

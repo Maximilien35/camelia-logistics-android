@@ -15,13 +15,17 @@ class ErrorHandlerService {
 
   /// Transforme une exception Firebase Auth en message user-friendly
   /// Log l'erreur technique pour les administrateurs
-  String handleFirebaseAuthError(FirebaseAuthException e, {StackTrace? stackTrace}) {
+  String handleFirebaseAuthError(
+    FirebaseAuthException e, {
+    StackTrace? stackTrace,
+  }) {
     String userMessage;
     String technicalMessage = '${e.code}: ${e.message}';
 
     switch (e.code) {
       case 'user-not-found':
-        userMessage = 'Cet email n\'est pas associé à un compte. Créez-vous un compte ou vérifiez l\'adresse email.';
+        userMessage =
+            'Cet email n\'est pas associé à un compte. Créez-vous un compte ou vérifiez l\'adresse email.';
         break;
       case 'wrong-password':
         userMessage = 'Mot de passe incorrect. Vérifiez votre saisie.';
@@ -30,31 +34,39 @@ class ErrorHandlerService {
         userMessage = 'Adresse email invalide. Vérifiez le format.';
         break;
       case 'user-disabled':
-        userMessage = 'Ce compte a été temporairement désactivé. Contactez le support.';
+        userMessage =
+            'Ce compte a été temporairement désactivé. Contactez le support.';
         break;
       case 'account-disabled':
-        userMessage = 'Votre compte a été désactivé. Contactez le support pour le réactiver.';
+        userMessage =
+            'Votre compte a été désactivé. Contactez le support pour le réactiver.';
         break;
       case 'email-already-in-use':
         userMessage = 'Cette adresse email est déjà utilisée.';
         break;
       case 'weak-password':
-        userMessage = 'Mot de passe trop faible. Utilisez au moins 6 caractères.';
+        userMessage =
+            'Mot de passe trop faible. Utilisez au moins 6 caractères.';
         break;
       case 'operation-not-allowed':
-        userMessage = 'Cette méthode d\'authentification n\'est pas disponible.';
+        userMessage =
+            'Cette méthode d\'authentification n\'est pas disponible.';
         break;
       case 'invalid-verification-code':
-        userMessage = 'Code de vérification invalide. Demandez un nouveau code.';
+        userMessage =
+            'Code de vérification invalide. Demandez un nouveau code.';
         break;
       case 'invalid-verification-id':
-        userMessage = 'Session de vérification expirée. Redémarrez le processus.';
+        userMessage =
+            'Session de vérification expirée. Redémarrez le processus.';
         break;
       case 'too-many-requests':
-        userMessage = 'Trop de tentatives. Veuillez patienter avant de réessayer.';
+        userMessage =
+            'Trop de tentatives. Veuillez patienter avant de réessayer.';
         break;
       case 'network-request-failed':
-        userMessage = 'Problème de connexion réseau. Vérifiez votre connexion internet.';
+        userMessage =
+            'Problème de connexion réseau. Vérifiez votre connexion internet.';
         break;
       case 'invalid-phone-number':
         userMessage = 'Numéro de téléphone invalide. Vérifiez le format.';
@@ -66,19 +78,23 @@ class ErrorHandlerService {
         userMessage = 'Ce numéro de téléphone est déjà utilisé.';
         break;
       case 'phone-account-disabled':
-        userMessage = 'Ce numéro de téléphone est associé à un compte désactivé. Contactez le support.';
+        userMessage =
+            'Ce numéro de téléphone est associé à un compte désactivé. Contactez le support.';
         break;
       case 'email-account-disabled':
-        userMessage = 'Cette adresse e-mail est associée à un compte désactivé. Contactez le support.';
+        userMessage =
+            'Cette adresse e-mail est associée à un compte désactivé. Contactez le support.';
         break;
       case 'email-not-verified':
-        userMessage = 'Veuillez vérifier votre email avant de vous connecter. Un email de vérification a été envoyé.';
+        userMessage =
+            'Veuillez vérifier votre email avant de vous connecter. Un email de vérification a été envoyé.';
         break;
       case 'user-not-authenticated':
         userMessage = 'Vous devez d\'abord compléter la vérification OTP.';
         break;
       case 'profile-not-found':
-        userMessage = 'Profil utilisateur introuvable. Inscrivez-vous ou contactez le support.';
+        userMessage =
+            'Profil utilisateur introuvable. Inscrivez-vous ou contactez le support.';
         break;
       case 'quota-exceeded':
         userMessage = 'Limite de demandes dépassée. Réessayez plus tard.';
@@ -105,10 +121,7 @@ class ErrorHandlerService {
       technicalMessage: technicalMessage,
       category: 'auth',
       stackTrace: stackTrace,
-      additionalContext: {
-        'errorCode': e.code,
-        'userMessage': userMessage,
-      },
+      additionalContext: {'errorCode': e.code, 'userMessage': userMessage},
     );
 
     return userMessage;
@@ -253,7 +266,9 @@ class ErrorHandlerService {
       category: 'cloud-functions',
       stackTrace: stackTrace,
       additionalContext: {
-        'errorCode': e is FirebaseException && e.plugin == 'cloud_functions' ? e.code : 'unknown',
+        'errorCode': e is FirebaseException && e.plugin == 'cloud_functions'
+            ? e.code
+            : 'unknown',
         'userMessage': userMessage,
       },
     );
@@ -263,7 +278,8 @@ class ErrorHandlerService {
 
   /// Transforme une exception réseau en message user-friendly
   String handleNetworkError(dynamic e, {StackTrace? stackTrace}) {
-    String userMessage = 'Problème de connexion. Vérifiez votre réseau et réessayez.';
+    String userMessage =
+        'Problème de connexion. Vérifiez votre réseau et réessayez.';
     String technicalMessage = e.toString();
 
     // Log l'erreur technique
@@ -272,17 +288,20 @@ class ErrorHandlerService {
       technicalMessage: technicalMessage,
       category: 'network',
       stackTrace: stackTrace,
-      additionalContext: {
-        'userMessage': userMessage,
-      },
+      additionalContext: {'userMessage': userMessage},
     );
 
     return userMessage;
   }
 
   /// Transforme une exception générique en message user-friendly
-  String handleGenericError(dynamic e, {StackTrace? stackTrace, String? context}) {
-    String userMessage = 'Une erreur inattendue est survenue. Veuillez réessayer.';
+  String handleGenericError(
+    dynamic e, {
+    StackTrace? stackTrace,
+    String? context,
+  }) {
+    String userMessage =
+        'Une erreur inattendue est survenue. Veuillez réessayer.';
     String technicalMessage = e.toString();
 
     // Log l'erreur technique
@@ -308,7 +327,8 @@ class ErrorHandlerService {
       return handleFirestoreError(e, stackTrace: stackTrace);
     } else if (e is FirebaseException && e.plugin == 'cloud_functions') {
       return handleCloudFunctionsError(e, stackTrace: stackTrace);
-    } else if (e.toString().contains('network') || e.toString().contains('connection')) {
+    } else if (e.toString().contains('network') ||
+        e.toString().contains('connection')) {
       return handleNetworkError(e, stackTrace: stackTrace);
     } else {
       return handleGenericError(e, stackTrace: stackTrace, context: context);

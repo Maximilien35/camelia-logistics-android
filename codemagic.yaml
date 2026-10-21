@@ -1,3 +1,26 @@
+# Pipeline de publication iOS.
+#
+# Le `CLAUDE.md` (règle non négociable n°1) interdit normalement de toucher ce
+# fichier, pour que la V2 reste une mise à jour de l'app publiée et non une app
+# séparée. **Modification autorisée explicitement par l'utilisateur le 8 octobre
+# 2026**, dans un périmètre volontairement étroit : ajout de deux variables
+# d'environnement et de l'étape qui les consomme. Ni l'identifiant de bundle, ni
+# la signature, ni la publication ne sont touchés.
+#
+# Variables à créer dans Codemagic (Team settings → Environment variables),
+# groupe **`camelia_env`**, les deux cochées « Secure » :
+#
+#   API_BASE_URL             URL du backend de production, sans barre finale
+#                            (ex. https://api.camelia.cm)
+#   GOOGLE_MAPS_API_KEY_IOS  clé du SDK Google Maps iOS, restreinte dans la
+#                            console Google au bundle id com.camelia.logistics
+#                            et à la seule API « Maps SDK for iOS »
+#
+# Tant que l'une des deux manque, le build échoue tôt et explicitement (étape
+# « Configuration de l'environnement de build »). C'est voulu : les deux pannes
+# qu'elles évitent ne se voient qu'une fois l'app installée — une app qui plante
+# au lancement, et une carte grise sur l'écran d'adresses.
+
 workflows:
   ios-release-workflow:
     name: Camelia Logistics iOS Release (App Store)
@@ -9,6 +32,8 @@ workflows:
     environment:
       groups:
         - app_store_credentials
+        # Voir l'en-tête de ce fichier pour le contenu attendu.
+        - camelia_env
       flutter: stable
       xcode: latest
       cocoapods: default
@@ -22,7 +47,7 @@ workflows:
       events:
         - push
       branch_patterns:
-        - pattern: 'ios' 
+        - pattern: 'ios'
           include: true
           source: true
       cancel_previous_builds: true
@@ -46,6 +71,36 @@ workflows:
       - name: Récupération des packages Flutter
         script: flutter pub get
 
+      - name: Configuration de l'environnement de build (URL backend, clé carte)
+        script: |
+          #!/usr/bin/env bash
+          set -euo pipefail
+
+          # Règle n°2 : aucune URL de backend écrite dans le code. Elle arrive
+          # par --dart-define, et sans elle `main()` lève une StateError au
+          # démarrage (Env.assertConfigured) : l'IPA serait publiée sur
+          # TestFlight et planterait au lancement, sans rien dire ici. On
+          # refuse donc de construire plutôt que de livrer ça.
+          if [ -z "${API_BASE_URL:-}" ]; then
+            echo "ERREUR : API_BASE_URL absente." >&2
+            echo "Ajouter la variable au groupe camelia_env dans Codemagic." >&2
+            exit 1
+          fi
+
+          # Règle n°10 : la clé du SDK Google Maps ne vit pas dans le dépôt.
+          # `ios/Flutter/Secrets.xcconfig` est ignoré par git, donc absent du
+          # clone de build — on le reconstitue ici, avant la compilation Xcode
+          # qui le lit. Sans lui, la carte de l'écran A4 part grise en
+          # production, et la sélection d'adresse se réduit à la recherche.
+          if [ -z "${GOOGLE_MAPS_API_KEY_IOS:-}" ]; then
+            echo "ERREUR : GOOGLE_MAPS_API_KEY_IOS absente." >&2
+            echo "Ajouter la variable au groupe camelia_env dans Codemagic." >&2
+            exit 1
+          fi
+          printf 'GOOGLE_MAPS_API_KEY=%s\n' "$GOOGLE_MAPS_API_KEY_IOS" \
+            > ios/Flutter/Secrets.xcconfig
+          echo "ios/Flutter/Secrets.xcconfig ecrit (valeur masquee par Codemagic)."
+
       - name: Nettoyage et synchronisation de CocoaPods (Correction de ton erreur Sandbox)
         script: |
           cd ios
@@ -67,6 +122,7 @@ workflows:
         script: |
           flutter build ipa --release \
             --build-number=$BUILD_NUMBER \
+            --dart-define=API_BASE_URL=$API_BASE_URL \
             --export-options-plist=/Users/builder/export_options.plist
 
     artifacts:
@@ -77,7 +133,7 @@ workflows:
       app_store_connect:
         auth: integration
         submit_to_testflight: true
-      
+
       email:
         recipients:
           - camelialogisticss@gmail.com

@@ -7,13 +7,13 @@ class ModifInfo extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title:const Text(
+        title: const Text(
           'Modifier vos informations',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
         leading: IconButton(
-          icon:const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () {
             Navigator.of(context).pop();
           },
@@ -21,7 +21,7 @@ class ModifInfo extends StatelessWidget {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding:const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(20),
           child: Column(
             children: [
               Column(
@@ -36,13 +36,13 @@ class ModifInfo extends StatelessWidget {
                     //controller: controller, // Utilisez le contrôleur passé en argument
                     decoration: InputDecoration(
                       hintText: "modifier votre nom",
-                      prefixIcon:const Icon(Icons.person),
+                      prefixIcon: const Icon(Icons.person),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(25),
                       ),
                     ),
                   ),
-                 const SizedBox(height: 10),
+                  const SizedBox(height: 10),
                 ],
               ),
               Column(
@@ -58,7 +58,7 @@ class ModifInfo extends StatelessWidget {
                     keyboardType: TextInputType.phone,
                     decoration: InputDecoration(
                       hintText: '6 xx xx xx xx',
-                      prefixIcon:const Icon(Icons.phone),
+                      prefixIcon: const Icon(Icons.phone),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(25),
                       ),
@@ -74,19 +74,19 @@ class ModifInfo extends StatelessWidget {
                     "Email",
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
-                 const SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   TextFormField(
                     readOnly: true,
-                   
+
                     decoration: InputDecoration(
                       hintText: 'mail',
-                      prefixIcon:const Icon(Icons.mail),
+                      prefixIcon: const Icon(Icons.mail),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(25),
                       ),
                     ),
                   ),
-                 const SizedBox(height: 10),
+                  const SizedBox(height: 10),
                 ],
               ),
             ],

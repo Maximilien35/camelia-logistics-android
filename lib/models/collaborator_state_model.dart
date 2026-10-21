@@ -84,7 +84,9 @@ class CollaboratorStateModel extends ChangeNotifier {
     if (_currentUser == null) return;
 
     try {
-      _collaboratorProfile = await _userProfileService.getProfileFresh(_currentUser!.uid);
+      _collaboratorProfile = await _userProfileService.getProfileFresh(
+        _currentUser!.uid,
+      );
       if (_collaboratorProfile == null) {
         _errorMessage = 'Profile not found';
       }
@@ -94,7 +96,6 @@ class CollaboratorStateModel extends ChangeNotifier {
       notifyListeners();
     }
   }
-    
 
   /// Load assigned orders with cache-first strategy
   Future<void> loadAssignedOrders() async {
@@ -104,7 +105,9 @@ class CollaboratorStateModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _assignedOrders = await _orderService.getAssignedOrders(_currentUser!.uid);
+      _assignedOrders = await _orderService.getAssignedOrders(
+        _currentUser!.uid,
+      );
       _totalOrders = _assignedOrders.length;
       _applyFilter(_filter);
       _isLoading = false;
@@ -127,7 +130,9 @@ class CollaboratorStateModel extends ChangeNotifier {
     }
 
     try {
-      _assignedOrders = await _orderService.getAssignedOrders(_currentUser!.uid);
+      _assignedOrders = await _orderService.getAssignedOrders(
+        _currentUser!.uid,
+      );
       _totalOrders = _assignedOrders.length;
       _applyFilter(_filter);
       _errorMessage = null;
@@ -169,7 +174,10 @@ class CollaboratorStateModel extends ChangeNotifier {
     if (_currentUser == null) return false;
 
     try {
-      final success = await _orderService.acceptOrder(orderId, _currentUser!.uid);
+      final success = await _orderService.acceptOrder(
+        orderId,
+        _currentUser!.uid,
+      );
       if (success) {
         // Reload orders
         await loadAssignedOrders();
@@ -188,8 +196,11 @@ class CollaboratorStateModel extends ChangeNotifier {
     if (_currentUser == null) return false;
 
     try {
-      final success =
-          await _orderService.refuseOrder(orderId, _currentUser!.uid, reason: reason);
+      final success = await _orderService.refuseOrder(
+        orderId,
+        _currentUser!.uid,
+        reason: reason,
+      );
       if (success) {
         // Reload orders
         await loadAssignedOrders();
@@ -204,11 +215,17 @@ class CollaboratorStateModel extends ChangeNotifier {
   }
 
   /// Update order status
-  Future<bool> updateOrderStatus(String orderId, String newStatus,
-      {String? notes}) async {
+  Future<bool> updateOrderStatus(
+    String orderId,
+    String newStatus, {
+    String? notes,
+  }) async {
     try {
-      final success =
-          await _orderService.updateOrderStatus(orderId, newStatus, notes: notes);
+      final success = await _orderService.updateOrderStatus(
+        orderId,
+        newStatus,
+        notes: notes,
+      );
       if (success) {
         // Update local state
         final index = _assignedOrders.indexWhere((o) => o['id'] == orderId);
@@ -260,8 +277,11 @@ class CollaboratorStateModel extends ChangeNotifier {
           .toList();
     } else if (filterType == 'IN_PROGRESS') {
       _filteredOrders = _assignedOrders
-          .where((order) =>
-              order['status'] == 'ACCEPTED' || order['status'] == 'IN_PROGRESS')
+          .where(
+            (order) =>
+                order['status'] == 'ACCEPTED' ||
+                order['status'] == 'IN_PROGRESS',
+          )
           .toList();
     } else if (filterType == 'COMPLETED') {
       _filteredOrders = _assignedOrders

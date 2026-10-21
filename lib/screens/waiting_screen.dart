@@ -20,7 +20,6 @@ class _WaitingScreenState extends State<WaitingScreen>
   final OrderService _orderService = OrderService();
   late final AnimationController _animationController;
   late List<String> messages;
-  
 
   @override
   void initState() {
@@ -50,7 +49,6 @@ class _WaitingScreenState extends State<WaitingScreen>
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -69,7 +67,6 @@ class _WaitingScreenState extends State<WaitingScreen>
         } else {
           context.go('/home_custom');
         }
-
       },
       child: Scaffold(
         backgroundColor: Colors.grey.shade50,
@@ -87,7 +84,6 @@ class _WaitingScreenState extends State<WaitingScreen>
 
             final order = snapshot.data;
 
-
             return CustomScrollView(
               slivers: [
                 // Header avec animation
@@ -102,8 +98,8 @@ class _WaitingScreenState extends State<WaitingScreen>
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [
-                            const Color(0xFF6C63FF).withValues(alpha:0.9),
-                            const Color(0xFF8B84FF).withValues(alpha:0.9),
+                            const Color(0xFF6C63FF).withValues(alpha: 0.9),
+                            const Color(0xFF8B84FF).withValues(alpha: 0.9),
                           ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
@@ -138,7 +134,9 @@ class _WaitingScreenState extends State<WaitingScreen>
                                       Icon(
                                         _getMessageIcon(messageIndex),
                                         size: 24,
-                                        color: Colors.white.withValues(alpha:0.9),
+                                        color: Colors.white.withValues(
+                                          alpha: 0.9,
+                                        ),
                                       ),
                                       const SizedBox(height: 12),
                                       Text(
@@ -147,7 +145,9 @@ class _WaitingScreenState extends State<WaitingScreen>
                                         style: TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.w600,
-                                          color: Colors.white.withValues(alpha:0.95),
+                                          color: Colors.white.withValues(
+                                            alpha: 0.95,
+                                          ),
                                           height: 1.4,
                                         ),
                                       ),
@@ -187,8 +187,9 @@ class _WaitingScreenState extends State<WaitingScreen>
                                       width: 40,
                                       height: 40,
                                       decoration: BoxDecoration(
-                                        color: const Color(0xFF6C63FF)
-                                            .withValues(alpha:0.1),
+                                        color: const Color(
+                                          0xFF6C63FF,
+                                        ).withValues(alpha: 0.1),
                                         borderRadius: BorderRadius.circular(10),
                                       ),
                                       child: const Icon(
@@ -198,7 +199,7 @@ class _WaitingScreenState extends State<WaitingScreen>
                                       ),
                                     ),
                                     const SizedBox(width: 16),
-                                     Text(
+                                    Text(
                                       l10n.orderSummary,
                                       style: const TextStyle(
                                         fontSize: 17,
@@ -258,7 +259,7 @@ class _WaitingScreenState extends State<WaitingScreen>
                                 ),
                                 const SizedBox(height: 16),
                                 Text(
-                                 l10n.orderNotFound,
+                                  l10n.orderNotFound,
                                   style: TextStyle(
                                     color: Colors.grey.shade600,
                                     fontSize: 16,
@@ -291,7 +292,9 @@ class _WaitingScreenState extends State<WaitingScreen>
                             width: 48,
                             height: 48,
                             decoration: BoxDecoration(
-                              color: const Color(0xFF2196F3).withValues(alpha:0.1),
+                              color: const Color(
+                                0xFF2196F3,
+                              ).withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: const Icon(
@@ -305,7 +308,7 @@ class _WaitingScreenState extends State<WaitingScreen>
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                 Text(
+                                Text(
                                   l10n.activeDrivers,
                                   style: const TextStyle(
                                     fontSize: 15,
@@ -346,23 +349,27 @@ class _WaitingScreenState extends State<WaitingScreen>
                             Expanded(
                               child: OutlinedButton.icon(
                                 onPressed: () {
-                                 launchURL("mailto:camelialogisticss@gmail.com",context);
+                                  launchURL(
+                                    "mailto:camelialogisticss@gmail.com",
+                                    context,
+                                  );
                                 },
                                 icon: const Icon(
                                   Icons.phone_rounded,
                                   color: Color(0xFF2196F3),
                                   size: 20,
                                 ),
-                                label:  Text(
-                                 l10n.emergency,
+                                label: Text(
+                                  l10n.emergency,
                                   style: const TextStyle(
                                     color: Color(0xFF2196F3),
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
                                 style: OutlinedButton.styleFrom(
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 16),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 16,
+                                  ),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
@@ -376,14 +383,17 @@ class _WaitingScreenState extends State<WaitingScreen>
                             Expanded(
                               child: OutlinedButton.icon(
                                 onPressed: () {
-                                 launchURL("https://wa.me/+237698209152?text=${Uri.encodeComponent("Bonjour, j'ai une question.")}",context);
+                                  launchURL(
+                                    "https://wa.me/+237698209152?text=${Uri.encodeComponent("Bonjour, j'ai une question.")}",
+                                    context,
+                                  );
                                 },
                                 icon: const Icon(
                                   Icons.chat_bubble_outline_rounded,
                                   color: Color(0xFF9C27B0),
                                   size: 20,
                                 ),
-                                label:  Text(
+                                label: Text(
                                   l10n.support,
                                   style: const TextStyle(
                                     color: Color(0xFF9C27B0),
@@ -391,8 +401,9 @@ class _WaitingScreenState extends State<WaitingScreen>
                                   ),
                                 ),
                                 style: OutlinedButton.styleFrom(
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 16),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 16,
+                                  ),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                   ),
@@ -414,7 +425,7 @@ class _WaitingScreenState extends State<WaitingScreen>
                               color: Color(0xFF6C63FF),
                               size: 20,
                             ),
-                            label:  Text(
+                            label: Text(
                               l10n.backToHome,
                               style: const TextStyle(
                                 color: Color(0xFF6C63FF),
@@ -449,7 +460,7 @@ class _WaitingScreenState extends State<WaitingScreen>
                           ),
                           const SizedBox(height: 16),
                           Text(
-                           l10n.waitingForDriver,
+                            l10n.waitingForDriver,
                             style: TextStyle(
                               color: Colors.grey.shade600,
                               fontSize: 14,
@@ -462,9 +473,7 @@ class _WaitingScreenState extends State<WaitingScreen>
                   ),
 
                 // Espace en bas
-                const SliverToBoxAdapter(
-                  child: SizedBox(height: 32),
-                ),
+                const SliverToBoxAdapter(child: SizedBox(height: 32)),
               ],
             );
           },
@@ -495,11 +504,7 @@ class _WaitingScreenState extends State<WaitingScreen>
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(
-          icon,
-          size: 20,
-          color: color,
-        ),
+        Icon(icon, size: 20, color: color),
         const SizedBox(width: 12),
         Expanded(
           child: Column(
@@ -528,5 +533,4 @@ class _WaitingScreenState extends State<WaitingScreen>
       ],
     );
   }
-
-    }
+}

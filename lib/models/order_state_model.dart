@@ -86,14 +86,13 @@ class OrderStateModel extends ChangeNotifier {
     notifyListeners();
   }
 
-
   static const double _livraisonRatePerKmBeyond8 = 150.0;
 
- 
   static double computeLivraisonPrice(double distanceKm) {
     if (distanceKm <= 3) return 1000.0;
     if (distanceKm <= 8) return 1500.0;
-    return (2000.0 + (distanceKm - 8) * _livraisonRatePerKmBeyond8).roundToDouble();
+    return (2000.0 + (distanceKm - 8) * _livraisonRatePerKmBeyond8)
+        .roundToDouble();
   }
 
   /// Calcule le prix estimé basé sur le serviceType et la distance

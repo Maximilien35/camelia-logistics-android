@@ -43,7 +43,8 @@ class _LocationPickerDialogState extends State<LocationPickerDialog> {
     try {
       // Ici on pourrait utiliser geocoding pour obtenir l'adresse
       // Pour l'instant, on utilise une adresse générique
-      _selectedAddress = '${position.latitude.toStringAsFixed(6)}, ${position.longitude.toStringAsFixed(6)}';
+      _selectedAddress =
+          '${position.latitude.toStringAsFixed(6)}, ${position.longitude.toStringAsFixed(6)}';
     } catch (e) {
       _selectedAddress = 'Adresse inconnue';
     } finally {
@@ -103,10 +104,7 @@ class _LocationPickerDialogState extends State<LocationPickerDialog> {
                 const SizedBox(width: 12),
                 const Text(
                   'Sélectionner la position',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 const Spacer(),
                 IconButton(
@@ -150,7 +148,8 @@ class _LocationPickerDialogState extends State<LocationPickerDialog> {
                 child: FlutterMap(
                   mapController: _mapController,
                   options: MapOptions(
-                    initialCenter: _selectedPosition ?? const LatLng(4.003777, 9.757328),
+                    initialCenter:
+                        _selectedPosition ?? const LatLng(4.003777, 9.757328),
                     initialZoom: 13.0,
                     onTap: (tapPosition, point) {
                       setState(() {
@@ -161,7 +160,8 @@ class _LocationPickerDialogState extends State<LocationPickerDialog> {
                   ),
                   children: [
                     TileLayer(
-                      urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                      urlTemplate:
+                          'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                       userAgentPackageName: 'com.camelia.logistics',
                     ),
                     if (_selectedPosition != null)
@@ -171,9 +171,12 @@ class _LocationPickerDialogState extends State<LocationPickerDialog> {
                             point: _selectedPosition!,
                             child: Container(
                               decoration: BoxDecoration(
-                                color: Colors.red.withValues(alpha:0.8),
+                                color: Colors.red.withValues(alpha: 0.8),
                                 shape: BoxShape.circle,
-                                border: Border.all(color: Colors.white, width: 2),
+                                border: Border.all(
+                                  color: Colors.white,
+                                  width: 2,
+                                ),
                               ),
                               child: const Icon(
                                 Icons.location_on,

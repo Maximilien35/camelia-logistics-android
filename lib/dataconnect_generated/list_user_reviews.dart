@@ -1,18 +1,22 @@
 part of 'example.dart';
 
 class ListUserReviewsVariablesBuilder {
-  
   final FirebaseDataConnect _dataConnect;
-  ListUserReviewsVariablesBuilder(this._dataConnect, );
-  Deserializer<ListUserReviewsData> dataDeserializer = (dynamic json)  => ListUserReviewsData.fromJson(jsonDecode(json));
-  
+  ListUserReviewsVariablesBuilder(this._dataConnect);
+  Deserializer<ListUserReviewsData> dataDeserializer = (dynamic json) =>
+      ListUserReviewsData.fromJson(jsonDecode(json));
+
   Future<QueryResult<ListUserReviewsData, void>> execute() {
     return ref().execute();
   }
 
   QueryRef<ListUserReviewsData, void> ref() {
-    
-    return _dataConnect.query("ListUserReviews", dataDeserializer, emptySerializer, null);
+    return _dataConnect.query(
+      "ListUserReviews",
+      dataDeserializer,
+      emptySerializer,
+      null,
+    );
   }
 }
 
@@ -20,13 +24,12 @@ class ListUserReviewsUser {
   String id;
   String username;
   List<ListUserReviewsUserReviews> reviews;
-  ListUserReviewsUser.fromJson(dynamic json):
-  
-  id = nativeFromJson<String>(json['id']),
-  username = nativeFromJson<String>(json['username']),
-  reviews = (json['reviews'] as List<dynamic>)
-        .map((e) => ListUserReviewsUserReviews.fromJson(e))
-        .toList();
+  ListUserReviewsUser.fromJson(dynamic json)
+    : id = nativeFromJson<String>(json['id']),
+      username = nativeFromJson<String>(json['username']),
+      reviews = (json['reviews'] as List<dynamic>)
+          .map((e) => ListUserReviewsUserReviews.fromJson(e))
+          .toList();
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> json = {};
@@ -48,12 +51,15 @@ class ListUserReviewsUserReviews {
   DateTime reviewDate;
   String? reviewText;
   ListUserReviewsUserReviewsMovie movie;
-  ListUserReviewsUserReviews.fromJson(dynamic json):
-  
-  rating = json['rating'] == null ? null : nativeFromJson<int>(json['rating']),
-  reviewDate = nativeFromJson<DateTime>(json['reviewDate']),
-  reviewText = json['reviewText'] == null ? null : nativeFromJson<String>(json['reviewText']),
-  movie = ListUserReviewsUserReviewsMovie.fromJson(json['movie']);
+  ListUserReviewsUserReviews.fromJson(dynamic json)
+    : rating = json['rating'] == null
+          ? null
+          : nativeFromJson<int>(json['rating']),
+      reviewDate = nativeFromJson<DateTime>(json['reviewDate']),
+      reviewText = json['reviewText'] == null
+          ? null
+          : nativeFromJson<String>(json['reviewText']),
+      movie = ListUserReviewsUserReviewsMovie.fromJson(json['movie']);
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> json = {};
@@ -79,10 +85,9 @@ class ListUserReviewsUserReviews {
 class ListUserReviewsUserReviewsMovie {
   String id;
   String title;
-  ListUserReviewsUserReviewsMovie.fromJson(dynamic json):
-  
-  id = nativeFromJson<String>(json['id']),
-  title = nativeFromJson<String>(json['title']);
+  ListUserReviewsUserReviewsMovie.fromJson(dynamic json)
+    : id = nativeFromJson<String>(json['id']),
+      title = nativeFromJson<String>(json['title']);
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> json = {};
@@ -91,17 +96,15 @@ class ListUserReviewsUserReviewsMovie {
     return json;
   }
 
-  ListUserReviewsUserReviewsMovie({
-    required this.id,
-    required this.title,
-  });
+  ListUserReviewsUserReviewsMovie({required this.id, required this.title});
 }
 
 class ListUserReviewsData {
   ListUserReviewsUser? user;
-  ListUserReviewsData.fromJson(dynamic json):
-  
-  user = json['user'] == null ? null : ListUserReviewsUser.fromJson(json['user']);
+  ListUserReviewsData.fromJson(dynamic json)
+    : user = json['user'] == null
+          ? null
+          : ListUserReviewsUser.fromJson(json['user']);
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> json = {};
@@ -111,8 +114,5 @@ class ListUserReviewsData {
     return json;
   }
 
-  ListUserReviewsData({
-    this.user,
-  });
+  ListUserReviewsData({this.user});
 }
-

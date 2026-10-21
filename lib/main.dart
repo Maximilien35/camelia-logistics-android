@@ -34,6 +34,7 @@ import 'screens/history_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:camelia/l10n/app_localizations.dart';
 import 'providers/language_provider.dart';
+import 'config/env.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -135,6 +136,10 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // Règle non négociable n°2 (CLAUDE.md) : un build release sans
+  // --dart-define=API_BASE_URL échoue ici plutôt que de partir
+  // silencieusement sur le repli de développement local.
+  Env.assertConfigured();
   await Firebase.initializeApp();
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 

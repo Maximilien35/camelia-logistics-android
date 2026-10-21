@@ -1,4 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <application
@@ -6,9 +7,24 @@
         android:label="Camelia"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
-        <meta-data android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyCAq7F496ZWuxRwrfQ3Xpoq9YPV4atQ_04"/>
+        <!-- Clé du SDK Google Maps, lue par le SDK au démarrage. La valeur
+             est injectée par `manifestPlaceholders` depuis
+             `android/local.properties` (ignoré par git) ou la variable
+             d'environnement `GOOGLE_MAPS_API_KEY_ANDROID` — **jamais écrite
+             ici** (règle n°10). La clé qui vivait en clair à cette place
+             était un résidu de la V1, qu'aucun SDK ne lisait ; elle a été
+             retirée le 8 octobre 2026 et doit être révoquée dans la console
+             Google, puisqu'elle reste dans l'historique git.
 
+             Restreindre cette clé dans la console : applications Android,
+             package `com.camelia.logistics`, et les trois empreintes SHA-1
+             (debug, release, **et Play App Signing** — sans cette dernière la
+             carte reste grise pour les utilisateurs du Play Store).
+
+             Firebase, lui, lit `google-services.json`, pas cette valeur. -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="${googleMapsApiKey}" />
 
         <activity
             android:name=".MainActivity"

@@ -96,7 +96,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
                 width: 80,
                 height: 80,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF4CAF50).withValues(alpha:0.1),
+                  color: const Color(0xFF4CAF50).withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
@@ -118,10 +118,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
               Text(
                 l10n.orderValidationSuccessMessage,
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 15,
-                  color: Colors.grey.shade600,
-                ),
+                style: TextStyle(fontSize: 15, color: Colors.grey.shade600),
               ),
               const SizedBox(height: 24),
               SizedBox(
@@ -164,13 +161,13 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     if (kDebugMode) {
-      print('Tentative de chargement de la commande avec ID: ${widget.orderId}');
+      print(
+        'Tentative de chargement de la commande avec ID: ${widget.orderId}',
+      );
     }
 
     if (widget.orderId.isEmpty) {
-      return Scaffold(
-        body: Center(child: Text(l10n.errorMissingOrderId)),
-      );
+      return Scaffold(body: Center(child: Text(l10n.errorMissingOrderId)));
     }
     return StreamBuilder<Order?>(
       stream: _orderService.streamOrder(widget.orderId),
@@ -181,9 +178,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
           );
         }
         if (!snapshot.hasData || snapshot.data == null) {
-          return Scaffold(
-            body: Center(child: Text(l10n.orderNotFound)),
-          );
+          return Scaffold(body: Center(child: Text(l10n.orderNotFound)));
         }
 
         final currentOrder = snapshot.data!;
@@ -194,172 +189,176 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen> {
 
   Widget _buildInterface(BuildContext context, Order order, String id) {
     final l10n = AppLocalizations.of(context)!;
-    if (order.priceQuote == 0.0 && order.isQuote==true && order.status == "PENDING") {
+    if (order.priceQuote == 0.0 &&
+        order.isQuote == true &&
+        order.status == "PENDING") {
       return WaitingScreen(orderId: widget.orderId);
-    } else if(order.isQuote==true && order.status == "PRICE_QUOTED") {
+    } else if (order.isQuote == true && order.status == "PRICE_QUOTED") {
       return Scaffold(
-          appBar: AppBar(title: Text(l10n.confirmYourOrder)),
-          body: SingleChildScrollView(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.5, //
-                  child: Stack(
-                    children: [
-                      SizedBox.expand(
-                        child: Lottie.asset(
-                          'assets/Success.json',
-                          fit: BoxFit.fill,
-                        ),
+        appBar: AppBar(title: Text(l10n.confirmYourOrder)),
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.5, //
+                child: Stack(
+                  children: [
+                    SizedBox.expand(
+                      child: Lottie.asset(
+                        'assets/Success.json',
+                        fit: BoxFit.fill,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-                Text(
-                  l10n.quoteDetails,
-                  style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              ),
+              Text(
+                l10n.quoteDetails,
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
                 ),
-                const SizedBox(height: 15),
+              ),
+              const SizedBox(height: 15),
 
-                Card(
-                  color: Colors.lightGreen.shade50,
-                  child: ListTile(
-                    title: Text(l10n.finalPriceWithoutTax),
-                    trailing: Text(
-                      "${order.priceQuote!.toStringAsFixed(0)} FCFA",
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF4CAF50),
-                      ),
+              Card(
+                color: Colors.lightGreen.shade50,
+                child: ListTile(
+                  title: Text(l10n.finalPriceWithoutTax),
+                  trailing: Text(
+                    "${order.priceQuote!.toStringAsFixed(0)} FCFA",
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF4CAF50),
                     ),
                   ),
                 ),
-                const SizedBox(height: 30),
+              ),
+              const SizedBox(height: 30),
 
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      finalizeOrder(widget.orderId, 'ACCEPTED');
-                      showSuccessFlashCard(context);
-                      context.push('/home_custom');
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF4CAF50),
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 15),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                    ),
-                    child: Text(
-                      l10n.confirmAndReceiveCall,
-                      style: const TextStyle(fontSize: 18),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    finalizeOrder(widget.orderId, 'ACCEPTED');
+                    showSuccessFlashCard(context);
+                    context.push('/home_custom');
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF4CAF50),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
                     ),
                   ),
-                ),
-                const SizedBox(height: 10),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      showManageDialog(context);
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFE10C0C),
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 15),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                    ),
-                    child: Text(
-                      l10n.refuse,
-                      style: const TextStyle(fontSize: 18),
-                    ),
+                  child: Text(
+                    l10n.confirmAndReceiveCall,
+                    style: const TextStyle(fontSize: 18),
                   ),
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(height: 10),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    showManageDialog(context);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFE10C0C),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                  ),
+                  child: Text(
+                    l10n.refuse,
+                    style: const TextStyle(fontSize: 18),
+                  ),
+                ),
+              ),
+            ],
           ),
+        ),
       );
-
     } else if (order.isQuote == false && order.priceQuote != null) {
       return Scaffold(
-          appBar: AppBar(title: const Text('Commande envoyée')),
-          body: SingleChildScrollView(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.5,
-                  child: Stack(
-                    children: [
-                      SizedBox.expand(
-                        child: Lottie.asset(
-                          'assets/Success.json',
-                          fit: BoxFit.fill,
-                        ),
+        appBar: AppBar(title: const Text('Commande envoyée')),
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.5,
+                child: Stack(
+                  children: [
+                    SizedBox.expand(
+                      child: Lottie.asset(
+                        'assets/Success.json',
+                        fit: BoxFit.fill,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-                const Text(
-                  'Votre commande a été enregistrée',
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  order.status == 'ASSIGNED'
-                      ? 'Un livreur a été assigné et va vous contacter.'
-                      : 'Nous recherchons un livreur disponible près de vous.',
-                  style: TextStyle(color: Colors.grey.shade600),
-                ),
-                const SizedBox(height: 15),
+              ),
+              const Text(
+                'Votre commande a été enregistrée',
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                order.status == 'ASSIGNED'
+                    ? 'Un livreur a été assigné et va vous contacter.'
+                    : 'Nous recherchons un livreur disponible près de vous.',
+                style: TextStyle(color: Colors.grey.shade600),
+              ),
+              const SizedBox(height: 15),
 
-                Card(
-                  color: Colors.lightGreen.shade50,
-                  child: ListTile(
-                    title: Text(l10n.finalPriceWithoutTax),
-                    trailing: Text(
-                      "${order.priceQuote!.toStringAsFixed(0)} FCFA",
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF4CAF50),
-                      ),
+              Card(
+                color: Colors.lightGreen.shade50,
+                child: ListTile(
+                  title: Text(l10n.finalPriceWithoutTax),
+                  trailing: Text(
+                    "${order.priceQuote!.toStringAsFixed(0)} FCFA",
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF4CAF50),
                     ),
                   ),
                 ),
-                const SizedBox(height: 30),
+              ),
+              const SizedBox(height: 30),
 
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      context.go('/home_custom');
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF4CAF50),
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 15),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                    ),
-                    child: Text(
-                      l10n.backToHome,
-                      style: const TextStyle(fontSize: 18),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    context.go('/home_custom');
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF4CAF50),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 15),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
                     ),
                   ),
+                  child: Text(
+                    l10n.backToHome,
+                    style: const TextStyle(fontSize: 18),
+                  ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
+        ),
       );
     }
     return Scaffold(

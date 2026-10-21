@@ -228,8 +228,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             Row(
                               children: [
                                 GestureDetector(
-                                  onTap: () {
-                                  },
+                                  onTap: () {},
                                   child: Container(
                                     width: 44,
                                     height: 44,
@@ -481,7 +480,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   title: l10n.support,
                   icon: Icons.support_agent_rounded,
                   items: [
-                    
                     // _buildDivider(),
                     // _buildInfoItem(
                     //   icon: Icons.feedback_outlined,
@@ -496,7 +494,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       title: l10n.policy,
                       subtitle: l10n.policyContent,
                       onTap: () => launchURL(
-                        "https://camelia-website.onrender.com/legal.html#mentions-legales",context
+                        "https://camelia-website.onrender.com/legal.html#mentions-legales",
+                        context,
                       ),
                     ),
                     _buildDivider(),
@@ -505,7 +504,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       title: l10n.conditions,
                       subtitle: l10n.conditionsContent,
                       onTap: () => launchURL(
-                        "https://camelia-website.onrender.com/legal.html#confidentialite",context
+                        "https://camelia-website.onrender.com/legal.html#confidentialite",
+                        context,
                       ),
                     ),
                     _buildDivider(),
@@ -514,7 +514,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       title: l10n.contactSupport,
                       subtitle: l10n.avis,
                       onTap: () => launchURL(
-                        "https://wa.me/+237698209152?text=${Uri.encodeComponent("Bonjour, j'ai une question.")}",context
+                        "https://wa.me/+237698209152?text=${Uri.encodeComponent("Bonjour, j'ai une question.")}",
+                        context,
                       ),
                     ),
                   ],
@@ -688,324 +689,325 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-
-
-Widget _buildStatColumn(String value, String label) {
-  return Column(
-    children: [
-      Text(
-        value,
-        style: GoogleFonts.poppins(
-          color: Colors.white,
-          fontWeight: FontWeight.w700,
-          fontSize: 22,
-        ),
-      ),
-      const SizedBox(height: 4),
-      Text(
-        label,
-        style: GoogleFonts.poppins(
-          color: Colors.white.withValues(alpha: 0.9),
-          fontSize: 13,
-        ),
-      ),
-    ],
-  );
-}
-
-Widget _buildStatColumnWithStars(
-  List<Widget> stars,
-  String label,
-  dynamic l10n,
-) {
-  return Column(
-    children: [
-      Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: stars.isNotEmpty
-            ? stars
-            : [
-                Text(
-                  l10n.beginner,
-                  style: GoogleFonts.poppins(color: Colors.white, fontSize: 16),
-                ),
-              ],
-      ),
-      const SizedBox(height: 4),
-      Text(
-        label,
-        style: GoogleFonts.poppins(
-          color: Colors.white.withValues(alpha: 0.9),
-          fontSize: 13,
-        ),
-      ),
-    ],
-  );
-}
-
-SliverToBoxAdapter _buildSection({
-  required String title,
-  required IconData icon,
-  required List<Widget> items,
-}) {
-  return SliverToBoxAdapter(
-    child: Padding(
-      padding: const EdgeInsets.only(left: 24, right: 24, top: 24),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 42,
-                height: 42,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF6C63FF).withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(icon, color: const Color(0xFF6C63FF), size: 22),
-              ),
-              const SizedBox(width: 14),
-              Text(
-                title,
-                style: GoogleFonts.poppins(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.grey.shade900,
-                  letterSpacing: -0.5,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 18),
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(color: Colors.grey.shade100, width: 1.5),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withValues(alpha: 0.05),
-                  blurRadius: 20,
-                  spreadRadius: 2,
-                ),
-              ],
-            ),
-            child: Column(children: items),
-          ),
-        ],
-      ),
-    ),
-  );
-}
-
-Widget _buildInfoItem({
-  required IconData icon,
-  required String title,
-  required String subtitle,
-  required VoidCallback onTap,
-}) {
-  return Material(
-    color: Colors.transparent,
-    child: InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(0),
-      child: Container(
-        padding: const EdgeInsets.all(22),
-        child: Row(
-          children: [
-            Container(
-              width: 52,
-              height: 52,
-              decoration: BoxDecoration(
-                color: Colors.blue.shade50,
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: Icon(icon, color: Colors.blue.shade700, size: 24),
-            ),
-            const SizedBox(width: 18),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: GoogleFonts.poppins(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.grey.shade900,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    subtitle,
-                    style: GoogleFonts.poppins(
-                      color: Colors.grey.shade600,
-                      fontSize: 14,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    ),
-  );
-}
-
-Widget _buildActionItem({
-  required IconData icon,
-  required String title,
-  required String subtitle,
-  required VoidCallback onTap,
-}) {
-  return Material(
-    color: Colors.transparent,
-    child: InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(0),
-      child: Container(
-        padding: const EdgeInsets.all(22),
-        child: Row(
-          children: [
-            Container(
-              width: 52,
-              height: 52,
-              decoration: BoxDecoration(
-                color: const Color(0xFF6C63FF).withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: Icon(icon, color: const Color(0xFF6C63FF), size: 24),
-            ),
-            const SizedBox(width: 18),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: GoogleFonts.poppins(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.grey.shade900,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    subtitle,
-                    style: GoogleFonts.poppins(
-                      color: Colors.grey.shade600,
-                      fontSize: 14,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Icon(
-              Icons.chevron_right_rounded,
-              color: Colors.grey.shade400,
-              size: 26,
-            ),
-          ],
-        ),
-      ),
-    ),
-  );
-}
-
-Widget _buildPerformanceItem({
-  required String title,
-  required String value,
-  required Color color,
-}) {
-  return Container(
-    padding: const EdgeInsets.all(22),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  Widget _buildStatColumn(String value, String label) {
+    return Column(
       children: [
-        Expanded(
-          child: Text(
-            title,
-            style: GoogleFonts.poppins(
-              fontSize: 15,
-              fontWeight: FontWeight.w500,
-              color: Colors.grey.shade800,
-            ),
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
         Text(
           value,
           style: GoogleFonts.poppins(
-            fontSize: 16,
+            color: Colors.white,
             fontWeight: FontWeight.w700,
-            color: color,
+            fontSize: 22,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          style: GoogleFonts.poppins(
+            color: Colors.white.withValues(alpha: 0.9),
+            fontSize: 13,
           ),
         ),
       ],
-    ),
-  );
-}
+    );
+  }
 
-Widget _buildSettingItem({
-  required IconData icon,
-  required String title,
-  required String subtitle,
-  required bool value,
-  required Function(bool) onChanged,
-}) {
-  return Container(
-    padding: const EdgeInsets.all(22),
-    child: Row(
+  Widget _buildStatColumnWithStars(
+    List<Widget> stars,
+    String label,
+    dynamic l10n,
+  ) {
+    return Column(
       children: [
-        Container(
-          width: 52,
-          height: 52,
-          decoration: BoxDecoration(
-            color: Colors.grey.shade50,
-            borderRadius: BorderRadius.circular(14),
-          ),
-          child: Icon(icon, color: Colors.grey.shade700, size: 24),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: stars.isNotEmpty
+              ? stars
+              : [
+                  Text(
+                    l10n.beginner,
+                    style: GoogleFonts.poppins(
+                      color: Colors.white,
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
         ),
-        const SizedBox(width: 18),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: GoogleFonts.poppins(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.grey.shade900,
+        const SizedBox(height: 4),
+        Text(
+          label,
+          style: GoogleFonts.poppins(
+            color: Colors.white.withValues(alpha: 0.9),
+            fontSize: 13,
+          ),
+        ),
+      ],
+    );
+  }
+
+  SliverToBoxAdapter _buildSection({
+    required String title,
+    required IconData icon,
+    required List<Widget> items,
+  }) {
+    return SliverToBoxAdapter(
+      child: Padding(
+        padding: const EdgeInsets.only(left: 24, right: 24, top: 24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: 42,
+                  height: 42,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF6C63FF).withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(icon, color: const Color(0xFF6C63FF), size: 22),
                 ),
+                const SizedBox(width: 14),
+                Text(
+                  title,
+                  style: GoogleFonts.poppins(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.grey.shade900,
+                    letterSpacing: -0.5,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 18),
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(color: Colors.grey.shade100, width: 1.5),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withValues(alpha: 0.05),
+                    blurRadius: 20,
+                    spreadRadius: 2,
+                  ),
+                ],
               ),
-              const SizedBox(height: 4),
-              Text(
-                subtitle,
-                style: GoogleFonts.poppins(
-                  color: Colors.grey.shade600,
-                  fontSize: 14,
+              child: Column(children: items),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoItem({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(0),
+        child: Container(
+          padding: const EdgeInsets.all(22),
+          child: Row(
+            children: [
+              Container(
+                width: 52,
+                height: 52,
+                decoration: BoxDecoration(
+                  color: Colors.blue.shade50,
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Icon(icon, color: Colors.blue.shade700, size: 24),
+              ),
+              const SizedBox(width: 18),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: GoogleFonts.poppins(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey.shade900,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      style: GoogleFonts.poppins(
+                        color: Colors.grey.shade600,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
         ),
-        Switch(
-          value: value,
-          onChanged: onChanged,
-          activeThumbColor: const Color(0xFF6C63FF),
-        ),
-      ],
-    ),
-  );
-}
+      ),
+    );
+  }
 
-Widget _buildDivider() {
-  return Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 22),
-    child: Divider(height: 0, thickness: 1, color: Colors.grey.shade100),
-  );
-}
+  Widget _buildActionItem({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(0),
+        child: Container(
+          padding: const EdgeInsets.all(22),
+          child: Row(
+            children: [
+              Container(
+                width: 52,
+                height: 52,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF6C63FF).withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Icon(icon, color: const Color(0xFF6C63FF), size: 24),
+              ),
+              const SizedBox(width: 18),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: GoogleFonts.poppins(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey.shade900,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      style: GoogleFonts.poppins(
+                        color: Colors.grey.shade600,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.chevron_right_rounded,
+                color: Colors.grey.shade400,
+                size: 26,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPerformanceItem({
+    required String title,
+    required String value,
+    required Color color,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(22),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Text(
+              title,
+              style: GoogleFonts.poppins(
+                fontSize: 15,
+                fontWeight: FontWeight.w500,
+                color: Colors.grey.shade800,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          Text(
+            value,
+            style: GoogleFonts.poppins(
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              color: color,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSettingItem({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required bool value,
+    required Function(bool) onChanged,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(22),
+      child: Row(
+        children: [
+          Container(
+            width: 52,
+            height: 52,
+            decoration: BoxDecoration(
+              color: Colors.grey.shade50,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Icon(icon, color: Colors.grey.shade700, size: 24),
+          ),
+          const SizedBox(width: 18),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: GoogleFonts.poppins(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.grey.shade900,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  subtitle,
+                  style: GoogleFonts.poppins(
+                    color: Colors.grey.shade600,
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Switch(
+            value: value,
+            onChanged: onChanged,
+            activeThumbColor: const Color(0xFF6C63FF),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDivider() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 22),
+      child: Divider(height: 0, thickness: 1, color: Colors.grey.shade100),
+    );
+  }
 }

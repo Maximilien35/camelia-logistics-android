@@ -13,11 +13,7 @@ class PhoneAuthState {
   final String? message;
   final bool isLoading;
 
-  PhoneAuthState({
-    required this.stage,
-    this.message,
-    this.isLoading = false,
-  });
+  PhoneAuthState({required this.stage, this.message, this.isLoading = false});
 }
 
 class PhoneAuthService {
@@ -70,7 +66,9 @@ class PhoneAuthService {
     }
   }
 
-  Future<UserCredential> signInWithCredential(PhoneAuthCredential credential) async {
+  Future<UserCredential> signInWithCredential(
+    PhoneAuthCredential credential,
+  ) async {
     return await _auth.signInWithCredential(credential);
   }
 

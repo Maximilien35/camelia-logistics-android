@@ -13,7 +13,10 @@ class CollaboratorAppInitializer {
 
   /// Optional: Pre-warm cache with test data
   /// Useful for development/testing
-  static void prewarmCacheDev(String collaboratorId, List<Map<String, dynamic>> sampleOrders) {
+  static void prewarmCacheDev(
+    String collaboratorId,
+    List<Map<String, dynamic>> sampleOrders,
+  ) {
     final cacheManager = CacheManager();
     cacheManager.cacheCollaboratorOrders(collaboratorId, sampleOrders);
   }
@@ -22,11 +25,8 @@ class CollaboratorAppInitializer {
 /// Widget wrapper to handle collaborator initialization
 class CollaboratorInitializerWidget extends StatelessWidget {
   final Widget child;
-  
-  const CollaboratorInitializerWidget({
-    super.key,
-    required this.child,
-  });
+
+  const CollaboratorInitializerWidget({super.key, required this.child});
 
   @override
   Widget build(BuildContext context) {
@@ -36,11 +36,11 @@ class CollaboratorInitializerWidget extends StatelessWidget {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return _buildLoadingScreen();
         }
-        
+
         if (snapshot.hasError) {
           return _buildErrorScreen(snapshot.error);
         }
-        
+
         return child;
       },
     );
@@ -59,10 +59,7 @@ class CollaboratorInitializerWidget extends StatelessWidget {
             const SizedBox(height: 16),
             const Text(
               'Initialisation...',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-              ),
+              style: TextStyle(color: Colors.white, fontSize: 16),
             ),
           ],
         ),
@@ -79,26 +76,16 @@ class CollaboratorInitializerWidget extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                Icons.error_outline,
-                color: Colors.red.shade600,
-                size: 48,
-              ),
+              Icon(Icons.error_outline, color: Colors.red.shade600, size: 48),
               const SizedBox(height: 16),
               const Text(
                 'Erreur d\'initialisation',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
               Text(
                 'Détail: $error',
-                style: const TextStyle(
-                  color: Colors.grey,
-                  fontSize: 12,
-                ),
+                style: const TextStyle(color: Colors.grey, fontSize: 12),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 24),

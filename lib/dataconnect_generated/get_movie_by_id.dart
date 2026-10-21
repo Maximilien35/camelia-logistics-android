@@ -4,16 +4,23 @@ class GetMovieByIdVariablesBuilder {
   String id;
 
   final FirebaseDataConnect _dataConnect;
-  GetMovieByIdVariablesBuilder(this._dataConnect, {required  this.id,});
-  Deserializer<GetMovieByIdData> dataDeserializer = (dynamic json)  => GetMovieByIdData.fromJson(jsonDecode(json));
-  Serializer<GetMovieByIdVariables> varsSerializer = (GetMovieByIdVariables vars) => jsonEncode(vars.toJson());
+  GetMovieByIdVariablesBuilder(this._dataConnect, {required this.id});
+  Deserializer<GetMovieByIdData> dataDeserializer = (dynamic json) =>
+      GetMovieByIdData.fromJson(jsonDecode(json));
+  Serializer<GetMovieByIdVariables> varsSerializer =
+      (GetMovieByIdVariables vars) => jsonEncode(vars.toJson());
   Future<QueryResult<GetMovieByIdData, GetMovieByIdVariables>> execute() {
     return ref().execute();
   }
 
   QueryRef<GetMovieByIdData, GetMovieByIdVariables> ref() {
-    GetMovieByIdVariables vars= GetMovieByIdVariables(id: id,);
-    return _dataConnect.query("GetMovieById", dataDeserializer, varsSerializer, vars);
+    GetMovieByIdVariables vars = GetMovieByIdVariables(id: id);
+    return _dataConnect.query(
+      "GetMovieById",
+      dataDeserializer,
+      varsSerializer,
+      vars,
+    );
   }
 }
 
@@ -24,16 +31,19 @@ class GetMovieByIdMovie {
   String? genre;
   GetMovieByIdMovieMetadata? metadata;
   List<GetMovieByIdMovieReviews> reviews;
-  GetMovieByIdMovie.fromJson(dynamic json):
-  
-  id = nativeFromJson<String>(json['id']),
-  title = nativeFromJson<String>(json['title']),
-  imageUrl = nativeFromJson<String>(json['imageUrl']),
-  genre = json['genre'] == null ? null : nativeFromJson<String>(json['genre']),
-  metadata = json['metadata'] == null ? null : GetMovieByIdMovieMetadata.fromJson(json['metadata']),
-  reviews = (json['reviews'] as List<dynamic>)
-        .map((e) => GetMovieByIdMovieReviews.fromJson(e))
-        .toList();
+  GetMovieByIdMovie.fromJson(dynamic json)
+    : id = nativeFromJson<String>(json['id']),
+      title = nativeFromJson<String>(json['title']),
+      imageUrl = nativeFromJson<String>(json['imageUrl']),
+      genre = json['genre'] == null
+          ? null
+          : nativeFromJson<String>(json['genre']),
+      metadata = json['metadata'] == null
+          ? null
+          : GetMovieByIdMovieMetadata.fromJson(json['metadata']),
+      reviews = (json['reviews'] as List<dynamic>)
+          .map((e) => GetMovieByIdMovieReviews.fromJson(e))
+          .toList();
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> json = {};
@@ -64,11 +74,16 @@ class GetMovieByIdMovieMetadata {
   double? rating;
   int? releaseYear;
   String? description;
-  GetMovieByIdMovieMetadata.fromJson(dynamic json):
-  
-  rating = json['rating'] == null ? null : nativeFromJson<double>(json['rating']),
-  releaseYear = json['releaseYear'] == null ? null : nativeFromJson<int>(json['releaseYear']),
-  description = json['description'] == null ? null : nativeFromJson<String>(json['description']);
+  GetMovieByIdMovieMetadata.fromJson(dynamic json)
+    : rating = json['rating'] == null
+          ? null
+          : nativeFromJson<double>(json['rating']),
+      releaseYear = json['releaseYear'] == null
+          ? null
+          : nativeFromJson<int>(json['releaseYear']),
+      description = json['description'] == null
+          ? null
+          : nativeFromJson<String>(json['description']);
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> json = {};
@@ -84,11 +99,7 @@ class GetMovieByIdMovieMetadata {
     return json;
   }
 
-  GetMovieByIdMovieMetadata({
-    this.rating,
-    this.releaseYear,
-    this.description,
-  });
+  GetMovieByIdMovieMetadata({this.rating, this.releaseYear, this.description});
 }
 
 class GetMovieByIdMovieReviews {
@@ -96,12 +107,15 @@ class GetMovieByIdMovieReviews {
   DateTime reviewDate;
   int? rating;
   GetMovieByIdMovieReviewsUser user;
-  GetMovieByIdMovieReviews.fromJson(dynamic json):
-  
-  reviewText = json['reviewText'] == null ? null : nativeFromJson<String>(json['reviewText']),
-  reviewDate = nativeFromJson<DateTime>(json['reviewDate']),
-  rating = json['rating'] == null ? null : nativeFromJson<int>(json['rating']),
-  user = GetMovieByIdMovieReviewsUser.fromJson(json['user']);
+  GetMovieByIdMovieReviews.fromJson(dynamic json)
+    : reviewText = json['reviewText'] == null
+          ? null
+          : nativeFromJson<String>(json['reviewText']),
+      reviewDate = nativeFromJson<DateTime>(json['reviewDate']),
+      rating = json['rating'] == null
+          ? null
+          : nativeFromJson<int>(json['rating']),
+      user = GetMovieByIdMovieReviewsUser.fromJson(json['user']);
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> json = {};
@@ -127,10 +141,9 @@ class GetMovieByIdMovieReviews {
 class GetMovieByIdMovieReviewsUser {
   String id;
   String username;
-  GetMovieByIdMovieReviewsUser.fromJson(dynamic json):
-  
-  id = nativeFromJson<String>(json['id']),
-  username = nativeFromJson<String>(json['username']);
+  GetMovieByIdMovieReviewsUser.fromJson(dynamic json)
+    : id = nativeFromJson<String>(json['id']),
+      username = nativeFromJson<String>(json['username']);
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> json = {};
@@ -139,17 +152,15 @@ class GetMovieByIdMovieReviewsUser {
     return json;
   }
 
-  GetMovieByIdMovieReviewsUser({
-    required this.id,
-    required this.username,
-  });
+  GetMovieByIdMovieReviewsUser({required this.id, required this.username});
 }
 
 class GetMovieByIdData {
   GetMovieByIdMovie? movie;
-  GetMovieByIdData.fromJson(dynamic json):
-  
-  movie = json['movie'] == null ? null : GetMovieByIdMovie.fromJson(json['movie']);
+  GetMovieByIdData.fromJson(dynamic json)
+    : movie = json['movie'] == null
+          ? null
+          : GetMovieByIdMovie.fromJson(json['movie']);
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> json = {};
@@ -159,17 +170,16 @@ class GetMovieByIdData {
     return json;
   }
 
-  GetMovieByIdData({
-    this.movie,
-  });
+  GetMovieByIdData({this.movie});
 }
 
 class GetMovieByIdVariables {
   String id;
-  @Deprecated('fromJson is deprecated for Variable classes as they are no longer required for deserialization.')
-  GetMovieByIdVariables.fromJson(Map<String, dynamic> json):
-  
-  id = nativeFromJson<String>(json['id']);
+  @Deprecated(
+    'fromJson is deprecated for Variable classes as they are no longer required for deserialization.',
+  )
+  GetMovieByIdVariables.fromJson(Map<String, dynamic> json)
+    : id = nativeFromJson<String>(json['id']);
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> json = {};
@@ -177,8 +187,5 @@ class GetMovieByIdVariables {
     return json;
   }
 
-  GetMovieByIdVariables({
-    required this.id,
-  });
+  GetMovieByIdVariables({required this.id});
 }
-

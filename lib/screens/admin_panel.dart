@@ -767,7 +767,9 @@ class OrderAdminCard extends StatelessWidget {
                               vertical: 4,
                             ),
                             decoration: BoxDecoration(
-                              color: const Color(0xFF6C63FF).withValues(alpha: 0.1),
+                              color: const Color(
+                                0xFF6C63FF,
+                              ).withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: const Text(
@@ -1555,7 +1557,11 @@ class _OrderDetailsAdminScreenState extends State<OrderDetailsAdminScreen> {
                             label: 'Date de création',
                             value: _formatDate(order.timestamp),
                           ),
-                          _buildDetailRow(icon: Icons.abc, label: "type", value: order.serviceType),
+                          _buildDetailRow(
+                            icon: Icons.abc,
+                            label: "type",
+                            value: order.serviceType,
+                          ),
                           if (order.isFromPartner)
                             _buildDetailRow(
                               icon: Icons.business_center_rounded,
@@ -1580,8 +1586,8 @@ class _OrderDetailsAdminScreenState extends State<OrderDetailsAdminScreen> {
                               value: order.additionalDetails.entries
                                   .map((e) => '${e.key}: ${e.value}')
                                   .join('\n'),
-                              isMultiLine: true,                 
-                              ),
+                              isMultiLine: true,
+                            ),
                         ],
                       ),
                       const SizedBox(height: 24),

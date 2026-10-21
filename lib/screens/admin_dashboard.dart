@@ -63,8 +63,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      const Color(0xFF6C63FF).withValues(alpha:0.9),
-                      const Color(0xFF8B84FF).withValues(alpha:0.9),
+                      const Color(0xFF6C63FF).withValues(alpha: 0.9),
+                      const Color(0xFF8B84FF).withValues(alpha: 0.9),
                     ],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
@@ -106,8 +106,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                             const SizedBox(height: 8),
                             Text(
                               l10n.dashboardTitle,
-                              style:  TextStyle(
-                                color: Colors.white.withValues(alpha:0.85),
+                              style: TextStyle(
+                                color: Colors.white.withValues(alpha: 0.85),
                                 fontSize: 14,
                               ),
                             ),
@@ -131,8 +131,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                           const SizedBox(height: 8),
                           Text(
                             l10n.helloAdmin(prof.name),
-                            style:  TextStyle(
-                              color: Colors.white.withValues(alpha:0.85),
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.85),
                               fontSize: 14,
                             ),
                           ),
@@ -140,10 +140,10 @@ class _AdminDashboardState extends State<AdminDashboard> {
                           Container(
                             padding: const EdgeInsets.all(10),
                             decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha:0.15),
+                              color: Colors.white.withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(16),
                               border: Border.all(
-                                color: Colors.white.withValues(alpha:0.2),
+                                color: Colors.white.withValues(alpha: 0.2),
                               ),
                             ),
                             child: Row(
@@ -164,7 +164,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                 const SizedBox(width: 16),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         l10n.administrator,
@@ -177,8 +178,10 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                       const SizedBox(height: 2),
                                       Text(
                                         l10n.managePlatform,
-                                        style:  TextStyle(
-                                          color: Colors.white.withValues(alpha:0.85),
+                                        style: TextStyle(
+                                          color: Colors.white.withValues(
+                                            alpha: 0.85,
+                                          ),
                                           fontSize: 10,
                                         ),
                                       ),
@@ -215,7 +218,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                         width: 36,
                         height: 36,
                         decoration: BoxDecoration(
-                          color: const Color(0xFF6C63FF).withValues(alpha:0.1),
+                          color: const Color(0xFF6C63FF).withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: const Icon(
@@ -321,7 +324,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
                               title: l10n.revenue,
                               color: const Color(0xFF9C27B0),
                               future: _revenueFuture,
-                              formatter: (value) => '${value?.toStringAsFixed(0) ?? '0'} FCFA',
+                              formatter: (value) =>
+                                  '${value?.toStringAsFixed(0) ?? '0'} FCFA',
                               l10n: l10n,
                             ),
                           ),
@@ -348,7 +352,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                         width: 36,
                         height: 36,
                         decoration: BoxDecoration(
-                          color: const Color(0xFF6C63FF).withValues(alpha:0.1),
+                          color: const Color(0xFF6C63FF).withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: const Icon(
@@ -394,7 +398,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
                           width: 32,
                           height: 32,
                           decoration: BoxDecoration(
-                            color: const Color(0xFF6C63FF).withValues(alpha:0.1),
+                            color: const Color(
+                              0xFF6C63FF,
+                            ).withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: const Icon(
@@ -416,15 +422,14 @@ class _AdminDashboardState extends State<AdminDashboard> {
                     ),
                     const SizedBox(height: 13),
                     SizedBox(
-                      
                       child: FutureBuilder<Map<String, int>>(
                         future: _ordersByStatusFuture,
                         builder: (context, snapshot) {
                           if (snapshot.connectionState ==
                               ConnectionState.waiting) {
-                            return const  Center(
+                            return const Center(
                               child: CircularProgressIndicator(
-                                color:  Color(0xFF6C63FF),
+                                color: Color(0xFF6C63FF),
                                 strokeWidth: 2,
                               ),
                             );
@@ -447,7 +452,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                     const SizedBox(height: 12),
                                     Text(
                                       l10n.loadingError,
-                                      style:  TextStyle(
+                                      style: TextStyle(
                                         color: Colors.grey.shade600,
                                       ),
                                     ),
@@ -474,7 +479,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                     const SizedBox(height: 12),
                                     Text(
                                       l10n.noDataAvailable,
-                                      style:  TextStyle(
+                                      style: TextStyle(
                                         color: Colors.grey.shade600,
                                       ),
                                     ),
@@ -499,10 +504,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
           // Chiffre d'affaires mensuel
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 24,
-                vertical: 16,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               child: Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -519,7 +521,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
                           width: 32,
                           height: 32,
                           decoration: BoxDecoration(
-                            color: const Color(0xFF6C63FF).withValues(alpha:0.1),
+                            color: const Color(
+                              0xFF6C63FF,
+                            ).withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: const Icon(
@@ -549,7 +553,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                               ConnectionState.waiting) {
                             return const Center(
                               child: CircularProgressIndicator(
-                                color:  Color(0xFF6C63FF),
+                                color: Color(0xFF6C63FF),
                                 strokeWidth: 2,
                               ),
                             );
@@ -572,7 +576,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                     const SizedBox(height: 12),
                                     Text(
                                       l10n.loadingError,
-                                      style:  TextStyle(
+                                      style: TextStyle(
                                         color: Colors.grey.shade600,
                                       ),
                                     ),
@@ -599,7 +603,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
                                     const SizedBox(height: 12),
                                     Text(
                                       l10n.noRevenueData,
-                                      style:  TextStyle(
+                                      style: TextStyle(
                                         color: Colors.grey.shade600,
                                       ),
                                     ),
@@ -622,9 +626,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
           ),
 
           // Espace en bas
-          const SliverToBoxAdapter(
-            child: SizedBox(height: 32),
-          ),
+          const SliverToBoxAdapter(child: SizedBox(height: 32)),
         ],
       ),
     );
@@ -656,72 +658,72 @@ class _AdminDashboardState extends State<AdminDashboard> {
               child: FittedBox(
                 fit: BoxFit.scaleDown,
                 child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 40, // Réduit de 48 à 40
-                    height: 40, // Réduit de 48 à 40
-                    decoration: BoxDecoration(
-                      color: color.withValues(alpha:0.1),
-                      borderRadius: BorderRadius.circular(12),
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 40, // Réduit de 48 à 40
+                      height: 40, // Réduit de 48 à 40
+                      decoration: BoxDecoration(
+                        color: color.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        icon,
+                        color: color,
+                        size: 22, // Réduit de 24 à 22
+                      ),
                     ),
-                    child: Icon(
-                      icon,
-                      color: color,
-                      size: 22, // Réduit de 24 à 22
-                    ),
-                  ),
-                  const SizedBox(height: 10), // Réduit de 12 à 10
-                  if (snapshot.connectionState == ConnectionState.waiting)
-                    FittedBox(
-                      child: Text(
-                        loadingWidget,
-                        style: const TextStyle(
-                          fontSize: 22, // Réduit de 24 à 22
-                          fontWeight: FontWeight.w700,
-                          color: Colors.black87,
+                    const SizedBox(height: 10), // Réduit de 12 à 10
+                    if (snapshot.connectionState == ConnectionState.waiting)
+                      FittedBox(
+                        child: Text(
+                          loadingWidget,
+                          style: const TextStyle(
+                            fontSize: 22, // Réduit de 24 à 22
+                            fontWeight: FontWeight.w700,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      )
+                    else if (snapshot.hasError)
+                      FittedBox(
+                        child: Text(
+                          l10n.error,
+                          style: TextStyle(
+                            fontSize: 22, // Réduit de 24 à 22
+                            fontWeight: FontWeight.w700,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                      )
+                    else
+                      FittedBox(
+                        child: Text(
+                          builder(snapshot.data ?? []),
+                          style: const TextStyle(
+                            fontSize: 22, // Réduit de 24 à 22
+                            fontWeight: FontWeight.w700,
+                            color: Colors.black87,
+                          ),
                         ),
                       ),
-                    )
-                  else if (snapshot.hasError)
+                    const SizedBox(height: 6), // Réduit de 8 à 6
                     FittedBox(
+                      fit: BoxFit.scaleDown,
                       child: Text(
-                        l10n.error,
+                        title,
                         style: TextStyle(
-                          fontSize: 22, // Réduit de 24 à 22
-                          fontWeight: FontWeight.w700,
+                          fontSize: 11, // Réduit de 12 à 11
+                          fontWeight: FontWeight.w500,
                           color: Colors.grey.shade600,
                         ),
-                      ),
-                    )
-                  else
-                    FittedBox(
-                      child: Text(
-                        builder(snapshot.data ?? []),
-                        style: const TextStyle(
-                          fontSize: 22, // Réduit de 24 à 22
-                          fontWeight: FontWeight.w700,
-                          color: Colors.black87,
-                        ),
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
                       ),
                     ),
-                  const SizedBox(height: 6), // Réduit de 8 à 6
-                  FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(
-                      title,
-                      style: TextStyle(
-                        fontSize: 11, // Réduit de 12 à 11
-                        fontWeight: FontWeight.w500,
-                        color: Colors.grey.shade600,
-                      ),
-                      textAlign: TextAlign.center,
-                      maxLines: 2,
-                    ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
               ),
             );
           },
@@ -756,89 +758,89 @@ class _AdminDashboardState extends State<AdminDashboard> {
               child: FittedBox(
                 fit: BoxFit.scaleDown,
                 child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 40, // Réduit de 48 à 40
-                    height: 40, // Réduit de 48 à 40
-                    decoration: BoxDecoration(
-                      color: color.withValues(alpha:0.1),
-                      borderRadius: BorderRadius.circular(12),
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 40, // Réduit de 48 à 40
+                      height: 40, // Réduit de 48 à 40
+                      decoration: BoxDecoration(
+                        color: color.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        icon,
+                        color: color,
+                        size: 22, // Réduit de 24 à 22
+                      ),
                     ),
-                    child: Icon(
-                      icon,
-                      color: color,
-                      size: 22, // Réduit de 24 à 22
-                    ),
-                  ),
-                  const SizedBox(height: 10), // Réduit de 12 à 10
-                  if (snapshot.connectionState == ConnectionState.waiting)
-                    const FittedBox(
-                      child: Text(
-                        '...',
-                        style:  TextStyle(
-                          fontSize: 22, // Réduit de 24 à 22
-                          fontWeight: FontWeight.w700,
-                          color: Colors.black87,
+                    const SizedBox(height: 10), // Réduit de 12 à 10
+                    if (snapshot.connectionState == ConnectionState.waiting)
+                      const FittedBox(
+                        child: Text(
+                          '...',
+                          style: TextStyle(
+                            fontSize: 22, // Réduit de 24 à 22
+                            fontWeight: FontWeight.w700,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      )
+                    else if (snapshot.hasError)
+                      FittedBox(
+                        child: Text(
+                          l10n.error,
+                          style: TextStyle(
+                            fontSize: 22, // Réduit de 24 à 22
+                            fontWeight: FontWeight.w700,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                      )
+                    else
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          formatter(snapshot.data),
+                          style: const TextStyle(
+                            fontSize: 22, // Réduit de 24 à 22
+                            fontWeight: FontWeight.w700,
+                            color: Colors.black87,
+                          ),
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
                         ),
                       ),
-                    )
-                  else if (snapshot.hasError)
-                    FittedBox(
-                      child: Text(
-                        l10n.error,
-                        style:  TextStyle(
-                          fontSize: 22, // Réduit de 24 à 22
-                          fontWeight: FontWeight.w700,
-                          color: Colors.grey.shade600,
-                        ),
-                      ),
-                    )
-                  else
+                    const SizedBox(height: 6), // Réduit de 8 à 6
                     FittedBox(
                       fit: BoxFit.scaleDown,
                       child: Text(
-                        formatter(snapshot.data),
-                        style: const TextStyle(
-                          fontSize: 22, // Réduit de 24 à 22
-                          fontWeight: FontWeight.w700,
-                          color: Colors.black87,
+                        title,
+                        style: TextStyle(
+                          fontSize: 11, // Réduit de 12 à 11
+                          fontWeight: FontWeight.w500,
+                          color: Colors.grey.shade600,
                         ),
                         textAlign: TextAlign.center,
                         maxLines: 2,
                       ),
                     ),
-                  const SizedBox(height: 6), // Réduit de 8 à 6
-                  FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(
-                      title,
-                      style: TextStyle(
-                        fontSize: 11, // Réduit de 12 à 11
-                        fontWeight: FontWeight.w500,
-                        color: Colors.grey.shade600,
-                      ),
-                      textAlign: TextAlign.center,
-                      maxLines: 2,
-                    ),
-                  ),
-                  if (subtitle != null) ...[
-                    const SizedBox(height: 2),
-                    FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Text(
-                        subtitle,
-                        style: TextStyle(
-                          fontSize: 9, // Réduit de 10 à 9
-                          color: Colors.grey.shade500,
+                    if (subtitle != null) ...[
+                      const SizedBox(height: 2),
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          subtitle,
+                          style: TextStyle(
+                            fontSize: 9, // Réduit de 10 à 9
+                            color: Colors.grey.shade500,
+                          ),
+                          maxLines: 1,
                         ),
-                        maxLines: 1,
                       ),
-                    ),
+                    ],
                   ],
-                ],
-              ),
+                ),
               ),
             );
           },

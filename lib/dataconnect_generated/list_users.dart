@@ -1,28 +1,31 @@
 part of 'example.dart';
 
 class ListUsersVariablesBuilder {
-  
   final FirebaseDataConnect _dataConnect;
-  ListUsersVariablesBuilder(this._dataConnect, );
-  Deserializer<ListUsersData> dataDeserializer = (dynamic json)  => ListUsersData.fromJson(jsonDecode(json));
-  
+  ListUsersVariablesBuilder(this._dataConnect);
+  Deserializer<ListUsersData> dataDeserializer = (dynamic json) =>
+      ListUsersData.fromJson(jsonDecode(json));
+
   Future<QueryResult<ListUsersData, void>> execute() {
     return ref().execute();
   }
 
   QueryRef<ListUsersData, void> ref() {
-    
-    return _dataConnect.query("ListUsers", dataDeserializer, emptySerializer, null);
+    return _dataConnect.query(
+      "ListUsers",
+      dataDeserializer,
+      emptySerializer,
+      null,
+    );
   }
 }
 
 class ListUsersUsers {
   String id;
   String username;
-  ListUsersUsers.fromJson(dynamic json):
-  
-  id = nativeFromJson<String>(json['id']),
-  username = nativeFromJson<String>(json['username']);
+  ListUsersUsers.fromJson(dynamic json)
+    : id = nativeFromJson<String>(json['id']),
+      username = nativeFromJson<String>(json['username']);
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> json = {};
@@ -31,19 +34,15 @@ class ListUsersUsers {
     return json;
   }
 
-  ListUsersUsers({
-    required this.id,
-    required this.username,
-  });
+  ListUsersUsers({required this.id, required this.username});
 }
 
 class ListUsersData {
   List<ListUsersUsers> users;
-  ListUsersData.fromJson(dynamic json):
-  
-  users = (json['users'] as List<dynamic>)
-        .map((e) => ListUsersUsers.fromJson(e))
-        .toList();
+  ListUsersData.fromJson(dynamic json)
+    : users = (json['users'] as List<dynamic>)
+          .map((e) => ListUsersUsers.fromJson(e))
+          .toList();
 
   Map<String, dynamic> toJson() {
     Map<String, dynamic> json = {};
@@ -51,8 +50,5 @@ class ListUsersData {
     return json;
   }
 
-  ListUsersData({
-    required this.users,
-  });
+  ListUsersData({required this.users});
 }
-

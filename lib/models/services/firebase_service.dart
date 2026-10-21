@@ -134,17 +134,15 @@ class AuthService {
     }
   }
 
-  Future<User?> signIn({
-    required String phoneNumber,
-  }) async {
+  Future<User?> signIn({required String phoneNumber}) async {
     try {
-      
-      final userProfile = await _storeService.getProfileByPhone(phoneNumber.trim());
+      final userProfile = await _storeService.getProfileByPhone(
+        phoneNumber.trim(),
+      );
       if (userProfile == null) {
         throw FirebaseAuthException(
           code: 'profile-not-found',
-          message:
-              'Profil utilisateur introuvable. Veuillez vous inscrire.',
+          message: 'Profil utilisateur introuvable. Veuillez vous inscrire.',
         );
       }
       final currentUser = _auth.currentUser;
@@ -155,7 +153,6 @@ class AuthService {
               'L’utilisateur n’est pas authentifié. Complétez la vérification OTP d’abord.',
         );
       }
-
 
       if (!userProfile.isActive) {
         await _auth.signOut();
@@ -221,7 +218,8 @@ class AuthService {
         await user.sendEmailVerification();
         throw FirebaseAuthException(
           code: 'email-not-verified',
-          message: 'Veuillez vérifier votre email avant de vous connecter. Un nouvel email de vérification a été envoyé.',
+          message:
+              'Veuillez vérifier votre email avant de vous connecter. Un nouvel email de vérification a été envoyé.',
         );
       }
 
@@ -230,7 +228,8 @@ class AuthService {
       if (userProfile == null) {
         throw FirebaseAuthException(
           code: 'profile-not-found',
-          message: 'Profil utilisateur introuvable. Veuillez contacter le support.',
+          message:
+              'Profil utilisateur introuvable. Veuillez contacter le support.',
         );
       }
 
@@ -238,14 +237,17 @@ class AuthService {
         await _auth.signOut();
         throw FirebaseAuthException(
           code: 'account-disabled',
-          message: 'Votre compte a été désactivé. Contactez le support pour le réactiver.',
+          message:
+              'Votre compte a été désactivé. Contactez le support pour le réactiver.',
         );
       }
 
       return user;
     } on FirebaseAuthException catch (e) {
       if (kDebugMode) {
-        print('SignInWithEmail FirebaseAuthException: ${e.code} - ${e.message}');
+        print(
+          'SignInWithEmail FirebaseAuthException: ${e.code} - ${e.message}',
+        );
       }
       rethrow;
     } catch (e) {
@@ -263,8 +265,12 @@ class AuthService {
   }) async {
     try {
       // Vérifier unicité de l'email et du téléphone
-      final existingEmailProfile = await _storeService.getProfileByEmail(email.trim());
-      final existingPhoneProfile = await _storeService.getProfileByPhone(phoneNumber.trim());
+      final existingEmailProfile = await _storeService.getProfileByEmail(
+        email.trim(),
+      );
+      final existingPhoneProfile = await _storeService.getProfileByPhone(
+        phoneNumber.trim(),
+      );
 
       if (existingEmailProfile != null) {
         throw FirebaseAuthException(
@@ -315,7 +321,9 @@ class AuthService {
       return user;
     } on FirebaseAuthException catch (e) {
       if (kDebugMode) {
-        print('SignUpWithEmail FirebaseAuthException: ${e.code} - ${e.message}');
+        print(
+          'SignUpWithEmail FirebaseAuthException: ${e.code} - ${e.message}',
+        );
       }
       rethrow;
     } catch (e) {

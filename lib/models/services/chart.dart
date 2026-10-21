@@ -2,7 +2,8 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 
 class MonthlyRevenueChart extends StatelessWidget {
-  final Map<int, double> monthlyData; // Données formatées {1: 1500.0, 2: 2200.0, ...}
+  final Map<int, double>
+  monthlyData; // Données formatées {1: 1500.0, 2: 2200.0, ...}
 
   const MonthlyRevenueChart({super.key, required this.monthlyData});
 

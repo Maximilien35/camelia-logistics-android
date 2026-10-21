@@ -36,8 +36,9 @@ class HelpCenterPage extends StatelessWidget {
           const SizedBox(height: 30),
           ElevatedButton.icon(
             onPressed: () => launchURL(
-                        "https://wa.me/+237698209152?text=${Uri.encodeComponent("Bonjour, j'ai une question.")}",context
-                      ),
+              "https://wa.me/+237698209152?text=${Uri.encodeComponent("Bonjour, j'ai une question.")}",
+              context,
+            ),
             icon: const Icon(Icons.support_agent),
             label: Text(l10n.contactSupport),
             style: ElevatedButton.styleFrom(
@@ -50,7 +51,6 @@ class HelpCenterPage extends StatelessWidget {
       ),
     );
   }
-
 
   // Widget pour les titres de section
   Widget _buildSectionHeader(String title) {

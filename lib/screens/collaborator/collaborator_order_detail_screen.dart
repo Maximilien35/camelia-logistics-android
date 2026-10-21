@@ -377,7 +377,8 @@ class _CollaboratorOrderDetailScreenState
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  if (isFromPartner && (contactName != null || contactPhone != null)) ...[
+                  if (isFromPartner &&
+                      (contactName != null || contactPhone != null)) ...[
                     const SizedBox(height: 8),
                     Text(
                       'Contact : ${contactName ?? 'N/A'}${contactPhone != null ? ' · $contactPhone' : ''}',

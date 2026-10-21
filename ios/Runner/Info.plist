@@ -24,6 +24,14 @@
     <string>$(FLUTTER_BUILD_NUMBER)</string>
     <key>LSRequiresIPhoneOS</key>
     <true/>
+    <!-- Clé du SDK Google Maps (carte de l'écran A4). La valeur est
+         substituée au build depuis `ios/Flutter/Secrets.xcconfig`, ignoré par
+         git — **aucune clé n'est écrite ici** (règle n°10). `AppDelegate`
+         la lit et la passe à `GMSServices.provideAPIKey`. Restreindre la clé
+         dans la console Google : applications iOS, identifiant de bundle
+         `com.camelia.logistics`, API « Maps SDK for iOS » seule. -->
+    <key>GoogleMapsApiKey</key>
+    <string>$(GOOGLE_MAPS_API_KEY)</string>
     <key>NSLocationWhenInUseUsageDescription</key>
     <string>Nous avons besoin de votre localisation pour vous permettre de suivre vos colis en temps réel et optimiser les trajets de livraison.</string>
     <key>NSCameraUsageDescription</key>

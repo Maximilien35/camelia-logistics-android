@@ -9,10 +9,7 @@ import '/l10n/app_localizations.dart';
 class MovingFormWidget extends StatefulWidget {
   final VoidCallback onProceed;
 
-  const MovingFormWidget({
-    required this.onProceed,
-    super.key,
-  });
+  const MovingFormWidget({required this.onProceed, super.key});
 
   @override
   State<MovingFormWidget> createState() => _MovingFormWidgetState();
@@ -50,7 +47,9 @@ class _MovingFormWidgetState extends State<MovingFormWidget> {
 
   void _pickAndAddPhoto() async {
     final ImagePicker picker = ImagePicker();
-    final XFile? pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    final XFile? pickedFile = await picker.pickImage(
+      source: ImageSource.gallery,
+    );
     if (pickedFile != null) {
       final File imageFile = File(pickedFile.path);
       final orderState = Provider.of<OrderStateModel>(context, listen: false);
@@ -78,17 +77,30 @@ class _MovingFormWidgetState extends State<MovingFormWidget> {
               right: 6,
               child: GestureDetector(
                 onTap: () {
-                  final orderState = Provider.of<OrderStateModel>(context, listen: false);
+                  final orderState = Provider.of<OrderStateModel>(
+                    context,
+                    listen: false,
+                  );
                   orderState.removePhoto(file);
                 },
                 child: Container(
                   decoration: const BoxDecoration(
                     color: Colors.redAccent,
                     shape: BoxShape.circle,
-                    boxShadow: [BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2))],
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black26,
+                        blurRadius: 4,
+                        offset: Offset(0, 2),
+                      ),
+                    ],
                   ),
                   padding: const EdgeInsets.all(4),
-                  child: const Icon(Icons.close_rounded, size: 14, color: Colors.white),
+                  child: const Icon(
+                    Icons.close_rounded,
+                    size: 14,
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ),
@@ -130,7 +142,11 @@ class _MovingFormWidgetState extends State<MovingFormWidget> {
                     color: Colors.white.withValues(alpha: 0.18),
                     borderRadius: BorderRadius.circular(16),
                   ),
-                  child: const Icon(Icons.home_work_rounded, color: Colors.white, size: 28),
+                  child: const Icon(
+                    Icons.home_work_rounded,
+                    color: Colors.white,
+                    size: 28,
+                  ),
                 ),
                 const SizedBox(height: 18),
                 Text(
@@ -162,7 +178,8 @@ class _MovingFormWidgetState extends State<MovingFormWidget> {
             child: Consumer<OrderStateModel>(
               builder: (context, orderState, child) {
                 final hasPhotos = orderState.selectedFiles.isNotEmpty;
-                final isValid = hasPhotos &&
+                final isValid =
+                    hasPhotos &&
                     _volumeController.text.isNotEmpty &&
                     _departureFloors > 0 &&
                     _destinationFloors > 0;
@@ -171,31 +188,48 @@ class _MovingFormWidgetState extends State<MovingFormWidget> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // ── Photos ───────────────────────────────────
-                    _buildSectionLabel(l10n.photosRecommended, Icons.photo_library_rounded),
+                    _buildSectionLabel(
+                      l10n.photosRecommended,
+                      Icons.photo_library_rounded,
+                    ),
                     const SizedBox(height: 4),
-                    Text(l10n.photosHelpsEstimate, style: GoogleFonts.poppins(fontSize: 12, color: Colors.grey.shade500)),
+                    Text(
+                      l10n.photosHelpsEstimate,
+                      style: GoogleFonts.poppins(
+                        fontSize: 12,
+                        color: Colors.grey.shade500,
+                      ),
+                    ),
                     const SizedBox(height: 12),
                     if (hasPhotos)
                       _buildPhotoGrid(orderState.selectedFiles)
                     else
                       _buildPhotoPlaceholder(onTap: _pickAndAddPhoto),
                     const SizedBox(height: 12),
-                    _buildOutlinedPhotoButton(label: l10n.takeOrChoosePhoto, onTap: _pickAndAddPhoto),
+                    _buildOutlinedPhotoButton(
+                      label: l10n.takeOrChoosePhoto,
+                      onTap: _pickAndAddPhoto,
+                    ),
                     const SizedBox(height: 24),
 
                     // ── Volume ───────────────────────────────────
-                    _buildSectionLabel('Volume & Détails', Icons.straighten_rounded),
+                    _buildSectionLabel(
+                      'Volume & Détails',
+                      Icons.straighten_rounded,
+                    ),
                     const SizedBox(height: 12),
-                    _buildCard(child: _buildFormField(
-                      label: l10n.estimatedVolume,
-                      hint: l10n.volumeInCubicMetersHint,
-                      icon: Icons.calculate_rounded,
-                      controller: _volumeController,
-                      onChanged: (_) => _updateAdditionalDetails(),
-                      keyboardType: TextInputType.number,
-                      suffix: 'm³',
-                      required: true,
-                    )),
+                    _buildCard(
+                      child: _buildFormField(
+                        label: l10n.estimatedVolume,
+                        hint: l10n.volumeInCubicMetersHint,
+                        icon: Icons.calculate_rounded,
+                        controller: _volumeController,
+                        onChanged: (_) => _updateAdditionalDetails(),
+                        keyboardType: TextInputType.number,
+                        suffix: 'm³',
+                        required: true,
+                      ),
+                    ),
                     const SizedBox(height: 22),
 
                     // ── Floors ───────────────────────────────────
@@ -271,7 +305,10 @@ class _MovingFormWidgetState extends State<MovingFormWidget> {
                     const SizedBox(height: 22),
 
                     // ── Inventory ────────────────────────────────
-                    _buildSectionLabel(l10n.inventoryOptional, Icons.list_alt_rounded),
+                    _buildSectionLabel(
+                      l10n.inventoryOptional,
+                      Icons.list_alt_rounded,
+                    ),
                     const SizedBox(height: 12),
                     _buildCard(
                       child: TextFormField(
@@ -280,11 +317,17 @@ class _MovingFormWidgetState extends State<MovingFormWidget> {
                         maxLines: 4,
                         decoration: InputDecoration(
                           hintText: l10n.inventoryHint,
-                          hintStyle: GoogleFonts.poppins(color: Colors.grey.shade400, fontSize: 13),
+                          hintStyle: GoogleFonts.poppins(
+                            color: Colors.grey.shade400,
+                            fontSize: 13,
+                          ),
                           border: InputBorder.none,
                           contentPadding: EdgeInsets.zero,
                         ),
-                        style: GoogleFonts.poppins(fontSize: 14, color: Colors.grey.shade800),
+                        style: GoogleFonts.poppins(
+                          fontSize: 14,
+                          color: Colors.grey.shade800,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 32),
@@ -338,8 +381,16 @@ class _MovingFormWidgetState extends State<MovingFormWidget> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
-          BoxShadow(color: _primary.withValues(alpha: 0.07), blurRadius: 18, offset: const Offset(0, 4)),
-          BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8, offset: const Offset(0, 2)),
+          BoxShadow(
+            color: _primary.withValues(alpha: 0.07),
+            blurRadius: 18,
+            offset: const Offset(0, 4),
+          ),
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
         ],
       ),
       child: child,
@@ -363,11 +414,19 @@ class _MovingFormWidgetState extends State<MovingFormWidget> {
           children: [
             Text(
               label,
-              style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.grey.shade500, letterSpacing: 0.5),
+              style: GoogleFonts.poppins(
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                color: Colors.grey.shade500,
+                letterSpacing: 0.5,
+              ),
             ),
             if (required) ...[
               const SizedBox(width: 3),
-              const Text('*', style: TextStyle(color: _primary, fontWeight: FontWeight.w700)),
+              const Text(
+                '*',
+                style: TextStyle(color: _primary, fontWeight: FontWeight.w700),
+              ),
             ],
           ],
         ),
@@ -378,25 +437,49 @@ class _MovingFormWidgetState extends State<MovingFormWidget> {
           keyboardType: keyboardType,
           decoration: InputDecoration(
             hintText: hint,
-            hintStyle: GoogleFonts.poppins(color: Colors.grey.shade300, fontSize: 14),
+            hintStyle: GoogleFonts.poppins(
+              color: Colors.grey.shade300,
+              fontSize: 14,
+            ),
             prefixIcon: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 14),
-              child: Icon(icon, color: _primary.withValues(alpha: 0.55), size: 20),
+              child: Icon(
+                icon,
+                color: _primary.withValues(alpha: 0.55),
+                size: 20,
+              ),
             ),
             prefixIconConstraints: const BoxConstraints(minWidth: 48),
             suffixText: suffix,
-            suffixStyle: GoogleFonts.poppins(color: _primary, fontWeight: FontWeight.w600, fontSize: 13),
+            suffixStyle: GoogleFonts.poppins(
+              color: _primary,
+              fontWeight: FontWeight.w600,
+              fontSize: 13,
+            ),
             filled: true,
             fillColor: const Color(0xFFF5F4FF),
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
-            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide.none),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide.none,
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide.none,
+            ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(14),
               borderSide: const BorderSide(color: _primary, width: 2),
             ),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 14,
+            ),
           ),
-          style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.grey.shade800),
+          style: GoogleFonts.poppins(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: Colors.grey.shade800,
+          ),
         ),
       ],
     );
@@ -412,7 +495,12 @@ class _MovingFormWidgetState extends State<MovingFormWidget> {
       children: [
         Text(
           label,
-          style: GoogleFonts.poppins(fontSize: 11, fontWeight: FontWeight.w700, color: Colors.grey.shade500, letterSpacing: 0.5),
+          style: GoogleFonts.poppins(
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+            color: Colors.grey.shade500,
+            letterSpacing: 0.5,
+          ),
         ),
         const SizedBox(height: 10),
         Row(
@@ -425,16 +513,30 @@ class _MovingFormWidgetState extends State<MovingFormWidget> {
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: value > 0 ? const Color(0xFFF5F4FF) : Colors.grey.shade100,
+                  color: value > 0
+                      ? const Color(0xFFF5F4FF)
+                      : Colors.grey.shade100,
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: value > 0 ? _primary.withValues(alpha: 0.3) : Colors.grey.shade200),
+                  border: Border.all(
+                    color: value > 0
+                        ? _primary.withValues(alpha: 0.3)
+                        : Colors.grey.shade200,
+                  ),
                 ),
-                child: Icon(Icons.remove_rounded, size: 18, color: value > 0 ? _primary : Colors.grey.shade300),
+                child: Icon(
+                  Icons.remove_rounded,
+                  size: 18,
+                  color: value > 0 ? _primary : Colors.grey.shade300,
+                ),
               ),
             ),
             Text(
               '$value',
-              style: GoogleFonts.poppins(fontSize: 22, fontWeight: FontWeight.w800, color: _primary),
+              style: GoogleFonts.poppins(
+                fontSize: 22,
+                fontWeight: FontWeight.w800,
+                color: _primary,
+              ),
             ),
             GestureDetector(
               onTap: () => onChanged(value + 1),
@@ -442,11 +544,25 @@ class _MovingFormWidgetState extends State<MovingFormWidget> {
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(colors: [Color(0xFF8B85FF), _primary], begin: Alignment.topLeft, end: Alignment.bottomRight),
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF8B85FF), _primary],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
                   borderRadius: BorderRadius.circular(10),
-                  boxShadow: [BoxShadow(color: _primary.withValues(alpha: 0.25), blurRadius: 8, offset: const Offset(0, 3))],
+                  boxShadow: [
+                    BoxShadow(
+                      color: _primary.withValues(alpha: 0.25),
+                      blurRadius: 8,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
                 ),
-                child: const Icon(Icons.add_rounded, size: 18, color: Colors.white),
+                child: const Icon(
+                  Icons.add_rounded,
+                  size: 18,
+                  color: Colors.white,
+                ),
               ),
             ),
           ],
@@ -469,12 +585,16 @@ class _MovingFormWidgetState extends State<MovingFormWidget> {
           color: value ? const Color(0xFFF0EFFE) : Colors.white,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: value ? _primary.withValues(alpha: 0.5) : Colors.grey.shade200,
+            color: value
+                ? _primary.withValues(alpha: 0.5)
+                : Colors.grey.shade200,
             width: value ? 2 : 1.5,
           ),
           boxShadow: [
             BoxShadow(
-              color: value ? _primary.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.03),
+              color: value
+                  ? _primary.withValues(alpha: 0.1)
+                  : Colors.black.withValues(alpha: 0.03),
               blurRadius: 10,
               offset: const Offset(0, 3),
             ),
@@ -488,12 +608,24 @@ class _MovingFormWidgetState extends State<MovingFormWidget> {
               height: 22,
               decoration: BoxDecoration(
                 gradient: value
-                    ? const LinearGradient(colors: [Color(0xFF8B85FF), _primary], begin: Alignment.topLeft, end: Alignment.bottomRight)
+                    ? const LinearGradient(
+                        colors: [Color(0xFF8B85FF), _primary],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      )
                     : null,
-                border: value ? null : Border.all(color: Colors.grey.shade300, width: 2),
+                border: value
+                    ? null
+                    : Border.all(color: Colors.grey.shade300, width: 2),
                 borderRadius: BorderRadius.circular(7),
               ),
-              child: value ? const Icon(Icons.check_rounded, size: 14, color: Colors.white) : null,
+              child: value
+                  ? const Icon(
+                      Icons.check_rounded,
+                      size: 14,
+                      color: Colors.white,
+                    )
+                  : null,
             ),
             const SizedBox(width: 10),
             Expanded(
@@ -520,25 +652,41 @@ class _MovingFormWidgetState extends State<MovingFormWidget> {
         decoration: BoxDecoration(
           color: const Color(0xFFF7F6FF),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: _primary.withValues(alpha: 0.2), width: 1.5),
+          border: Border.all(
+            color: _primary.withValues(alpha: 0.2),
+            width: 1.5,
+          ),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
               padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(color: _primary.withValues(alpha: 0.08), shape: BoxShape.circle),
+              decoration: BoxDecoration(
+                color: _primary.withValues(alpha: 0.08),
+                shape: BoxShape.circle,
+              ),
               child: const Icon(Icons.image_rounded, size: 30, color: _primary),
             ),
             const SizedBox(height: 10),
-            Text('Ajouter des photos', style: GoogleFonts.poppins(fontSize: 13, color: _primary, fontWeight: FontWeight.w600)),
+            Text(
+              'Ajouter des photos',
+              style: GoogleFonts.poppins(
+                fontSize: 13,
+                color: _primary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildOutlinedPhotoButton({required String label, required VoidCallback onTap}) {
+  Widget _buildOutlinedPhotoButton({
+    required String label,
+    required VoidCallback onTap,
+  }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -547,15 +695,31 @@ class _MovingFormWidgetState extends State<MovingFormWidget> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: _primary.withValues(alpha: 0.35), width: 1.5),
-          boxShadow: [BoxShadow(color: _primary.withValues(alpha: 0.06), blurRadius: 8, offset: const Offset(0, 2))],
+          border: Border.all(
+            color: _primary.withValues(alpha: 0.35),
+            width: 1.5,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: _primary.withValues(alpha: 0.06),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Icon(Icons.add_a_photo_rounded, color: _primary, size: 18),
             const SizedBox(width: 8),
-            Text(label, style: GoogleFonts.poppins(color: _primary, fontWeight: FontWeight.w600, fontSize: 14)),
+            Text(
+              label,
+              style: GoogleFonts.poppins(
+                color: _primary,
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
+              ),
+            ),
           ],
         ),
       ),
@@ -571,12 +735,22 @@ class _MovingFormWidgetState extends State<MovingFormWidget> {
         padding: const EdgeInsets.symmetric(vertical: 17),
         decoration: BoxDecoration(
           gradient: isValid
-              ? const LinearGradient(colors: [Color(0xFF8B85FF), _secondary], begin: Alignment.centerLeft, end: Alignment.centerRight)
+              ? const LinearGradient(
+                  colors: [Color(0xFF8B85FF), _secondary],
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                )
               : null,
           color: isValid ? null : const Color(0xFFE8E8E8),
           borderRadius: BorderRadius.circular(16),
           boxShadow: isValid
-              ? [BoxShadow(color: _primary.withValues(alpha: 0.38), blurRadius: 22, offset: const Offset(0, 8))]
+              ? [
+                  BoxShadow(
+                    color: _primary.withValues(alpha: 0.38),
+                    blurRadius: 22,
+                    offset: const Offset(0, 8),
+                  ),
+                ]
               : [],
         ),
         child: Row(
@@ -593,7 +767,11 @@ class _MovingFormWidgetState extends State<MovingFormWidget> {
             ),
             if (isValid) ...[
               const SizedBox(width: 8),
-              const Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 18),
+              const Icon(
+                Icons.arrow_forward_rounded,
+                color: Colors.white,
+                size: 18,
+              ),
             ],
           ],
         ),

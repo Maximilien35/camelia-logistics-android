@@ -1,1 +1,5 @@
 #include "Generated.xcconfig"
+// Clé du SDK Google Maps, hors du dépôt (règle n°10). Le `?` rend
+// l'inclusion optionnelle : sans le fichier, le build passe et la carte
+// reste grise. Modèle : `Secrets.example.xcconfig`.
+#include? "Secrets.xcconfig"

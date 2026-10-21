@@ -4,6 +4,7 @@ import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:camelia/models/services/error_handler_service.dart';
+
 //import 'package:flutter/services.dart';
 class AdminService {
   final ErrorHandlerService _errorHandler = ErrorHandlerService();
@@ -22,8 +23,7 @@ class AdminService {
           ),
           actions: [
             TextButton(
-              onPressed: () =>
-                  Navigator.of(context).pop(false), 
+              onPressed: () => Navigator.of(context).pop(false),
               child: const Text('ANNULER'),
             ),
             TextButton(
@@ -56,7 +56,8 @@ class AdminService {
       'collaborator': 'setCollabRol',
     };
 
-    final String functionName = roleToFunction[role.toLowerCase()] ?? 'set${role}Rol';
+    final String functionName =
+        roleToFunction[role.toLowerCase()] ?? 'set${role}Rol';
     try {
       final HttpsCallable callable = functions.httpsCallable(functionName);
 
@@ -65,11 +66,19 @@ class AdminService {
       });
       if (result.data['success'] == true) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Rôle $role attribué avec succès pour UID: $targetUid')),
+          SnackBar(
+            content: Text(
+              'Rôle $role attribué avec succès pour UID: $targetUid',
+            ),
+          ),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Échec de l\'attribution du rôle: ${result.data['message'] ?? 'erreur inconnue'}')),
+          SnackBar(
+            content: Text(
+              'Échec de l\'attribution du rôle: ${result.data['message'] ?? 'erreur inconnue'}',
+            ),
+          ),
         );
         if (kDebugMode) {
           print('Échec de l\'attribution du rôle: ${result.data['message']}');
@@ -84,9 +93,9 @@ class AdminService {
       }
       rethrow;
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(_errorHandler.handleError(e))),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(_errorHandler.handleError(e))));
       if (kDebugMode) {
         print('Erreur générale: $e');
       }
