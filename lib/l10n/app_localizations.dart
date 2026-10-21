@@ -4019,7 +4019,7 @@ abstract class AppLocalizations {
   /// No description provided for @trackingPayBody.
   ///
   /// In fr, this message translates to:
-  /// **'Appuyez sur le bouton pour recevoir l\'invite Mobile Money, puis validez-la sur votre téléphone.'**
+  /// **'Appuyez sur le bouton : une demande de paiement arrivera sur votre téléphone. Validez-la avec votre code secret Mobile Money.'**
   String get trackingPayBody;
 
   /// No description provided for @trackingPayButton.
@@ -5653,6 +5653,84 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Étape {current} sur {total}'**
   String onboardingProgress(int current, int total);
+
+  /// No description provided for @apiErrorPayerPhoneRequired.
+  ///
+  /// In fr, this message translates to:
+  /// **'Indiquez le numéro Mobile Money à débiter.'**
+  String get apiErrorPayerPhoneRequired;
+
+  /// No description provided for @apiErrorPayerPhoneUnsupported.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce numéro n\'est pas un compte Mobile Money pris en charge. Essayez un numéro MTN ou Orange.'**
+  String get apiErrorPayerPhoneUnsupported;
+
+  /// No description provided for @apiErrorPaymentAlreadyPending.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une demande de paiement attend déjà votre validation sur votre téléphone.'**
+  String get apiErrorPaymentAlreadyPending;
+
+  /// No description provided for @apiErrorPaymentProviderUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le service de paiement est momentanément indisponible. Réessayez dans quelques instants.'**
+  String get apiErrorPaymentProviderUnavailable;
+
+  /// No description provided for @trackingPayPromptSentBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une demande de paiement a été envoyée au {phone}. Validez-la sur votre téléphone avec votre code secret Mobile Money, puis actualisez.'**
+  String trackingPayPromptSentBody(Object phone);
+
+  /// No description provided for @trackingPaySendAgain.
+  ///
+  /// In fr, this message translates to:
+  /// **'Renvoyer la demande'**
+  String get trackingPaySendAgain;
+
+  /// No description provided for @payerSheetTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Numéro Mobile Money'**
+  String get payerSheetTitle;
+
+  /// No description provided for @payerSheetBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'La demande de paiement sera envoyée sur ce numéro. L\'opérateur est reconnu automatiquement.'**
+  String get payerSheetBody;
+
+  /// No description provided for @payerSheetPhoneLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Numéro à débiter'**
+  String get payerSheetPhoneLabel;
+
+  /// No description provided for @payerSheetSend.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoyer la demande de paiement'**
+  String get payerSheetSend;
+
+  /// No description provided for @trackingCancelFeePromptSent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une demande de paiement des frais a été envoyée sur votre téléphone. Validez-la avec votre code secret Mobile Money.'**
+  String get trackingCancelFeePromptSent;
+
+  /// No description provided for @trackingCancelFeePromptFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'La commande est bien annulée, mais la demande de paiement des frais n\'a pas pu être envoyée pour le moment.'**
+  String get trackingCancelFeePromptFailed;
+
+  /// No description provided for @walletWithdrawFeeNotice.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'opérateur de paiement prélève sa commission sur le montant envoyé : vous recevrez un peu moins que le montant demandé.'**
+  String get walletWithdrawFeeNotice;
 }
 
 class _AppLocalizationsDelegate

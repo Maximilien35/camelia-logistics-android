@@ -2115,7 +2115,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get trackingPayBody =>
-      'Appuyez sur le bouton pour recevoir l\'invite Mobile Money, puis validez-la sur votre téléphone.';
+      'Appuyez sur le bouton : une demande de paiement arrivera sur votre téléphone. Validez-la avec votre code secret Mobile Money.';
 
   @override
   String trackingPayButton(Object amount) {
@@ -3066,4 +3066,53 @@ class AppLocalizationsFr extends AppLocalizations {
   String onboardingProgress(int current, int total) {
     return 'Étape $current sur $total';
   }
+
+  @override
+  String get apiErrorPayerPhoneRequired =>
+      'Indiquez le numéro Mobile Money à débiter.';
+
+  @override
+  String get apiErrorPayerPhoneUnsupported =>
+      'Ce numéro n\'est pas un compte Mobile Money pris en charge. Essayez un numéro MTN ou Orange.';
+
+  @override
+  String get apiErrorPaymentAlreadyPending =>
+      'Une demande de paiement attend déjà votre validation sur votre téléphone.';
+
+  @override
+  String get apiErrorPaymentProviderUnavailable =>
+      'Le service de paiement est momentanément indisponible. Réessayez dans quelques instants.';
+
+  @override
+  String trackingPayPromptSentBody(Object phone) {
+    return 'Une demande de paiement a été envoyée au $phone. Validez-la sur votre téléphone avec votre code secret Mobile Money, puis actualisez.';
+  }
+
+  @override
+  String get trackingPaySendAgain => 'Renvoyer la demande';
+
+  @override
+  String get payerSheetTitle => 'Numéro Mobile Money';
+
+  @override
+  String get payerSheetBody =>
+      'La demande de paiement sera envoyée sur ce numéro. L\'opérateur est reconnu automatiquement.';
+
+  @override
+  String get payerSheetPhoneLabel => 'Numéro à débiter';
+
+  @override
+  String get payerSheetSend => 'Envoyer la demande de paiement';
+
+  @override
+  String get trackingCancelFeePromptSent =>
+      'Une demande de paiement des frais a été envoyée sur votre téléphone. Validez-la avec votre code secret Mobile Money.';
+
+  @override
+  String get trackingCancelFeePromptFailed =>
+      'La commande est bien annulée, mais la demande de paiement des frais n\'a pas pu être envoyée pour le moment.';
+
+  @override
+  String get walletWithdrawFeeNotice =>
+      'L\'opérateur de paiement prélève sa commission sur le montant envoyé : vous recevrez un peu moins que le montant demandé.';
 }

@@ -60,6 +60,7 @@ import '../../../shared/models/order.dart';
 import '../../../shared/models/order_proof.dart';
 import '../../../shared/models/tracked_driver.dart';
 import '../../../shared/services/emergency_service.dart';
+import '../../../shared/state/auth_controller.dart';
 import '../../../shared/state/push_controller.dart';
 import '../../../shared/widgets/app_text_field.dart';
 import '../../../shared/widgets/flow_widgets.dart';
@@ -71,6 +72,7 @@ import '../../../shared/widgets/status_ribbon.dart';
 import '../../models/order_rating.dart';
 import '../../services/order_service.dart';
 import '../../state/order_tracking_controller.dart';
+import '../../widgets/payer_phone_sheet.dart';
 import 'order_addresses_screen.dart';
 import '../../../../core/theme/app_icons.dart';
 import '../../../shared/widgets/skeleton.dart';
@@ -119,23 +121,29 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
     super.dispose();
   }
 
+  /// Choix du numéro, puis `confirm-delivery` — le seul chemin de paiement.
+  ///
+  /// En mode USSD (KPay, par défaut) il n'y a rien à ouvrir : l'invite arrive
+  /// sur le téléphone du payeur et la carte de paiement passe en attente. Une
+  /// page n'est ouverte que si le fournisseur en rend une.
   Future<void> _pay() async {
-    final l10n = AppLocalizations.of(context)!;
-    final messenger = ScaffoldMessenger.of(context);
-    final invite = await _controller.pay();
-    if (invite == null) return;
-    final opened = await ExternalActions.openServerLink(
-      invite.authorizationUrl,
+    final accountPhone =
+        context.read<AuthController>().user?.phone ??
+        _controller.payerPhone ??
+        '';
+    final payerPhone = await showPayerPhoneSheet(
+      context,
+      initialPhone: _controller.payerPhone ?? accountPhone,
     );
-    if (!opened) {
-      messenger.showSnackBar(SnackBar(content: Text(l10n.externalOpenFailed)));
-    }
+    if (payerPhone == null || !mounted) return;
+    final invite = await _controller.pay(payerPhone: payerPhone);
+    if (invite != null && invite.opensPage) await _openInvitePage(invite);
   }
 
-  Future<void> _reopenInvite(PaymentInvite invite) async {
+  Future<void> _openInvitePage(PaymentInvite invite) async {
     final l10n = AppLocalizations.of(context)!;
     final messenger = ScaffoldMessenger.of(context);
-    if (!await ExternalActions.openServerLink(invite.authorizationUrl)) {
+    if (!await ExternalActions.openServerLink(invite.authorizationUrl!)) {
       messenger.showSnackBar(SnackBar(content: Text(l10n.externalOpenFailed)));
     }
   }
@@ -233,7 +241,7 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
             order: order,
             controller: _controller,
             onPay: _pay,
-            onReopenInvite: _reopenInvite,
+            onOpenInvitePage: _openInvitePage,
             onCancel: _cancel,
           ),
         };
@@ -700,14 +708,14 @@ class _TrackingView extends StatelessWidget {
     required this.order,
     required this.controller,
     required this.onPay,
-    required this.onReopenInvite,
+    required this.onOpenInvitePage,
     required this.onCancel,
   });
 
   final Order order;
   final OrderTrackingController controller;
   final VoidCallback onPay;
-  final ValueChanged<PaymentInvite> onReopenInvite;
+  final ValueChanged<PaymentInvite> onOpenInvitePage;
   final VoidCallback onCancel;
 
   @override
@@ -778,12 +786,30 @@ class _TrackingView extends StatelessWidget {
               const SizedBox(height: AppSpacing.md),
             ],
 
+            // Frais d'annulation : en USSD l'invite est déjà sur le téléphone,
+            // on le dit ; seule une invite à page hébergée a un bouton.
+            if (status == OrderStatus.cancelledByClient)
+              if (cancellation?.payment case final fee?) ...[
+                if (fee.opensPage)
+                  OutlineAction(
+                    label: l10n.trackingPayFee,
+                    icon: AppIcons.phone,
+                    onPressed: () => onOpenInvitePage(fee),
+                  )
+                else
+                  _StateBanner(
+                    title: l10n.trackingPayFee,
+                    body: l10n.trackingCancelFeePromptSent,
+                    color: AppColors.brand,
+                  ),
+                const SizedBox(height: AppSpacing.md),
+              ],
             if (status == OrderStatus.cancelledByClient &&
-                cancellation?.payment != null) ...[
-              OutlineAction(
-                label: l10n.trackingPayFee,
-                icon: AppIcons.phone,
-                onPressed: () => onReopenInvite(cancellation!.payment!),
+                controller.cancelFeePromptFailed) ...[
+              _StateBanner(
+                title: l10n.trackingCancelledTitle,
+                body: l10n.trackingCancelFeePromptFailed,
+                color: AppColors.error,
               ),
               const SizedBox(height: AppSpacing.md),
             ],
@@ -805,9 +831,11 @@ class _TrackingView extends StatelessWidget {
               _PayCard(
                 order: order,
                 invite: invite,
+                awaiting: controller.awaitingValidation,
+                payerPhone: controller.payerPhone,
                 paying: controller.paying,
                 onPay: onPay,
-                onReopenInvite: onReopenInvite,
+                onOpenInvitePage: onOpenInvitePage,
                 onRefresh: controller.refresh,
               ),
               const SizedBox(height: AppSpacing.md),
@@ -1230,28 +1258,39 @@ class _StateBanner extends StatelessWidget {
 
 /// Carte de paiement après livraison — le seul déclencheur de
 /// `confirm-delivery` de toute l'app (règle non négociable n°7).
+///
+/// Deux états : « payer » (bouton), puis « en attente de validation » dès
+/// qu'une invite est partie ou que le serveur signale qu'une invite attend
+/// déjà (`payment_already_pending`). En attente, le second bouton rouvre la
+/// page de paiement si le fournisseur en a rendu une, et sinon **renvoie la
+/// demande** (USSD) — un nouvel appui, donc un nouvel appel explicite.
 class _PayCard extends StatelessWidget {
   const _PayCard({
     required this.order,
     required this.invite,
+    required this.awaiting,
+    required this.payerPhone,
     required this.paying,
     required this.onPay,
-    required this.onReopenInvite,
+    required this.onOpenInvitePage,
     required this.onRefresh,
   });
 
   final Order order;
   final PaymentInvite? invite;
+  final bool awaiting;
+  final String? payerPhone;
   final bool paying;
   final VoidCallback onPay;
-  final ValueChanged<PaymentInvite> onReopenInvite;
+  final ValueChanged<PaymentInvite> onOpenInvitePage;
   final Future<void> Function() onRefresh;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final locale = Localizations.localeOf(context).languageCode;
-    final pending = invite;
+    final page = invite != null && invite!.opensPage ? invite : null;
+    final phone = payerPhone;
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -1274,9 +1313,7 @@ class _PayCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            pending == null
-                ? l10n.trackingPayTitle
-                : l10n.trackingPayPendingTitle,
+            awaiting ? l10n.trackingPayPendingTitle : l10n.trackingPayTitle,
             style: const TextStyle(
               fontFamily: AppFonts.display,
               fontWeight: FontWeight.w700,
@@ -1286,8 +1323,10 @@ class _PayCard extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.sm),
           Text(
-            pending == null
+            !awaiting
                 ? l10n.trackingPayBody
+                : page == null && phone != null
+                ? l10n.trackingPayPromptSentBody(phone)
                 : l10n.trackingPayPendingBody,
             style: const TextStyle(
               fontSize: AppFontSize.label,
@@ -1296,7 +1335,7 @@ class _PayCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: AppSpacing.lg),
-          if (pending == null)
+          if (!awaiting)
             SizedBox(
               width: double.infinity,
               height: 52,
@@ -1330,10 +1369,15 @@ class _PayCard extends StatelessWidget {
             Row(
               children: [
                 Expanded(
-                  child: _LightButton(
-                    label: l10n.trackingPayOpenAgain,
-                    onTap: () => onReopenInvite(pending),
-                  ),
+                  child: page != null
+                      ? _LightButton(
+                          label: l10n.trackingPayOpenAgain,
+                          onTap: () => onOpenInvitePage(page),
+                        )
+                      : _LightButton(
+                          label: l10n.trackingPaySendAgain,
+                          onTap: paying ? null : onPay,
+                        ),
                 ),
                 const SizedBox(width: AppSpacing.sm),
                 Expanded(
@@ -1354,7 +1398,9 @@ class _LightButton extends StatelessWidget {
   const _LightButton({required this.label, required this.onTap});
 
   final String label;
-  final VoidCallback onTap;
+
+  /// `null` grise le bouton (paiement en cours d'envoi).
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) => SizedBox(

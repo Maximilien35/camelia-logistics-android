@@ -512,6 +512,18 @@ class _WithdrawSheetState extends State<_WithdrawSheet> {
               ),
             ),
           ],
+          // § 6.10ter révisé le 21 octobre 2026 : KPay prélève sa commission
+          // sur le montant décaissé. Le taux est celui de KPay « en direct » :
+          // l'app le signale sans jamais le chiffrer (règle n°3).
+          const SizedBox(height: AppSpacing.md),
+          Text(
+            l10n.walletWithdrawFeeNotice,
+            style: const TextStyle(
+              fontSize: AppFontSize.caption,
+              height: 1.45,
+              color: AppColors.inkMuted,
+            ),
+          ),
           if (wallet.failure != null) ...[
             const SizedBox(height: AppSpacing.lg),
             _ErrorNotice(message: messageForFailure(l10n, wallet.failure!)),

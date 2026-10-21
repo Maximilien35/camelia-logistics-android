@@ -240,16 +240,38 @@ personnelle.
 
 | Méthode | Chemin | Corps | Réponse |
 |---|---|---|---|
-| POST | `/v1/orders/{id}/confirm-delivery/` | **aucun** | `{ "authorization_url", "transaction_reference" }` |
-| POST | `/v1/orders/{id}/cancel/` | aucun | `{ "order": {}, "fee_charged": bool, "payment": {} ou null }` |
+| POST | `/v1/orders/{id}/confirm-delivery/` | `payer_phone` facultatif (E.164) | `{ "provider", "transaction_reference", "authorization_url" }` |
+| POST | `/v1/orders/{id}/cancel/` | `payer_phone` facultatif, ignoré si gratuit | `{ "order": {}, "fee_charged": bool, "payment": {…} ou null }` |
 
 > **Règle non négociable n°7.** `confirm-delivery/` ne part **que** sur appui
 > explicite d'un bouton. Jamais à l'ouverture d'un écran, jamais en arrière-plan.
 > La réponse est une invite Mobile Money que l'utilisateur valide sur son
 > téléphone — pas une confirmation de paiement.
 
-L'issue du paiement arrive **de façon asynchrone** par le webhook NotchPay côté
-serveur. L'app l'apprend par notification push puis **un appel REST de
+**Depuis le 21 octobre 2026 (§ 6.5.7, § 7.3.14 — commit backend `6053785`),
+KPay est le fournisseur par défaut, en mode USSD** : l'invite est poussée sur
+le téléphone du payeur et **`authorization_url` vaut `null`**. L'app ne
+l'ouvre que si elle est non vide (NotchPay, secondaire, pour ses transactions
+d'avant la bascule) — `PaymentInvite.opensPage`. Sans `payer_phone`, le
+serveur débite le téléphone du compte ; l'opérateur est déduit du numéro, et
+aucun montant n'est jamais envoyé. Avant `confirm-delivery/`, l'écran de suivi
+propose le numéro du compte, modifiable (`payer_phone_sheet.dart`) ;
+`cancel/` part sans numéro, l'app ne sachant pas d'avance si des frais seront
+dus.
+
+| Statut | `code` | Conduite côté app |
+|---|---|---|
+| 400 | `payer_phone_required` | message localisé ; le client saisit un numéro |
+| 400 | `payer_phone_unsupported` | message localisé : essayer un numéro MTN ou Orange |
+| 409 | `payment_already_pending` | **pas un échec** : la carte reste « en attente de validation » |
+| 502 | `payment_provider_unavailable` | `confirm-delivery/` : réessayer plus tard. `cancel/` : **l'annulation est acquise**, seule l'invite des frais n'est pas partie — l'app relit la commande et le dit |
+
+Retraits (`withdraw/`) : KPay prélève sa commission **sur le montant
+décaissé** (§ 6.10ter révisé) — le titulaire reçoit moins que le montant
+demandé. La feuille de retrait le signale, sans chiffrer de taux.
+
+L'issue du paiement arrive **de façon asynchrone** par le webhook du
+fournisseur côté serveur. L'app l'apprend par notification push puis **un appel REST de
 rafraîchissement** (`GET /v1/orders/{id}/`) — jamais une connexion ouverte
 (règle n°5).
 
@@ -283,7 +305,8 @@ mappe les deux codes vers un message localisé.
 - `/v1/partner/*` — API B2B partenaires, authentification par clé, pas l'app.
 - `/v1/admin/*`, `/v1/backoffice/*`, `/v1/orders/{id}/events/` — **`IsAdminUser`**.
   `events/` en particulier *ressemble* à un historique client : il ne l'est pas.
-- `/v1/webhooks/notchpay/*` — appelés par NotchPay, jamais par l'app.
+- `/v1/webhooks/kpay/`, `/v1/webhooks/notchpay/*` — appelés par les
+  fournisseurs de paiement, jamais par l'app.
 
 ## Écarts entre `07-api.md` et le code réel
 

@@ -34,7 +34,10 @@ class OrderTrackingController extends ChangeNotifier {
   bool _cancelling = false;
   Object? _failure;
   PaymentInvite? _pendingInvite;
+  bool _awaitingValidation = false;
+  String? _payerPhone;
   CancellationResult? _cancellation;
+  bool _cancelFeePromptFailed = false;
   OrderRating? _rating;
   bool _ratingBusy = false;
   SearchRelaunchResult? _relaunch;
@@ -51,7 +54,20 @@ class OrderTrackingController extends ChangeNotifier {
   /// relue comme payée (`completed`).
   PaymentInvite? get pendingInvite => _pendingInvite;
 
+  /// Une demande de paiement attend la validation du payeur sur son
+  /// téléphone : invite obtenue pendant cette session, ou `409
+  /// payment_already_pending` (invite envoyée plus tôt, peut-être depuis un
+  /// autre écran). Faux dès que la commande est relue `completed`.
+  bool get awaitingValidation => _awaitingValidation;
+
+  /// Numéro auquel la dernière demande a été adressée, s'il est connu.
+  String? get payerPhone => _payerPhone;
+
   CancellationResult? get cancellation => _cancellation;
+
+  /// L'annulation a réussi mais l'invite de paiement des frais n'a pas pu
+  /// partir (`502 payment_provider_unavailable` sur `cancel/`, § 7.3.14).
+  bool get cancelFeePromptFailed => _cancelFeePromptFailed;
 
   /// Note déposée pendant cette session, `null` avant.
   OrderRating? get rating => _rating;
@@ -73,7 +89,10 @@ class OrderTrackingController extends ChangeNotifier {
     try {
       final order = await _service.fetchOrder(orderId);
       _order = order;
-      if (order.status == OrderStatus.completed) _pendingInvite = null;
+      if (order.status == OrderStatus.completed) {
+        _pendingInvite = null;
+        _awaitingValidation = false;
+      }
     } on ApiException catch (e) {
       _failure = e;
     } on NetworkException catch (e) {
@@ -85,16 +104,30 @@ class OrderTrackingController extends ChangeNotifier {
   }
 
   /// `confirm-delivery` — **uniquement sur appui explicite** (règle n°7).
-  Future<PaymentInvite?> pay() async {
+  ///
+  /// [payerPhone] : numéro Mobile Money choisi par le client (E.164), ou
+  /// `null` pour le téléphone du compte. Renvoyer la demande est un nouvel
+  /// appui, donc un nouvel appel : le serveur répond `payment_already_pending`
+  /// tant que la précédente n'a été ni validée ni refusée.
+  Future<PaymentInvite?> pay({String? payerPhone}) async {
     if (busy) return null;
     _paying = true;
     _failure = null;
     notifyListeners();
     try {
-      final invite = await _service.confirmDelivery(orderId);
+      final invite = await _service.confirmDelivery(
+        orderId,
+        payerPhone: payerPhone,
+      );
       _pendingInvite = invite;
+      _awaitingValidation = true;
+      _payerPhone = payerPhone;
       return invite;
     } on ApiException catch (e) {
+      // Pas un échec : l'invite précédente attend toujours sur le téléphone.
+      if (e.code == ApiErrorCode.paymentAlreadyPending) {
+        _awaitingValidation = true;
+      }
       _failure = e;
       return null;
     } on NetworkException catch (e) {
@@ -169,10 +202,14 @@ class OrderTrackingController extends ChangeNotifier {
     }
   }
 
+  /// `cancel/` sans `payer_phone` : des frais éventuels sont demandés au
+  /// téléphone du compte. L'app ne sait pas d'avance s'il y en aura — c'est le
+  /// serveur qui le décide (§ 6.10bis) — et ne demande donc pas de numéro.
   Future<CancellationResult?> cancel() async {
     if (busy) return null;
     _cancelling = true;
     _failure = null;
+    _cancelFeePromptFailed = false;
     notifyListeners();
     try {
       final result = await _service.cancelOrder(orderId);
@@ -187,6 +224,18 @@ class OrderTrackingController extends ChangeNotifier {
       }
       return result;
     } on ApiException catch (e) {
+      // § 7.3.14 : l'annulation est acquise, seule l'invite des frais n'est
+      // pas partie. On relit la commande pour afficher son vrai statut, et
+      // l'écran le dit en clair plutôt qu'en erreur générique.
+      if (e.code == ApiErrorCode.paymentProviderUnavailable) {
+        _cancelFeePromptFailed = true;
+        try {
+          _order = await _service.fetchOrder(orderId);
+        } on Exception {
+          // L'avertissement suffit ; le tirage vers le bas relira.
+        }
+        return null;
+      }
       _failure = e;
       return null;
     } on NetworkException catch (e) {

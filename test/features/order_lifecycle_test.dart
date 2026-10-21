@@ -175,14 +175,28 @@ void main() {
     );
 
     // Le paiement ne renvoie qu'une invite : la commande n'est pas payée.
-    final invite = await tracking.pay();
-    expect(invite?.authorizationUrl, startsWith('https://'));
+    // KPay, mode USSD : aucune page à ouvrir, l'invite est sur le téléphone.
+    final invite = await tracking.pay(payerPhone: '+237670000001');
+    expect(invite?.provider, 'kpay');
+    expect(invite?.opensPage, isFalse);
+    expect(tracking.awaitingValidation, isTrue);
+    expect(tracking.payerPhone, '+237670000001');
     expect(tracking.order?.status, OrderStatus.delivered);
+
+    // Renvoyer avant validation : le serveur dit qu'une invite attend déjà, et
+    // l'écran reste en attente au lieu de repasser au bouton « Payer ».
+    expect(await tracking.pay(payerPhone: '+237670000001'), isNull);
+    expect(
+      (tracking.failure as ApiException?)?.code,
+      ApiErrorCode.paymentAlreadyPending,
+    );
+    expect(tracking.awaitingValidation, isTrue);
 
     // 7. Relecture après le webhook : terminée, et hors de l'accueil.
     await tracking.refresh();
     expect(tracking.order?.status, OrderStatus.completed);
     expect(tracking.pendingInvite, isNull);
+    expect(tracking.awaitingValidation, isFalse);
     await active.refresh();
     expect(active.orders.map((o) => o.id), isNot(contains(created.id)));
 

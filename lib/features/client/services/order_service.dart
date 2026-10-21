@@ -169,21 +169,41 @@ class OrderService {
   Future<Order> fetchOrder(String orderId) async =>
       Order.fromJson(await _client.get('orders/$orderId'));
 
-  /// `POST /v1/orders/{id}/confirm-delivery/` — **corps vide**.
+  /// `POST /v1/orders/{id}/confirm-delivery/` (§ 7.3.14).
   ///
   /// Règle non négociable n°7 : n'appeler que sur appui explicite d'un bouton,
   /// jamais à l'ouverture d'un écran ni en arrière-plan.
-  Future<PaymentInvite> confirmDelivery(String orderId) async =>
-      PaymentInvite.fromJson(
-        await _client.post('orders/$orderId/confirm-delivery'),
-      );
+  ///
+  /// [payerPhone] (E.164) est le numéro Mobile Money à débiter ; absent, le
+  /// serveur prend le téléphone du compte. L'opérateur est déduit du numéro
+  /// par le fournisseur, et aucun montant n'est envoyé (règle n°4).
+  Future<PaymentInvite> confirmDelivery(
+    String orderId, {
+    String? payerPhone,
+  }) async => PaymentInvite.fromJson(
+    await _client.post(
+      'orders/$orderId/confirm-delivery',
+      body: _payerBody(payerPhone),
+    ),
+  );
 
-  /// `POST /v1/orders/{id}/cancel/` — corps vide.
+  /// `POST /v1/orders/{id}/cancel/` (§ 7.3.14).
   ///
   /// L'éligibilité et les frais sont décidés par le serveur
-  /// (`order_not_cancellable` sinon).
-  Future<CancellationResult> cancelOrder(String orderId) async =>
-      CancellationResult.fromJson(await _client.post('orders/$orderId/cancel'));
+  /// (`order_not_cancellable` sinon). [payerPhone] ne sert que si des frais
+  /// sont dus ; le serveur l'ignore pour une annulation gratuite.
+  Future<CancellationResult> cancelOrder(
+    String orderId, {
+    String? payerPhone,
+  }) async => CancellationResult.fromJson(
+    await _client.post('orders/$orderId/cancel', body: _payerBody(payerPhone)),
+  );
+
+  /// Corps facultatif `PaymentPayerSerializer` : rien plutôt qu'un champ vide.
+  static Map<String, dynamic>? _payerBody(String? payerPhone) =>
+      payerPhone == null || payerPhone.isEmpty
+      ? null
+      : {'payer_phone': payerPhone};
 
   /// `POST /v1/orders/quote/` — prix **avant** de commander (§ 7.3.3).
   ///

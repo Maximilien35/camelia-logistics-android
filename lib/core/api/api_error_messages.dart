@@ -122,6 +122,11 @@ String? _knownMessage(AppLocalizations l10n, String code) => switch (code) {
   ApiErrorCode.withdrawalTransferFailed =>
     l10n.apiErrorWithdrawalTransferFailed,
   ApiErrorCode.ambassadorCodeRequired => l10n.apiErrorAmbassadorCodeRequired,
+  ApiErrorCode.payerPhoneRequired => l10n.apiErrorPayerPhoneRequired,
+  ApiErrorCode.payerPhoneUnsupported => l10n.apiErrorPayerPhoneUnsupported,
+  ApiErrorCode.paymentAlreadyPending => l10n.apiErrorPaymentAlreadyPending,
+  ApiErrorCode.paymentProviderUnavailable =>
+    l10n.apiErrorPaymentProviderUnavailable,
   ApiErrorCode.phoneAlreadyUsed => l10n.apiErrorPhoneAlreadyUsed,
   ApiErrorCode.geocodingUnavailable => l10n.apiErrorGeocodingUnavailable,
   // T2.9 : le géocodeur est partagé par tout le backend (1 requête/s) et la

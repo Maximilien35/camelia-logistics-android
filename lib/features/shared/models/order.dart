@@ -401,18 +401,34 @@ class Order {
 /// **Ce n'est pas une confirmation de paiement.** L'utilisateur valide
 /// l'opération sur son téléphone ; l'issue arrive au serveur par webhook, et
 /// l'app ne la connaît qu'en relisant la commande.
+///
+/// Depuis le 21 octobre 2026 (§ 6.5.7, § 7.3.14), le fournisseur par défaut
+/// est **KPay en mode USSD** : l'invite est poussée directement sur le
+/// téléphone du payeur et [authorizationUrl] vaut `null` — il n'y a aucune page
+/// à ouvrir. Une URL n'est plus rendue que par un fournisseur à page hébergée
+/// (NotchPay, secondaire).
 class PaymentInvite {
   const PaymentInvite({
-    required this.authorizationUrl,
+    required this.provider,
     required this.transactionReference,
+    this.authorizationUrl,
   });
 
-  final String authorizationUrl;
+  /// Fournisseur qui a émis l'invite (`kpay`, `notchpay`). Informatif : l'app
+  /// ne décide rien d'après lui, c'est [opensPage] qui compte.
+  final String provider;
   final String transactionReference;
 
+  /// Page de paiement à ouvrir, `null` en mode USSD.
+  final String? authorizationUrl;
+
+  /// `true` si l'invite se valide sur une page web plutôt que sur le téléphone.
+  bool get opensPage => authorizationUrl?.isNotEmpty == true;
+
   factory PaymentInvite.fromJson(Map<String, dynamic> json) => PaymentInvite(
-    authorizationUrl: (json['authorization_url'] as String?) ?? '',
+    provider: (json['provider'] as String?) ?? '',
     transactionReference: (json['transaction_reference'] as String?) ?? '',
+    authorizationUrl: json['authorization_url'] as String?,
   );
 }
 

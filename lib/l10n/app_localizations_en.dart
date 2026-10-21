@@ -2092,7 +2092,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get trackingPayBody =>
-      'Tap the button to get the Mobile Money prompt, then approve it on your phone.';
+      'Tap the button: a payment request will arrive on your phone. Approve it with your Mobile Money PIN.';
 
   @override
   String trackingPayButton(Object amount) {
@@ -3036,4 +3036,53 @@ class AppLocalizationsEn extends AppLocalizations {
   String onboardingProgress(int current, int total) {
     return 'Step $current of $total';
   }
+
+  @override
+  String get apiErrorPayerPhoneRequired =>
+      'Enter the Mobile Money number to charge.';
+
+  @override
+  String get apiErrorPayerPhoneUnsupported =>
+      'This number isn\'t a supported Mobile Money account. Try an MTN or Orange number.';
+
+  @override
+  String get apiErrorPaymentAlreadyPending =>
+      'A payment request is already waiting for your approval on your phone.';
+
+  @override
+  String get apiErrorPaymentProviderUnavailable =>
+      'The payment service is temporarily unavailable. Please try again in a moment.';
+
+  @override
+  String trackingPayPromptSentBody(Object phone) {
+    return 'A payment request was sent to $phone. Approve it on your phone with your Mobile Money PIN, then refresh.';
+  }
+
+  @override
+  String get trackingPaySendAgain => 'Send the request again';
+
+  @override
+  String get payerSheetTitle => 'Mobile Money number';
+
+  @override
+  String get payerSheetBody =>
+      'The payment request will be sent to this number. The operator is detected automatically.';
+
+  @override
+  String get payerSheetPhoneLabel => 'Number to charge';
+
+  @override
+  String get payerSheetSend => 'Send payment request';
+
+  @override
+  String get trackingCancelFeePromptSent =>
+      'A request to pay the fee was sent to your phone. Approve it with your Mobile Money PIN.';
+
+  @override
+  String get trackingCancelFeePromptFailed =>
+      'Your order is cancelled, but the fee payment request couldn\'t be sent for now.';
+
+  @override
+  String get walletWithdrawFeeNotice =>
+      'The payment operator deducts its commission from the amount sent: you\'ll receive slightly less than the amount requested.';
 }

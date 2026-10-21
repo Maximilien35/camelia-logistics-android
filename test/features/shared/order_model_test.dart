@@ -129,6 +129,42 @@ void main() {
 
     expect(result.feeCharged, isTrue);
     expect(result.payment?.authorizationUrl, 'https://pay.notchpay.co/x');
+    expect(result.payment?.opensPage, isTrue);
     expect(result.order.status, OrderStatus.cancelledByClient);
+  });
+
+  group('PaymentInvite (§ 7.3.14)', () {
+    test('KPay en USSD : URL nulle, rien à ouvrir', () {
+      final invite = PaymentInvite.fromJson({
+        'provider': 'kpay',
+        'transaction_reference': 'kp-42',
+        'authorization_url': null,
+      });
+
+      expect(invite.provider, 'kpay');
+      expect(invite.transactionReference, 'kp-42');
+      expect(invite.authorizationUrl, isNull);
+      expect(invite.opensPage, isFalse);
+    });
+
+    test('une URL vide ne compte pas comme une page', () {
+      final invite = PaymentInvite.fromJson({
+        'provider': 'kpay',
+        'transaction_reference': 'kp-43',
+        'authorization_url': '',
+      });
+
+      expect(invite.opensPage, isFalse);
+    });
+
+    test('NotchPay garde sa page hébergée', () {
+      final invite = PaymentInvite.fromJson({
+        'provider': 'notchpay',
+        'transaction_reference': 'np-1',
+        'authorization_url': 'https://pay.notchpay.co/np-1',
+      });
+
+      expect(invite.opensPage, isTrue);
+    });
   });
 }

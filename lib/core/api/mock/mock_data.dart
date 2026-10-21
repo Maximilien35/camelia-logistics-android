@@ -806,8 +806,9 @@ class MockState {
       'fee_charged': feeCharged,
       'payment': feeCharged
           ? {
-              'authorization_url': 'https://pay.invalid/mock/frais-annulation',
+              'provider': 'kpay',
               'transaction_reference': 'trx-annul-${order['reference']}',
+              'authorization_url': null,
             }
           : null,
     };
@@ -816,14 +817,21 @@ class MockState {
   /// Réponse de `confirm-delivery` : une **invite** de paiement Mobile Money,
   /// pas une confirmation. L'issue réelle arrive par webhook côté serveur.
   ///
-  /// Simulation du webhook NotchPay : la commande passe à `completed` à la
-  /// **relecture suivante** (voir [trackingJson]), jamais dans la réponse
-  /// elle-même — l'app doit rester incapable de conclure seule au paiement.
-  Map<String, dynamic> initiatePayment(Map<String, dynamic> order) {
+  /// Forme de KPay, fournisseur par défaut depuis le 21 octobre 2026 (§ 6.5.7) :
+  /// mode USSD, donc `authorization_url` nul — l'invite est censée arriver sur
+  /// le téléphone. Une seconde demande avant le « webhook » répond
+  /// `payment_already_pending`, comme le vrai serveur.
+  ///
+  /// Simulation du webhook : la commande passe à `completed` à la **relecture
+  /// suivante** (voir [trackingJson]), jamais dans la réponse elle-même —
+  /// l'app doit rester incapable de conclure seule au paiement.
+  Map<String, dynamic>? initiatePayment(Map<String, dynamic> order) {
+    if (order['_payment_initiated'] == true) return null;
     order['_payment_initiated'] = true;
     return {
-      'authorization_url': 'https://pay.invalid/mock/${order['reference']}',
+      'provider': 'kpay',
       'transaction_reference': 'trx-${order['reference']}',
+      'authorization_url': null,
     };
   }
 

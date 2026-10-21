@@ -1027,7 +1027,25 @@ class MockBackend extends http.BaseClient {
             'Le paiement n\'est possible qu\'après la livraison.',
           );
         }
-        return _ok(_state.initiatePayment(order));
+        final payer = body['payer_phone'];
+        if (payer is String &&
+            payer.isNotEmpty &&
+            !RegExp(r'^\+[1-9]\d{7,14}$').hasMatch(payer)) {
+          return _validation({
+            'payer_phone': [
+              'Numéro au format international requis, ex. +237690000000.',
+            ],
+          });
+        }
+        final invite = _state.initiatePayment(order);
+        return invite == null
+            ? _error(
+                409,
+                'payment_already_pending',
+                'Un paiement est déjà en attente de validation sur votre '
+                    'téléphone.',
+              )
+            : _ok(invite);
       case 'rate':
         final rating = body['rating'];
         final comment = (body['comment'] as String? ?? '');

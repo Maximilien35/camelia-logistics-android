@@ -86,6 +86,7 @@ Les états « Erreur » de la maquette s'atteignent sans toucher au code :
 | recherche sans résultat | rechercher un lieu inconnu du faux géocodeur (ex. `Tombouctou`) — lieux connus : Bonanjo, Akwa, Ndokoti, Marché Central, Deïdo, Aéroport, Bonamoussadi (Douala), Poste centrale, Bastos (Yaoundé) |
 | `invalid_otp` au changement de téléphone | code `000000` (tout autre code valide le numéro) |
 | `order_not_delivered` | appeler `confirm-delivery` sur une commande non livrée |
+| `payment_already_pending` | « Renvoyer la demande » sans avoir actualisé le suivi entre-temps |
 | `withdrawal_amount_below_minimum` | demander un retrait de moins de 2000 |
 | `withdrawal_amount_exceeds_balance` | demander plus que le solde |
 | `driver_profile_required` | appeler une route chauffeur avec le compte client |
@@ -169,9 +170,11 @@ Le faux serveur respecte les contraintes qui comptent :
   `driver_en_route_pickup` et mène à `in_transit`, la livraison exige
   `in_transit` **et le bon code de remise** et mène à `delivered`, sinon
   `invalid_order_transition` ; un code faux ne livre rien ;
-- **paiement asynchrone** — `confirm-delivery` ne renvoie qu'une invite ; la
+- **paiement asynchrone** — `confirm-delivery` ne renvoie qu'une invite, à la
+  forme KPay (`provider: "kpay"`, `authorization_url: null`, mode USSD) ; la
   commande passe à `completed` à la **relecture suivante**, comme si le webhook
-  NotchPay était arrivé entre-temps ;
+  était arrivé entre-temps, et une seconde demande avant cette relecture
+  répond `payment_already_pending` ;
 - **suivi public réduit** — `/track/{token}/` n'expose ni adresse, ni prix, ni
   donnée personnelle ;
 - **`eta_minutes` et `delivery_code` à `null` hors de leur fenêtre** — l'app

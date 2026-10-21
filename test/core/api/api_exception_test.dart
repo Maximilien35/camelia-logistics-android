@@ -130,7 +130,16 @@ void main() {
         contains(ApiErrorCode.emergencyContactNotConfigured),
       );
       // Plus deux codes 503 d'envoi de fichier : photo de colis et pièce chauffeur.
-      expect(ApiErrorCode.all, hasLength(58));
+      // Plus les quatre codes de l'invite Mobile Money du passage à KPay
+      // (21 octobre 2026, § 7.3.14).
+      expect(ApiErrorCode.all, contains(ApiErrorCode.payerPhoneRequired));
+      expect(ApiErrorCode.all, contains(ApiErrorCode.payerPhoneUnsupported));
+      expect(ApiErrorCode.all, contains(ApiErrorCode.paymentAlreadyPending));
+      expect(
+        ApiErrorCode.all,
+        contains(ApiErrorCode.paymentProviderUnavailable),
+      );
+      expect(ApiErrorCode.all, hasLength(62));
     });
 
     test('le code de repli ne fait pas partie des codes métier', () {

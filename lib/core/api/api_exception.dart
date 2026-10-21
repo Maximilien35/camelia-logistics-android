@@ -207,6 +207,24 @@ abstract final class ApiErrorCode {
   static const String withdrawalTransferFailed = 'withdrawal_transfer_failed';
   static const String ambassadorCodeRequired = 'ambassador_code_required';
 
+  // Invite Mobile Money de `confirm-delivery/` et `cancel/` (§ 7.3.14, passage
+  // à KPay du 21 octobre 2026).
+
+  /// Aucun `payer_phone` envoyé et le compte n'a pas de téléphone (400).
+  static const String payerPhoneRequired = 'payer_phone_required';
+
+  /// Le fournisseur ne reconnaît aucun opérateur pour ce numéro (400).
+  static const String payerPhoneUnsupported = 'payer_phone_unsupported';
+
+  /// Une invite attend déjà la validation du payeur (409). Pas un échec :
+  /// l'invite précédente est toujours sur le téléphone.
+  static const String paymentAlreadyPending = 'payment_already_pending';
+
+  /// Fournisseur injoignable ou initialisation refusée (502). Sur `cancel/`,
+  /// l'annulation est **acquise** : seule l'invite des frais n'est pas partie.
+  static const String paymentProviderUnavailable =
+      'payment_provider_unavailable';
+
   // Changement de téléphone (§ 7.3.8, T5.10) : le numéro appartient déjà à un
   // autre compte.
   static const String phoneAlreadyUsed = 'phone_already_used';
@@ -313,6 +331,10 @@ abstract final class ApiErrorCode {
     withdrawalAmountExceedsBalance,
     withdrawalTransferFailed,
     ambassadorCodeRequired,
+    payerPhoneRequired,
+    payerPhoneUnsupported,
+    paymentAlreadyPending,
+    paymentProviderUnavailable,
     phoneAlreadyUsed,
     geocodingUnavailable,
     mediaUploadUnavailable,
