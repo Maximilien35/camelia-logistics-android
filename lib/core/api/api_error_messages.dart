@@ -11,6 +11,7 @@
 library;
 
 import '../../l10n/app_localizations.dart';
+import '../platform/social_sign_in.dart';
 import 'api_exception.dart';
 
 /// Message localisé pour une erreur d'API.
@@ -35,6 +36,8 @@ String messageForFailure(AppLocalizations l10n, Object failure) =>
     switch (failure) {
       ApiException e => messageForApiError(l10n, e),
       NetworkException _ => messageForNetworkError(l10n),
+      // Le SDK Google ou Apple n'a pas rendu de jeton : rien n'est parti.
+      SocialSignInFailed _ => l10n.socialSignInFailed,
       // Bogue de l'app plutôt qu'erreur attendue : on reste générique, on
       // n'expose pas un message technique à l'utilisateur.
       _ => l10n.apiErrorGeneric,
@@ -57,6 +60,13 @@ String? _knownMessage(AppLocalizations l10n, String code) => switch (code) {
   ApiErrorCode.otpMaxAttempts => l10n.apiErrorOtpMaxAttempts,
   ApiErrorCode.passwordNotSet => l10n.apiErrorPasswordNotSet,
   ApiErrorCode.invalidCurrentPassword => l10n.apiErrorInvalidCurrentPassword,
+  ApiErrorCode.invalidSocialToken => l10n.apiErrorInvalidSocialToken,
+  ApiErrorCode.socialProviderUnavailable =>
+    l10n.apiErrorSocialProviderUnavailable,
+  ApiErrorCode.socialSignupIncomplete => l10n.apiErrorSocialSignupIncomplete,
+  ApiErrorCode.socialEmailUnverified => l10n.apiErrorSocialEmailUnverified,
+  ApiErrorCode.socialEmailConflict => l10n.apiErrorSocialEmailConflict,
+  ApiErrorCode.socialLoginNotAllowed => l10n.apiErrorSocialLoginNotAllowed,
   ApiErrorCode.invalidCredentials => l10n.apiErrorInvalidCredentials,
   ApiErrorCode.accountInactive => l10n.apiErrorAccountInactive,
   ApiErrorCode.emailNotVerified => l10n.apiErrorEmailNotVerified,

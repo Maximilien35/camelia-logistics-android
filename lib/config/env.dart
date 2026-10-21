@@ -206,6 +206,29 @@ abstract final class Env {
     }
   }
 
+  // --- Connexion Google / Apple (`06c`, lot 8) ------------------------------
+
+  /// Identifiant client OAuth Google **de type « Web »**, par
+  /// `--dart-define=GOOGLE_SERVER_CLIENT_ID=...`.
+  ///
+  /// Passé à `GoogleSignIn.initialize(serverClientId:)` : sans lui, Android ne
+  /// rend pas de jeton d'identité exploitable par un serveur (`06c` § 6c.3), et
+  /// c'est lui que le backend attend en `aud` (`GOOGLE_OAUTH_CLIENT_IDS`). Ce
+  /// n'est pas un secret, mais il dépend de l'environnement : il ne s'écrit pas
+  /// dans le code (règle n°10). Vide = bouton Google masqué.
+  static const String googleServerClientId = String.fromEnvironment(
+    'GOOGLE_SERVER_CLIENT_ID',
+  );
+
+  /// `--dart-define=APPLE_SIGN_IN=true` active le bouton Apple **sur iOS**.
+  ///
+  /// Désactivé par défaut : il exige la capacité « Sign in with Apple » sur
+  /// l'identifiant d'app et un profil de provisionnement régénéré, démarche
+  /// faite hors du dépôt (règle n°1 : l'app ne touche pas à la signature).
+  /// Sans elle, le SDK échoue à l'exécution.
+  static const bool appleSignInEnabled =
+      String.fromEnvironment('APPLE_SIGN_IN') == 'true';
+
   /// Résumé lisible, pour les journaux de développement uniquement.
   static String describe() =>
       'Env(environment: ${environment.name}, apiRoot: $apiRoot, '

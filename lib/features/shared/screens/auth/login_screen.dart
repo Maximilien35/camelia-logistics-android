@@ -25,6 +25,7 @@ import '../../state/auth_controller.dart';
 import '../../widgets/app_text_field.dart';
 import '../../widgets/auth_scaffold.dart';
 import '../../widgets/primary_button.dart';
+import '../../widgets/social_sign_in_buttons.dart';
 import 'forgot_password_screen.dart';
 import 'login_method_screen.dart';
 import 'otp_verification_screen.dart';
@@ -129,6 +130,16 @@ class _LoginScreenState extends State<LoginScreen> {
     return AuthScaffold(
       showBrand: true,
       children: [
+        // Après la suppression d'un compte rattaché à Apple (`06c` § 6c.4).
+        if (auth.appleRevocationReminder) ...[
+          _AppleRevocationNotice(
+            title: l10n.accountDeletedAppleTitle,
+            body: l10n.accountDeletedAppleBody,
+            onClose: auth.dismissAppleRevocationReminder,
+            closeLabel: l10n.commonClose,
+          ),
+          const SizedBox(height: AppSpacing.xl),
+        ],
         AuthTitle(l10n.authWelcomeBack),
         const SizedBox(height: AppSpacing.xs),
         AuthSubtitle(l10n.authSignInSubtitle),
@@ -191,7 +202,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
         if (failure != null && !needsVerification) ...[
           const SizedBox(height: AppSpacing.lg),
-          AuthErrorBanner(messageForFailure(l10n, failure)),
+          AuthErrorBanner(
+            socialFailureMessage(l10n, failure) ??
+                messageForFailure(l10n, failure),
+          ),
         ],
         if (needsVerification) ...[
           const SizedBox(height: AppSpacing.lg),
@@ -216,6 +230,10 @@ class _LoginScreenState extends State<LoginScreen> {
         const SizedBox(height: AppSpacing.lg),
         const AuthOrDivider(),
         const SizedBox(height: AppSpacing.lg),
+        if (auth.socialProviders.isNotEmpty) ...[
+          const SocialSignInButtons(),
+          const SizedBox(height: AppSpacing.md),
+        ],
         AuthOutlineButton(
           label: l10n.authOtherMethod,
           icon: AppIcons.mail,
@@ -272,6 +290,69 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
+}
+
+class _AppleRevocationNotice extends StatelessWidget {
+  const _AppleRevocationNotice({
+    required this.title,
+    required this.body,
+    required this.onClose,
+    required this.closeLabel,
+  });
+
+  final String title;
+  final String body;
+  final VoidCallback onClose;
+  final String closeLabel;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.fromLTRB(
+      AppSpacing.lg,
+      AppSpacing.md,
+      AppSpacing.sm,
+      AppSpacing.md,
+    ),
+    decoration: BoxDecoration(
+      color: AppColors.surface,
+      borderRadius: BorderRadius.circular(AppRadii.field),
+      border: Border.all(color: AppColors.border),
+    ),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: AppFontSize.body,
+                  color: AppColors.ink,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.xs),
+              Text(
+                body,
+                style: const TextStyle(
+                  fontSize: AppFontSize.label,
+                  height: 1.45,
+                  color: AppColors.inkMuted,
+                ),
+              ),
+            ],
+          ),
+        ),
+        IconButton(
+          tooltip: closeLabel,
+          onPressed: onClose,
+          icon: const Icon(AppIcons.close, size: 18),
+        ),
+      ],
+    ),
+  );
 }
 
 class _TermsLine extends StatelessWidget {

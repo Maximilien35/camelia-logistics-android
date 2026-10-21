@@ -148,6 +148,16 @@ class MockBackend extends http.BaseClient {
         });
       case 'POST auth/password/reset/confirm':
         return _confirmPasswordReset(body);
+      case 'POST auth/social/google':
+        return _socialSignIn('google', body['id_token'] as String?, body);
+      case 'POST auth/social/apple':
+        final nonce = body['nonce'] as String? ?? '';
+        if (nonce.length < 16 || nonce.length > 128) {
+          return _validation({
+            'nonce': ['Le nonce doit faire de 16 à 128 caractères.'],
+          });
+        }
+        return _socialSignIn('apple', body['identity_token'] as String?, body);
       case 'POST auth/refresh':
         return _refresh(body);
     }
@@ -452,6 +462,85 @@ class MockBackend extends http.BaseClient {
     user.password = newPassword!;
     _state.revokeTokens(user);
     return _ok(_state.issueTokens(user));
+  }
+
+  /// `POST /auth/social/<fournisseur>/` (`06c` § 6c.2) — les trois issues :
+  /// compte connu (connexion, `200`), email d'un compte existant
+  /// (rattachement, `200`), inconnu (`social_signup_incomplete`, puis création
+  /// en `201` avec le téléphone).
+  ///
+  /// Le « jeton » du faux SDK est lisible : `mock:<email>:<prénom>:<nom>` ;
+  /// `mock-expired` rend `401 invalid_social_token`.
+  _MockResponse _socialSignIn(
+    String provider,
+    String? token,
+    Map<String, dynamic> body,
+  ) {
+    final parts = (token ?? '').split(':');
+    if (token == 'mock-expired' || parts.length != 4 || parts[0] != 'mock') {
+      return _error(401, 'invalid_social_token', 'Jeton d\'identité invalide.');
+    }
+    final email = parts[1].toLowerCase();
+
+    final existing = _state.findByEmail(email);
+    if (existing != null) {
+      if (existing.role == 'admin') {
+        return _error(
+          403,
+          'social_login_not_allowed',
+          'Connexion sociale refusée pour ce compte.',
+        );
+      }
+      if (!existing.socialProviders.contains(provider)) {
+        existing.socialProviders = [...existing.socialProviders, provider];
+      }
+      // Les champs de profil envoyés sont ignorés : une connexion ne modifie
+      // jamais un profil.
+      return _ok({..._state.issueTokens(existing), 'created': false});
+    }
+
+    String field(String key, String fallback) {
+      final value = (body[key] as String? ?? '').trim();
+      return value.isNotEmpty ? value : fallback;
+    }
+
+    final phone = field('phone', '');
+    final first = field('first_name', parts[2]);
+    final last = field('last_name', parts[3]);
+    final missing = [
+      if (phone.isEmpty) 'phone',
+      if (first.isEmpty) 'first_name',
+      if (last.isEmpty) 'last_name',
+    ];
+    if (missing.isNotEmpty) {
+      return _MockResponse(400, {
+        'code': 'social_signup_incomplete',
+        'message': 'Complétez votre profil pour terminer l\'inscription.',
+        'details': {
+          'missing': missing,
+          'prefill': {'email': email, 'first_name': first, 'last_name': last},
+        },
+      });
+    }
+    if (_state.findByPhone(phone) != null) {
+      return _validation({
+        'phone': ['Un compte existe déjà avec ce numéro.'],
+      });
+    }
+    final user = MockUser(
+      id: _uuid(),
+      email: email,
+      phone: phone,
+      firstName: first,
+      lastName: last,
+      // Mot de passe inutilisable : le compte naît du fournisseur (§ 6c.2).
+      password: '',
+      role: body['role'] == 'driver' ? 'driver' : 'client',
+      emailVerified: true,
+      socialProviders: [provider],
+    );
+    _state.addUser(user);
+    return _created({..._state.issueTokens(user), 'created': true});
   }
 
   /// Codes spéciaux pour éprouver les états d'erreur de l'écran de vérification.

@@ -87,6 +87,10 @@ Les états « Erreur » de la maquette s'atteignent sans toucher au code :
 | `invalid_otp` au changement de téléphone | code `000000` (tout autre code valide le numéro) |
 | `order_not_delivered` | appeler `confirm-delivery` sur une commande non livrée |
 | `payment_already_pending` | « Renvoyer la demande » sans avoir actualisé le suivi entre-temps |
+| `social_signup_incomplete` | « Continuer avec Google » : compte inconnu (`nadia.google@camelia.test`), l'écran de complétion s'ouvre |
+| rattachement Apple | « Continuer avec Apple » : l'email d'Aïcha, connexion directe |
+| `phone` déjà utilisé (complétion) | saisir `+237690000002` |
+| `invalid_current_password` | Compte → Mot de passe, mot de passe actuel autre que `motdepasse8` |
 | `withdrawal_amount_below_minimum` | demander un retrait de moins de 2000 |
 | `withdrawal_amount_exceeds_balance` | demander plus que le solde |
 | `driver_profile_required` | appeler une route chauffeur avec le compte client |

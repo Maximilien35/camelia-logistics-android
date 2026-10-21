@@ -42,8 +42,9 @@ class MockUser {
   /// § 6c.2). Modifiable par la réinitialisation et le changement (§ 6c.5-6).
   String password;
 
-  /// Fournisseurs rattachés, parmi `google` et `apple` (§ 6c.7).
-  final List<String> socialProviders;
+  /// Fournisseurs rattachés, parmi `google` et `apple` (§ 6c.7). Une
+  /// connexion sociale sur un compte existant y ajoute son fournisseur.
+  List<String> socialProviders;
 
   /// `client`, `driver` ou `admin` — valeurs exactes de `User.Role`.
   final String role;

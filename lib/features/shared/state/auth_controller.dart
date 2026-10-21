@@ -13,6 +13,7 @@ library;
 import 'package:flutter/foundation.dart';
 
 import '../../../core/api/api_exception.dart';
+import '../../../core/platform/social_sign_in.dart';
 import '../models/app_user.dart';
 import '../routing/role_destination.dart';
 import '../services/auth_service.dart';
@@ -29,11 +30,32 @@ enum SessionStatus {
   authenticated,
 }
 
+/// Issue d'un appui sur « Continuer avec Google / Apple ».
+enum SocialSignInOutcome {
+  /// Session ouverte : le SessionGate prend la suite.
+  signedIn,
+
+  /// Compte inconnu : il manque le téléphone (ou un nom). L'écran de
+  /// complétion s'ouvre, [AuthController.socialSignup] porte le pré-remplissage.
+  needsCompletion,
+
+  /// L'utilisateur a fermé le SDK : rien à afficher.
+  cancelled,
+
+  /// Échec, détaillé par [AuthController.failure].
+  failed,
+}
+
 class AuthController extends ChangeNotifier {
-  AuthController({required AuthService service, this.beforeLogout})
-    : _service = service;
+  AuthController({
+    required AuthService service,
+    this.beforeLogout,
+    SocialSignIn social = const NoSocialSignIn(),
+  }) : _service = service,
+       _social = social;
 
   final AuthService _service;
+  final SocialSignIn _social;
 
   /// Appelé **avant** que la session soit révoquée et le coffre vidé.
   ///
@@ -176,6 +198,171 @@ class AuthController extends ChangeNotifier {
     await _loadProfile();
   });
 
+  // --- Google / Apple (`06c` § 6c.2 à 6c.4) ---------------------------------
+
+  /// Fournisseurs à proposer sur cet appareil (iOS : Apple, et Google
+  /// seulement avec Apple — guideline 4.8 ; Android : Google).
+  List<SocialProvider> get socialProviders => _social.available;
+
+  SocialCredential? _pendingSocial;
+  SocialSignupRequirement? _socialSignup;
+
+  /// Pré-remplissage de l'écran de complétion, tant qu'une inscription
+  /// sociale attend son téléphone. Aucun compte n'existe encore côté serveur.
+  SocialSignupRequirement? get socialSignup => _socialSignup;
+
+  /// Fournisseur de l'inscription en attente.
+  SocialProvider? get pendingSocialProvider => _pendingSocial?.provider;
+
+  /// Ouvre le SDK puis `POST /auth/social/<p>/`. Inscription **ou** connexion :
+  /// c'est le serveur qui tranche. Le rôle ne vient jamais d'ici : il est relu
+  /// sur `GET /me/` après coup, comme pour toute connexion.
+  Future<SocialSignInOutcome> signInWithProvider(
+    SocialProvider provider,
+  ) async {
+    if (_busy) return SocialSignInOutcome.failed;
+    _busy = true;
+    _failure = null;
+    _pendingSocial = null;
+    _socialSignup = null;
+    notifyListeners();
+    try {
+      final credential = await _social.obtain(provider);
+      if (credential == null) return SocialSignInOutcome.cancelled;
+      return await _socialAttempt(credential);
+    } on SocialSignInFailed catch (e) {
+      _failure = e;
+      return SocialSignInOutcome.failed;
+    } finally {
+      _finishRun();
+    }
+  }
+
+  /// Second appel, avec le **même jeton** et les champs complétés (§ 6c.2).
+  ///
+  /// Un jeton expiré entre les deux appels (Apple : dix minutes) rend
+  /// `401 invalid_social_token` : on relance le SDK une fois, en gardant le
+  /// nom rendu par Apple à la première autorisation.
+  Future<bool> completeSocialSignUp({
+    required String phone,
+    required String firstName,
+    required String lastName,
+    required UserRole role,
+  }) async {
+    final pending = _pendingSocial;
+    if (pending == null || _busy) return false;
+    _busy = true;
+    _failure = null;
+    notifyListeners();
+    Future<SocialSignInOutcome> attempt(SocialCredential credential) =>
+        _socialAttempt(
+          credential,
+          phone: phone,
+          firstName: firstName,
+          lastName: lastName,
+          role: role,
+        );
+    try {
+      var outcome = await attempt(pending);
+      final failure = _failure;
+      if (outcome == SocialSignInOutcome.failed &&
+          failure is ApiException &&
+          failure.code == ApiErrorCode.invalidSocialToken) {
+        final fresh = await _social.obtain(pending.provider);
+        if (fresh == null) return false;
+        _failure = null;
+        outcome = await attempt(
+          fresh is AppleCredential ? fresh.withNamesFrom(pending) : fresh,
+        );
+      }
+      return outcome == SocialSignInOutcome.signedIn;
+    } on SocialSignInFailed catch (e) {
+      _failure = e;
+      return false;
+    } finally {
+      _finishRun();
+    }
+  }
+
+  /// Abandon de la complétion : le jeton est oublié, rien n'existe côté serveur.
+  void cancelSocialSignUp() {
+    _pendingSocial = null;
+    _socialSignup = null;
+    _failure = null;
+    notifyListeners();
+  }
+
+  /// Un appel social, sans gestion de `busy` (laissée à l'appelant).
+  Future<SocialSignInOutcome> _socialAttempt(
+    SocialCredential credential, {
+    String? phone,
+    String? firstName,
+    String? lastName,
+    UserRole? role,
+  }) async {
+    try {
+      await _service.socialSignIn(
+        credential,
+        phone: phone,
+        firstName: firstName,
+        lastName: lastName,
+        role: role,
+      );
+      _pendingSocial = null;
+      _socialSignup = null;
+      await _loadProfile();
+      return SocialSignInOutcome.signedIn;
+    } on ApiException catch (e) {
+      final requirement = SocialSignupRequirement.fromError(e);
+      if (requirement != null) {
+        _pendingSocial = credential;
+        _socialSignup = requirement;
+        // Étape attendue, pas une erreur : rien à afficher en bannière.
+        return SocialSignInOutcome.needsCompletion;
+      }
+      _failure = e;
+      return SocialSignInOutcome.failed;
+    } on NetworkException catch (e) {
+      _failure = e;
+      return SocialSignInOutcome.failed;
+    }
+  }
+
+  // --- Suppression de compte (§ 6.1.4, § 6c.4) -------------------------------
+
+  bool _appleRevocationReminder = false;
+
+  /// Le compte supprimé était rattaché à Apple : l'écran de connexion rappelle
+  /// une fois comment retirer Camelia des apps utilisant l'identifiant Apple
+  /// (procédure manuelle de TN3194, `06c` § 6c.4 point 3). Le serveur révoque
+  /// lui-même le jeton quand il l'a ; ce rappel couvre le cas où il ne l'a pas.
+  bool get appleRevocationReminder => _appleRevocationReminder;
+
+  void dismissAppleRevocationReminder() {
+    if (!_appleRevocationReminder) return;
+    _appleRevocationReminder = false;
+    notifyListeners();
+  }
+
+  /// `DELETE /auth/account/` — irréversible, après double confirmation de
+  /// l'UI. `account_deletion_blocked` (course en cours, solde à retirer) laisse
+  /// la session ouverte, avec l'erreur à afficher.
+  Future<bool> deleteAccount() async {
+    final linkedToApple =
+        _user?.socialProviders.contains(SocialProvider.apple.wire) ?? false;
+    // Pas de `beforeLogout` ici : le serveur désenregistre lui-même les
+    // appareils du compte supprimé (`_unregister_push_devices`), et le faire
+    // avant coup couperait les notifications d'un compte dont la suppression
+    // serait refusée.
+    final ok = await _run(_service.deleteAccount);
+    if (ok) {
+      _pendingEmail = null;
+      _appleRevocationReminder = linkedToApple;
+      _setUnauthenticated();
+    }
+    return ok;
+  }
+
   /// `POST /me/password/` — le couple de jetons neuf est enregistré par le
   /// service ; le profil ne change pas.
   Future<bool> changePassword({
@@ -270,16 +457,20 @@ class AuthController extends ChangeNotifier {
       _failure = e;
       return false;
     } finally {
-      _busy = false;
-      // Toute tentative d'authentification lève l'incertitude du démarrage :
-      // si aucune session n'a été ouverte, on sait désormais qu'il n'y en a
-      // pas. Sans cela, un appel avant `bootstrap` laisserait le statut à
-      // `unknown` et le SessionGate resterait bloqué sur son écran d'attente.
-      if (_status == SessionStatus.unknown && _user == null) {
-        _status = SessionStatus.unauthenticated;
-      }
-      notifyListeners();
+      _finishRun();
     }
+  }
+
+  void _finishRun() {
+    _busy = false;
+    // Toute tentative d'authentification lève l'incertitude du démarrage :
+    // si aucune session n'a été ouverte, on sait désormais qu'il n'y en a
+    // pas. Sans cela, un appel avant `bootstrap` laisserait le statut à
+    // `unknown` et le SessionGate resterait bloqué sur son écran d'attente.
+    if (_status == SessionStatus.unknown && _user == null) {
+      _status = SessionStatus.unauthenticated;
+    }
+    notifyListeners();
   }
 
   /// Passe en session ouverte. Seul `_loadProfile` et `bootstrap` y mènent :

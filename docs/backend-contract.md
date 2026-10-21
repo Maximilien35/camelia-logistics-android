@@ -157,6 +157,44 @@ Téléphone : E.164 strict, `^\+[1-9]\d{7,14}$` (ex. `+237690000000`).
   l'expérience du rôle relu sur `/me/` et **revient à la racine** de la pile
   de navigation (vrai pour tout changement de session).
 
+### Connexion Google / Apple — lot 8 (`06c` § 6c.2 à 6c.4)
+
+Même réserve : contrat lu sur `feat/identification` avant fusion.
+
+| Méthode | Chemin | Corps envoyé | Réponse |
+|---|---|---|---|
+| POST | `/v1/auth/social/google/` | `id_token` ; à la création : `phone`, `first_name`, `last_name`, `role` | `200` (connexion, rattachement) ou `201` (création) `{ "access", "refresh", "created" }` |
+| POST | `/v1/auth/social/apple/` | `identity_token`, `authorization_code`, `nonce` **en clair** (Apple n'en reçoit que le SHA-256) ; mêmes champs de création | idem |
+
+- Une seule route couvre inscription **et** connexion. Compte inconnu sans
+  téléphone : `400 social_signup_incomplete`, `details: {missing, prefill:
+  {email, first_name, last_name}}` — l'app ouvre l'écran de complétion puis
+  rappelle **avec le même jeton**. Aucun compte « incomplet » n'existe en base.
+- Jeton expiré entre les deux appels : `401 invalid_social_token` sur une
+  route publique (aucun rafraîchissement) ; l'app relance le SDK une fois en
+  gardant le nom rendu par Apple à la première autorisation.
+- Les champs de création envoyés pour un compte existant sont **ignorés** ;
+  le rôle n'est lu qu'à la création. L'aiguillage reste fait sur `GET /me/`.
+- Autres codes : `social_provider_unavailable` (503), `social_email_unverified`
+  (400), `social_email_conflict` (409), `social_login_not_allowed` (403),
+  `account_inactive` (403). Fournisseur non configuré côté serveur : `404`.
+
+**Configuration du build** (aucune valeur dans le dépôt, règle n°10) :
+
+| `--dart-define` | Rôle |
+|---|---|
+| `GOOGLE_SERVER_CLIENT_ID` | Identifiant client OAuth **Web** du projet Google Cloud, le même que dans `GOOGLE_OAUTH_CLIENT_IDS` côté serveur. Vide : bouton Google masqué |
+| `APPLE_SIGN_IN=true` | Active le bouton Apple **sur iOS**. Exige d'abord la capacité « Sign in with Apple » sur l'identifiant d'app et un profil de provisionnement régénéré (hors dépôt, règle n°1) |
+
+Règle d'affichage (`socialProvidersFor`) : Android → Google ; iOS → Apple, et
+Google **seulement avec** Apple (guideline App Store 4.8) ; ailleurs → rien.
+
+**Suppression de compte** (`DELETE /v1/auth/account/`, `confirm: true`) :
+désormais proposée dans les deux onglets Compte (guideline 5.1.1(v)). Le
+serveur désenregistre lui-même les appareils push. Un compte rattaché à Apple
+voit ensuite, sur l'écran de connexion, la procédure manuelle de retrait de
+Camelia des apps Apple (`06c` § 6c.4 point 3).
+
 ## Chauffeur — `accounts` + `dispatch`
 
 | Méthode | Chemin | Corps | Réponse |

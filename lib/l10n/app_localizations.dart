@@ -5869,6 +5869,114 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Votre compte n\'a pas encore de mot de passe. Nous allons envoyer un code à {email} pour en définir un.'**
   String setPasswordBody(Object email);
+
+  /// No description provided for @apiErrorInvalidSocialToken.
+  ///
+  /// In fr, this message translates to:
+  /// **'La connexion n\'a pas pu être vérifiée. Réessayez.'**
+  String get apiErrorInvalidSocialToken;
+
+  /// No description provided for @apiErrorSocialProviderUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce service de connexion est momentanément indisponible. Réessayez, ou connectez-vous avec votre email.'**
+  String get apiErrorSocialProviderUnavailable;
+
+  /// No description provided for @apiErrorSocialSignupIncomplete.
+  ///
+  /// In fr, this message translates to:
+  /// **'Complétez votre profil pour terminer l\'inscription.'**
+  String get apiErrorSocialSignupIncomplete;
+
+  /// No description provided for @apiErrorSocialEmailUnverified.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce compte ne fournit pas d\'adresse email vérifiée. Inscrivez-vous avec votre email.'**
+  String get apiErrorSocialEmailUnverified;
+
+  /// No description provided for @apiErrorSocialEmailConflict.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un compte existe déjà avec cet email. Connectez-vous avec votre mot de passe ou un code reçu par email.'**
+  String get apiErrorSocialEmailConflict;
+
+  /// No description provided for @apiErrorSocialLoginNotAllowed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce compte ne peut pas se connecter de cette façon.'**
+  String get apiErrorSocialLoginNotAllowed;
+
+  /// No description provided for @socialSignInFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'La connexion n\'a pas pu aboutir. Réessayez, ou utilisez votre email.'**
+  String get socialSignInFailed;
+
+  /// No description provided for @socialProviderDisabled.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette méthode de connexion n\'est pas encore disponible.'**
+  String get socialProviderDisabled;
+
+  /// No description provided for @socialContinueGoogle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer avec Google'**
+  String get socialContinueGoogle;
+
+  /// No description provided for @socialContinueApple.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer avec Apple'**
+  String get socialContinueApple;
+
+  /// No description provided for @socialCompleteTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plus qu\'une étape'**
+  String get socialCompleteTitle;
+
+  /// No description provided for @socialCompleteSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Indiquez votre numéro de téléphone : c\'est par lui qu\'on vous joint pendant une course, et que passent vos paiements Mobile Money.'**
+  String get socialCompleteSubtitle;
+
+  /// No description provided for @accountDelete.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer mon compte'**
+  String get accountDelete;
+
+  /// No description provided for @accountDeleteTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer votre compte ?'**
+  String get accountDeleteTitle;
+
+  /// No description provided for @accountDeleteBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre compte et vos données personnelles seront supprimés. L\'historique de vos commandes est conservé sans aucune donnée vous identifiant. Cette action est irréversible.'**
+  String get accountDeleteBody;
+
+  /// No description provided for @accountDeleteConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer définitivement'**
+  String get accountDeleteConfirm;
+
+  /// No description provided for @accountDeletedAppleTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compte supprimé'**
+  String get accountDeletedAppleTitle;
+
+  /// No description provided for @accountDeletedAppleBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour retirer aussi l\'accès de Camelia à votre identifiant Apple : Réglages › [votre nom] › Connexion et sécurité › Se connecter avec Apple › Camelia.'**
+  String get accountDeletedAppleBody;
 }
 
 class _AppLocalizationsDelegate

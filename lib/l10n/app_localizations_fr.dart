@@ -3192,4 +3192,69 @@ class AppLocalizationsFr extends AppLocalizations {
   String setPasswordBody(Object email) {
     return 'Votre compte n\'a pas encore de mot de passe. Nous allons envoyer un code à $email pour en définir un.';
   }
+
+  @override
+  String get apiErrorInvalidSocialToken =>
+      'La connexion n\'a pas pu être vérifiée. Réessayez.';
+
+  @override
+  String get apiErrorSocialProviderUnavailable =>
+      'Ce service de connexion est momentanément indisponible. Réessayez, ou connectez-vous avec votre email.';
+
+  @override
+  String get apiErrorSocialSignupIncomplete =>
+      'Complétez votre profil pour terminer l\'inscription.';
+
+  @override
+  String get apiErrorSocialEmailUnverified =>
+      'Ce compte ne fournit pas d\'adresse email vérifiée. Inscrivez-vous avec votre email.';
+
+  @override
+  String get apiErrorSocialEmailConflict =>
+      'Un compte existe déjà avec cet email. Connectez-vous avec votre mot de passe ou un code reçu par email.';
+
+  @override
+  String get apiErrorSocialLoginNotAllowed =>
+      'Ce compte ne peut pas se connecter de cette façon.';
+
+  @override
+  String get socialSignInFailed =>
+      'La connexion n\'a pas pu aboutir. Réessayez, ou utilisez votre email.';
+
+  @override
+  String get socialProviderDisabled =>
+      'Cette méthode de connexion n\'est pas encore disponible.';
+
+  @override
+  String get socialContinueGoogle => 'Continuer avec Google';
+
+  @override
+  String get socialContinueApple => 'Continuer avec Apple';
+
+  @override
+  String get socialCompleteTitle => 'Plus qu\'une étape';
+
+  @override
+  String get socialCompleteSubtitle =>
+      'Indiquez votre numéro de téléphone : c\'est par lui qu\'on vous joint pendant une course, et que passent vos paiements Mobile Money.';
+
+  @override
+  String get accountDelete => 'Supprimer mon compte';
+
+  @override
+  String get accountDeleteTitle => 'Supprimer votre compte ?';
+
+  @override
+  String get accountDeleteBody =>
+      'Votre compte et vos données personnelles seront supprimés. L\'historique de vos commandes est conservé sans aucune donnée vous identifiant. Cette action est irréversible.';
+
+  @override
+  String get accountDeleteConfirm => 'Supprimer définitivement';
+
+  @override
+  String get accountDeletedAppleTitle => 'Compte supprimé';
+
+  @override
+  String get accountDeletedAppleBody =>
+      'Pour retirer aussi l\'accès de Camelia à votre identifiant Apple : Réglages › [votre nom] › Connexion et sécurité › Se connecter avec Apple › Camelia.';
 }

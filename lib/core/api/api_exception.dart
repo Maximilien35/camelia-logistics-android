@@ -124,6 +124,29 @@ abstract final class ApiErrorCode {
 
   /// Mot de passe actuel faux au changement.
   static const String invalidCurrentPassword = 'invalid_current_password';
+
+  // Connexion Google / Apple (`06c` § 6c.2, lot 8).
+
+  /// Jeton d'identité refusé (signature, `aud`, expiré, `nonce`) — `401` sur
+  /// une route publique : aucun rafraîchissement n'est tenté. Pendant la
+  /// complétion du profil, l'app relance simplement le SDK.
+  static const String invalidSocialToken = 'invalid_social_token';
+
+  /// Clés publiques du fournisseur injoignables (503).
+  static const String socialProviderUnavailable = 'social_provider_unavailable';
+
+  /// Aucun compte, et il manque le téléphone (ou un nom) pour en créer un.
+  /// `details` : `{missing, prefill}`. Pas un échec : l'étape suivante.
+  static const String socialSignupIncomplete = 'social_signup_incomplete';
+
+  /// Le fournisseur ne garantit pas l'email : rien à créer sur cette base.
+  static const String socialEmailUnverified = 'social_email_unverified';
+
+  /// Un compte existe avec cet email, sans autorité du fournisseur dessus (409).
+  static const String socialEmailConflict = 'social_email_conflict';
+
+  /// Compte admin ou staff : connexion sociale refusée (403).
+  static const String socialLoginNotAllowed = 'social_login_not_allowed';
   static const String invalidCredentials = 'invalid_credentials';
   static const String accountInactive = 'account_inactive';
   static const String emailNotVerified = 'email_not_verified';
@@ -296,6 +319,12 @@ abstract final class ApiErrorCode {
     otpMaxAttempts,
     passwordNotSet,
     invalidCurrentPassword,
+    invalidSocialToken,
+    socialProviderUnavailable,
+    socialSignupIncomplete,
+    socialEmailUnverified,
+    socialEmailConflict,
+    socialLoginNotAllowed,
     invalidCredentials,
     accountInactive,
     emailNotVerified,

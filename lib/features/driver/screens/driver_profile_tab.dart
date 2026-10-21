@@ -24,6 +24,7 @@ import '../../shared/screens/profile/edit_profile_screen.dart';
 import '../../shared/screens/profile/password_screen.dart';
 import '../../shared/state/auth_controller.dart';
 import '../../shared/widgets/account_widgets.dart';
+import '../../shared/widgets/delete_account_tile.dart';
 import '../../shared/widgets/entrance.dart';
 import '../../shared/widgets/flow_widgets.dart';
 import '../models/driver_status.dart';
@@ -169,6 +170,7 @@ class DriverProfileTab extends StatelessWidget {
                 ? null
                 : () => context.read<AuthController>().logout(),
           ),
+          const DeleteAccountTile(),
         ],
       ),
     ];

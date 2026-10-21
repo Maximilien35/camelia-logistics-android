@@ -142,7 +142,9 @@ void main() {
       expect(ApiErrorCode.all, contains(ApiErrorCode.passwordNotSet));
       expect(ApiErrorCode.all, contains(ApiErrorCode.invalidCurrentPassword));
       // Plus les deux codes du mot de passe (lot 8, § 6c.6).
-      expect(ApiErrorCode.all, hasLength(64));
+      // Plus les six codes de la connexion Google / Apple (lot 8, § 6c.2).
+      expect(ApiErrorCode.all, contains(ApiErrorCode.socialSignupIncomplete));
+      expect(ApiErrorCode.all, hasLength(70));
     });
 
     test('le code de repli ne fait pas partie des codes métier', () {

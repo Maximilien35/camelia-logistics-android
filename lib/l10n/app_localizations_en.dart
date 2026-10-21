@@ -3162,4 +3162,69 @@ class AppLocalizationsEn extends AppLocalizations {
   String setPasswordBody(Object email) {
     return 'Your account doesn\'t have a password yet. We\'ll send a code to $email so you can set one.';
   }
+
+  @override
+  String get apiErrorInvalidSocialToken =>
+      'We couldn\'t verify this sign-in. Please try again.';
+
+  @override
+  String get apiErrorSocialProviderUnavailable =>
+      'This sign-in service is temporarily unavailable. Try again, or sign in with your email.';
+
+  @override
+  String get apiErrorSocialSignupIncomplete =>
+      'Complete your profile to finish signing up.';
+
+  @override
+  String get apiErrorSocialEmailUnverified =>
+      'This account doesn\'t provide a verified email address. Sign up with your email instead.';
+
+  @override
+  String get apiErrorSocialEmailConflict =>
+      'An account already exists with this email. Sign in with your password or a code sent by email.';
+
+  @override
+  String get apiErrorSocialLoginNotAllowed =>
+      'This account can\'t sign in this way.';
+
+  @override
+  String get socialSignInFailed =>
+      'Sign-in didn\'t go through. Try again, or use your email.';
+
+  @override
+  String get socialProviderDisabled =>
+      'This sign-in method isn\'t available yet.';
+
+  @override
+  String get socialContinueGoogle => 'Continue with Google';
+
+  @override
+  String get socialContinueApple => 'Continue with Apple';
+
+  @override
+  String get socialCompleteTitle => 'One last step';
+
+  @override
+  String get socialCompleteSubtitle =>
+      'Add your phone number: it\'s how you\'re reached during a delivery, and how your Mobile Money payments go through.';
+
+  @override
+  String get accountDelete => 'Delete my account';
+
+  @override
+  String get accountDeleteTitle => 'Delete your account?';
+
+  @override
+  String get accountDeleteBody =>
+      'Your account and personal data will be deleted. Your order history is kept with nothing that identifies you. This can\'t be undone.';
+
+  @override
+  String get accountDeleteConfirm => 'Delete permanently';
+
+  @override
+  String get accountDeletedAppleTitle => 'Account deleted';
+
+  @override
+  String get accountDeletedAppleBody =>
+      'To also remove Camelia\'s access to your Apple ID: Settings › [your name] › Sign-In & Security › Sign in with Apple › Camelia.';
 }

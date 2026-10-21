@@ -15,9 +15,11 @@ import 'package:provider/provider.dart';
 import '../../config/env.dart';
 import '../../core/api/api_client.dart';
 import '../../core/api/mock/mock_backend.dart';
+import '../../core/api/mock/mock_social_sign_in.dart';
 import '../../core/auth/token_store.dart';
 import '../../core/platform/firebase_push_registrar.dart';
 import '../../core/platform/push_registrar.dart';
+import '../../core/platform/social_sign_in.dart';
 import '../../core/storage/key_value_store.dart';
 import '../client/services/address_service.dart';
 import '../client/services/catalogue_service.dart';
@@ -83,6 +85,9 @@ class _CameliaV2AppState extends State<CameliaV2App> {
       // Le désenregistrement de l'appareil a besoin d'un jeton encore valide :
       // il part avant la révocation de la session (§ 7.7).
       beforeLogout: () => _pushController.detach(),
+      // Google / Apple (`06c`, lot 8). Les boutons n'apparaissent que si le
+      // build les configure (`GOOGLE_SERVER_CLIENT_ID`, `APPLE_SIGN_IN`).
+      social: Env.useMockApi ? MockSocialSignIn() : PlatformSocialSignIn(),
     );
     _driverService = DriverService(client: _client);
     _walletService = WalletService(client: _client);

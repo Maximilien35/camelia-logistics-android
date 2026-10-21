@@ -13,8 +13,63 @@
 library;
 
 import '../../../core/api/api_client.dart';
+import '../../../core/api/api_exception.dart';
 import '../../../core/auth/token_store.dart';
+import '../../../core/platform/social_sign_in.dart';
 import '../models/app_user.dart';
+
+/// Réponse de `POST /auth/social/<fournisseur>/` : `{access, refresh,
+/// created}` (`06c` § 6c.3).
+class SocialSignInResult {
+  const SocialSignInResult({required this.tokens, required this.created});
+
+  final AuthTokens tokens;
+
+  /// `true` si l'appel vient de **créer** le compte (`201`).
+  final bool created;
+}
+
+/// Ce que le serveur attend pour créer un compte à partir d'une identité
+/// sociale : `details` de `400 social_signup_incomplete` (§ 6c.2).
+///
+/// Google et Apple ne fournissent jamais de téléphone ; le compte n'est créé
+/// qu'au second appel, avec le même jeton et les champs complétés. Aucun
+/// compte « incomplet » n'existe en base entre les deux.
+class SocialSignupRequirement {
+  const SocialSignupRequirement({
+    required this.missing,
+    required this.email,
+    required this.firstName,
+    required this.lastName,
+  });
+
+  /// Champs manquants, parmi `phone`, `first_name`, `last_name`.
+  final List<String> missing;
+
+  /// Valeurs déjà connues, pour pré-remplir le formulaire.
+  final String email;
+  final String firstName;
+  final String lastName;
+
+  /// `null` si l'erreur n'est pas `social_signup_incomplete`.
+  static SocialSignupRequirement? fromError(ApiException error) {
+    if (error.code != ApiErrorCode.socialSignupIncomplete) return null;
+    final missing = error.details['missing'];
+    final prefill = error.details['prefill'];
+    final known = prefill is Map ? prefill : const {};
+    String read(String key) => (known[key] as String?)?.trim() ?? '';
+    return SocialSignupRequirement(
+      missing: [
+        if (missing is List)
+          for (final field in missing)
+            if (field is String) field,
+      ],
+      email: read('email'),
+      firstName: read('first_name'),
+      lastName: read('last_name'),
+    );
+  }
+}
 
 /// Résultat d'une inscription : le serveur ne renvoie **pas** de jeton, il
 /// envoie un code de vérification par email. La session n'existe qu'après
@@ -184,6 +239,42 @@ class AuthService {
       body: {'current_password': currentPassword, 'new_password': newPassword},
     );
     return _persist(body);
+  }
+
+  /// `POST /v1/auth/social/google/` ou `/apple/` — inscription **ou**
+  /// connexion, c'est le serveur qui tranche (§ 6c.2).
+  ///
+  /// Premier appel : le jeton seul (et, pour Apple, le nom rendu par le SDK).
+  /// Pour un compte inconnu, le serveur répond `400 social_signup_incomplete`
+  /// — voir [SocialSignupRequirement] — et l'app rappelle avec [phone],
+  /// [firstName], [lastName] et [role]. Ces champs sont ignorés pour un compte
+  /// existant : une connexion ne modifie jamais un profil, et le rôle n'est lu
+  /// qu'à la création. L'aiguillage, lui, reste fait sur `GET /me/`.
+  Future<SocialSignInResult> socialSignIn(
+    SocialCredential credential, {
+    String? phone,
+    String? firstName,
+    String? lastName,
+    UserRole? role,
+  }) async {
+    assert(role != UserRole.admin, 'role=admin est refusé par le serveur.');
+    final first = firstName ?? credential.givenName;
+    final last = lastName ?? credential.familyName;
+    final body = await _client.post(
+      'auth/social/${credential.provider.wire}',
+      authenticated: false,
+      body: {
+        ...credential.tokenFields,
+        if (phone != null && phone.isNotEmpty) 'phone': phone,
+        if (first != null && first.isNotEmpty) 'first_name': first,
+        if (last != null && last.isNotEmpty) 'last_name': last,
+        if (role != null) 'role': role.wire,
+      },
+    );
+    return SocialSignInResult(
+      tokens: await _persist(body),
+      created: body['created'] == true,
+    );
   }
 
   /// `GET /v1/me/` — profil de l'utilisateur connecté.
