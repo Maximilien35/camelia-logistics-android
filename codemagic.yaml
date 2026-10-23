@@ -140,3 +140,172 @@ workflows:
         notify:
           success: true
           failure: true
+
+  # --- V2 (lib/main_v2.dart) vers TestFlight, pour la recette ---------------
+  #
+  # Ajouté le 23 octobre 2026 avec l'accord explicite de l'utilisateur. Le
+  # workflow V1 ci-dessus n'est pas modifié : il reste la seule voie de
+  # production. Celui-ci compile la V2 depuis `v2-refonte` et l'envoie sur
+  # TestFlight, sans soumission à la revue. Même identifiant de bundle, même
+  # signature, même intégration App Store Connect : ce sont des builds de
+  # l'app existante, pas une app séparée (règle n°1).
+  #
+  # Sign in with Apple (lot 8) : la capacité doit être cochée sur l'App ID
+  # com.camelia.logistics avant le premier build. Cocher la capacité invalide
+  # les profils existants ; `fetch-signing-files --create` ne retient que les
+  # profils actifs et en recrée un, qui contient la capacité.
+  #
+  # Variable de plus dans le groupe `camelia_env`, cochée « Secure » :
+  #
+  #   GOOGLE_SERVER_CLIENT_ID  ID du client OAuth Google de type « Web »
+  #                            (xxxx.apps.googleusercontent.com), le même que
+  #                            le premier de GOOGLE_OAUTH_CLIENT_IDS côté
+  #                            backend. Absente : pas de bouton Google, Apple
+  #                            reste proposé.
+  ios-v2-testflight-workflow:
+    name: Camelia Logistics V2 iOS (TestFlight, recette)
+    instance_type: mac_mini_m2
+    max_build_duration: 120
+    integrations:
+      app_store_connect: CI\CD
+
+    environment:
+      groups:
+        - app_store_credentials
+        - camelia_env
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+
+    cache:
+      cache_paths:
+        - $FLUTTER_ROOT/.pub-cache
+        - $HOME/Library/Caches/CocoaPods
+
+    # Retirer ce bloc pour ne lancer les builds qu'à la main depuis Codemagic.
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: 'v2-refonte'
+          include: true
+          source: true
+      cancel_previous_builds: true
+
+    scripts:
+      - name: Initialisation du trousseau (Keychain) pour la signature
+        script: keychain initialize
+
+      - name: Récupération des certificats et profils Apple
+        script: |
+          app-store-connect fetch-signing-files "com.camelia.logistics" \
+            --type IOS_APP_STORE \
+            --create
+
+      - name: Installation du certificat de signature
+        script: keychain add-certificates
+
+      - name: Configuration de Xcode avec le bon profil (Provisioning Profile)
+        script: xcode-project use-profiles
+
+      - name: Vérification de la capacité Sign in with Apple dans le profil
+        script: |
+          #!/usr/bin/env bash
+          set -euo pipefail
+
+          # Le bouton Apple est activé dans ce build (APPLE_SIGN_IN=true). Si
+          # le profil ne porte pas la capacité, Xcode échoue plus loin avec un
+          # message obscur, ou pire : un profil manuel sans elle donnerait une
+          # app dont le bouton Apple échoue à chaque appui. On le dit ici.
+          found=0
+          for p in "$HOME/Library/MobileDevice/Provisioning Profiles/"*.mobileprovision; do
+            [ -e "$p" ] || continue
+            security cms -D -i "$p" > /tmp/profile.plist
+            bundle=$(/usr/libexec/PlistBuddy -c 'Print :Entitlements:application-identifier' /tmp/profile.plist 2>/dev/null || true)
+            case "$bundle" in
+              *.com.camelia.logistics) ;;
+              *) continue ;;
+            esac
+            if /usr/libexec/PlistBuddy -c 'Print :Entitlements:com.apple.developer.applesignin' /tmp/profile.plist >/dev/null 2>&1; then
+              found=1
+            fi
+          done
+          if [ "$found" -ne 1 ]; then
+            echo "ERREUR : aucun profil com.camelia.logistics ne porte Sign in with Apple." >&2
+            echo "Cocher la capacité sur l'App ID (Apple Developer > Identifiers)," >&2
+            echo "puis supprimer les anciens profils App Store et relancer." >&2
+            exit 1
+          fi
+          echo "Profil avec Sign in with Apple : OK."
+
+      - name: Récupération des packages Flutter
+        script: flutter pub get
+
+      - name: Configuration de l'environnement de build (URL backend, clés)
+        script: |
+          #!/usr/bin/env bash
+          set -euo pipefail
+
+          # Mêmes contrôles que le workflow V1, pour les mêmes raisons.
+          if [ -z "${API_BASE_URL:-}" ]; then
+            echo "ERREUR : API_BASE_URL absente." >&2
+            echo "Ajouter la variable au groupe camelia_env dans Codemagic." >&2
+            exit 1
+          fi
+          if [ -z "${GOOGLE_MAPS_API_KEY_IOS:-}" ]; then
+            echo "ERREUR : GOOGLE_MAPS_API_KEY_IOS absente." >&2
+            echo "Ajouter la variable au groupe camelia_env dans Codemagic." >&2
+            exit 1
+          fi
+          printf 'GOOGLE_MAPS_API_KEY=%s\n' "$GOOGLE_MAPS_API_KEY_IOS" \
+            > ios/Flutter/Secrets.xcconfig
+          echo "ios/Flutter/Secrets.xcconfig ecrit (valeur masquee par Codemagic)."
+
+          # Pas bloquant : sans elle, l'app masque le bouton Google et garde
+          # Apple. Mais la recette de T8.4 ne peut pas se faire sur ce build.
+          if [ -z "${GOOGLE_SERVER_CLIENT_ID:-}" ]; then
+            echo "ATTENTION : GOOGLE_SERVER_CLIENT_ID absente, bouton Google masque."
+          fi
+
+      - name: Nettoyage et synchronisation de CocoaPods
+        script: |
+          cd ios
+          rm -rf Pods
+          rm -rf Podfile.lock
+          pod install --repo-update
+          cd ..
+
+      - name: Détermination du build number (auto-incrément depuis App Store Connect)
+        script: |
+          #!/usr/bin/env bash
+          set -e
+          LATEST_BUILD_NUMBER=$(app-store-connect get-latest-build-number "com.camelia.logistics") || LATEST_BUILD_NUMBER=0
+          NEW_BUILD_NUMBER=$((LATEST_BUILD_NUMBER + 1))
+          echo "Dernier build number publié : $LATEST_BUILD_NUMBER -> nouveau build number : $NEW_BUILD_NUMBER"
+          echo "BUILD_NUMBER=$NEW_BUILD_NUMBER" >> $CM_ENV
+
+      - name: Compilation de la V2 (Création du .ipa)
+        script: |
+          flutter build ipa --release \
+            -t lib/main_v2.dart \
+            --build-number=$BUILD_NUMBER \
+            --dart-define=API_BASE_URL=$API_BASE_URL \
+            --dart-define=APPLE_SIGN_IN=true \
+            --dart-define=GOOGLE_SERVER_CLIENT_ID=${GOOGLE_SERVER_CLIENT_ID:-} \
+            --export-options-plist=/Users/builder/export_options.plist
+
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
+
+      email:
+        recipients:
+          - camelialogisticss@gmail.com
+        notify:
+          success: true
+          failure: true

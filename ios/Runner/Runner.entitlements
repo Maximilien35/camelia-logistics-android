@@ -9,5 +9,14 @@
 	 utilisera automatiquement l'environnement "development" côté APNs
 	 indépendamment de cette valeur ; ne repasse pas cette clé en "development"
 	 pour un build destiné à Codemagic/App Store. -->
+	<key>com.apple.developer.applesignin</key>
+	<array>
+		<string>Default</string>
+	</array>
+	<!-- Sign in with Apple (lot 8, `06c` § 6c.4). Exige la capacité cochée sur
+	 l'App ID com.camelia.logistics et un profil de provisionnement régénéré
+	 après coup : un profil antérieur ne la contient pas, et la signature
+	 échoue (« Provisioning profile doesn't include the
+	 com.apple.developer.applesignin entitlement »). -->
 </dict>
 </plist>
