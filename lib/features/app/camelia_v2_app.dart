@@ -109,8 +109,26 @@ class _CameliaV2AppState extends State<CameliaV2App> {
       // réel qu'il faut de toute façon savoir traiter.
       registrar: Env.useMockApi
           ? const NoPushRegistrar()
-          : FirebasePushRegistrar(),
+          : FirebasePushRegistrar(channelLabels: _pushChannelLabels),
       service: _deviceService,
+    );
+  }
+
+  /// Nom et description du canal Android, visibles dans les réglages du
+  /// téléphone. Résolus hors de l'arbre de widgets : même règle de langue que
+  /// [MaterialApp] — préférence serveur en session, sinon locale du système,
+  /// et le français pour une langue non prise en charge.
+  PushChannelLabels _pushChannelLabels() {
+    final code =
+        _authController.user?.language.wire ??
+        WidgetsBinding.instance.platformDispatcher.locale.languageCode;
+    final supported = AppLocalizations.supportedLocales.any(
+      (l) => l.languageCode == code,
+    );
+    final l10n = lookupAppLocalizations(Locale(supported ? code : 'fr'));
+    return (
+      name: l10n.pushChannelName,
+      description: l10n.pushChannelDescription,
     );
   }
 

@@ -463,3 +463,65 @@ class LanguagePreferenceCard extends StatelessWidget {
     );
   }
 }
+
+/// Consentement aux campagnes push (`PATCH /v1/me/ {marketing_opt_in}`,
+/// § 6.7.5, lot 10).
+///
+/// Un vrai choix, désactivé par défaut et retirable d'un geste (Guideline
+/// Apple 4.5.4). L'interrupteur suit la valeur du serveur : il ne bascule
+/// qu'une fois le `PATCH` accepté.
+class MarketingConsentCard extends StatelessWidget {
+  const MarketingConsentCard({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    final auth = context.watch<AuthController>();
+    final optedIn = auth.user?.marketingOptIn ?? false;
+    return MenuCard(
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      children: [
+        MergeSemantics(
+          child: Row(
+            children: [
+              TintedIcon(icon: optedIn ? AppIcons.bellFilled : AppIcons.bell),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l10n.accountMarketingOptIn,
+                      style: const TextStyle(
+                        fontSize: AppFontSize.body,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.ink,
+                      ),
+                    ),
+                    Text(
+                      l10n.accountMarketingOptInHint,
+                      style: const TextStyle(
+                        fontSize: AppFontSize.caption,
+                        color: AppColors.inkMuted,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              Switch.adaptive(
+                value: optedIn,
+                onChanged: auth.busy || auth.user == null
+                    ? null
+                    : (value) => context
+                          .read<AuthController>()
+                          .changeMarketingOptIn(value),
+                activeTrackColor: AppColors.brand,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}

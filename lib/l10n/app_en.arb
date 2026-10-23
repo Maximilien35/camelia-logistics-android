@@ -2088,5 +2088,13 @@
     "trackingPayChangeNumber": "Didn't get it? Change number",
     "@trackingPayChangeNumber": {},
     "trackingPaySameNumberIn": "A new request to {phone} can be sent in {time}. Another number goes through right away.",
-    "@trackingPaySameNumberIn": {"placeholders": {"phone": {}, "time": {}}}
+    "@trackingPaySameNumberIn": {"placeholders": {"phone": {}, "time": {}}},
+    "pushChannelName": "Order and delivery updates",
+    "@pushChannelName": {"description": "Nom du canal de notifications Android, visible dans les réglages du téléphone."},
+    "pushChannelDescription": "Progress of your orders and new delivery offers.",
+    "@pushChannelDescription": {},
+    "accountMarketingOptIn": "Offers and news",
+    "@accountMarketingOptIn": {"description": "Interrupteur de consentement aux campagnes push (marketing_opt_in)."},
+    "accountMarketingOptInHint": "Camelia promotions by notification. Order and delivery updates are not affected.",
+    "@accountMarketingOptInHint": {}
 }

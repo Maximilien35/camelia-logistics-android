@@ -170,6 +170,14 @@ void main() {
       final updated = await auth.updateLanguage(AppLanguage.en);
       expect(updated.language, AppLanguage.en);
     });
+
+    test('le consentement aux campagnes est faux par défaut et se pose par '
+        'PATCH /me/', () async {
+      await signIn('aicha@camelia.test');
+      expect((await auth.fetchMe()).marketingOptIn, isFalse);
+      expect((await auth.updateMarketingOptIn(true)).marketingOptIn, isTrue);
+      expect((await auth.updateMarketingOptIn(false)).marketingOptIn, isFalse);
+    });
   });
 
   group('Tarification', () {

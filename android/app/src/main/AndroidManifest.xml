@@ -26,6 +26,14 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="${googleMapsApiKey}" />
 
+        <!-- Canal des notifications push reçues app fermée ou en arrière-plan.
+             Créé par l'app à l'ouverture de session (importance haute) ; doit
+             rester identique à `pushChannelId` dans
+             lib/core/platform/firebase_push_registrar.dart. -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="camelia_updates" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true"

@@ -286,7 +286,7 @@ class AuthService {
     return AppUser.fromJson(body);
   }
 
-  /// `PATCH /v1/me/` — change la langue, seul champ modifiable.
+  /// `PATCH /v1/me/` — change la langue.
   ///
   /// La préférence vit côté serveur : elle suit l'utilisateur d'un appareil à
   /// l'autre, contrairement à un réglage purement local.
@@ -294,6 +294,16 @@ class AuthService {
     final body = await _client.patch(
       'me',
       body: AppUser.languageUpdateBody(language),
+    );
+    return AppUser.fromJson(body);
+  }
+
+  /// `PATCH /v1/me/` — accorde ou retire le consentement aux campagnes push
+  /// (§ 7.3.8, lot 10). Seule route qui le pose : jamais à l'inscription.
+  Future<AppUser> updateMarketingOptIn(bool optIn) async {
+    final body = await _client.patch(
+      'me',
+      body: AppUser.marketingOptInUpdateBody(optIn),
     );
     return AppUser.fromJson(body);
   }

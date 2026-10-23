@@ -66,6 +66,7 @@ class PushController extends ChangeNotifier {
     });
 
     _messages ??= _registrar.messages().listen((hint) {
+      if (hint.isInformational) return;
       _lastHint = hint;
       notifyListeners();
     });

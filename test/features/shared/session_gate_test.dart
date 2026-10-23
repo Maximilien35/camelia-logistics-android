@@ -255,14 +255,18 @@ void main() {
 
     // La déconnexion est en bas du profil : on fait défiler comme un
     // utilisateur, la liste ne construit pas ce qui est hors écran.
+    final profileList = find.descendant(
+      of: find.byType(DriverProfileTab),
+      matching: find.byType(Scrollable),
+    );
     await tester.scrollUntilVisible(
       find.byIcon(AppIcons.logout),
       300,
-      scrollable: find.descendant(
-        of: find.byType(DriverProfileTab),
-        matching: find.byType(Scrollable),
-      ),
+      scrollable: profileList,
     );
+    // Jusqu'au bout : « visible » peut encore vouloir dire sous la barre basse.
+    await tester.drag(profileList, const Offset(0, -600));
+    await tester.pumpAndSettle();
     await tester.tap(find.byIcon(AppIcons.logout));
     await tester.pumpAndSettle();
 

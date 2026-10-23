@@ -6019,6 +6019,30 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Nouvelle demande vers le {phone} possible dans {time}. Un autre numéro part tout de suite.'**
   String trackingPaySameNumberIn(Object phone, Object time);
+
+  /// Nom du canal de notifications Android, visible dans les réglages du téléphone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Suivi des commandes et des courses'**
+  String get pushChannelName;
+
+  /// No description provided for @pushChannelDescription.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avancement de vos commandes et nouvelles courses proposées.'**
+  String get pushChannelDescription;
+
+  /// Interrupteur de consentement aux campagnes push (marketing_opt_in).
+  ///
+  /// In fr, this message translates to:
+  /// **'Offres et nouveautés'**
+  String get accountMarketingOptIn;
+
+  /// No description provided for @accountMarketingOptInHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Promotions Camelia par notification. Le suivi de vos commandes et courses n\'est pas concerné.'**
+  String get accountMarketingOptInHint;
 }
 
 class _AppLocalizationsDelegate

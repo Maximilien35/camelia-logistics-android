@@ -1952,5 +1952,13 @@
     "trackingPayChangeNumber": "Je n'ai rien reçu — changer de numéro",
     "@trackingPayChangeNumber": {},
     "trackingPaySameNumberIn": "Nouvelle demande vers le {phone} possible dans {time}. Un autre numéro part tout de suite.",
-    "@trackingPaySameNumberIn": {"placeholders": {"phone": {}, "time": {}}}
+    "@trackingPaySameNumberIn": {"placeholders": {"phone": {}, "time": {}}},
+    "pushChannelName": "Suivi des commandes et des courses",
+    "@pushChannelName": {"description": "Nom du canal de notifications Android, visible dans les réglages du téléphone."},
+    "pushChannelDescription": "Avancement de vos commandes et nouvelles courses proposées.",
+    "@pushChannelDescription": {},
+    "accountMarketingOptIn": "Offres et nouveautés",
+    "@accountMarketingOptIn": {"description": "Interrupteur de consentement aux campagnes push (marketing_opt_in)."},
+    "accountMarketingOptInHint": "Promotions Camelia par notification. Le suivi de vos commandes et courses n'est pas concerné.",
+    "@accountMarketingOptInHint": {}
 }

@@ -3283,4 +3283,18 @@ class AppLocalizationsFr extends AppLocalizations {
   String trackingPaySameNumberIn(Object phone, Object time) {
     return 'Nouvelle demande vers le $phone possible dans $time. Un autre numéro part tout de suite.';
   }
+
+  @override
+  String get pushChannelName => 'Suivi des commandes et des courses';
+
+  @override
+  String get pushChannelDescription =>
+      'Avancement de vos commandes et nouvelles courses proposées.';
+
+  @override
+  String get accountMarketingOptIn => 'Offres et nouveautés';
+
+  @override
+  String get accountMarketingOptInHint =>
+      'Promotions Camelia par notification. Le suivi de vos commandes et courses n\'est pas concerné.';
 }

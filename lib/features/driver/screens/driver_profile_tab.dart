@@ -151,6 +151,8 @@ class DriverProfileTab extends StatelessWidget {
 
       AccountSectionLabel(l10n.accountSectionPreferences),
       const LanguagePreferenceCard(),
+      const SizedBox(height: AppSpacing.md),
+      const MarketingConsentCard(),
 
       if (auth.failure != null) ...[
         const SizedBox(height: AppSpacing.lg),

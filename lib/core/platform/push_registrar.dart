@@ -41,6 +41,13 @@ class PushHint {
   final String? orderId;
   final String? offerId;
 
+  /// Campagne ou push de test du back-office (§ 7.7.3, lot 10) : un toucher
+  /// ouvre simplement l'app, rien n'est à relire. Une campagne part par lots
+  /// de 500 : relire sur chacune ferait arriver des centaines d'appels en même
+  /// temps, pour rien.
+  bool get isInformational =>
+      const {'campaign', 'campaign.test', 'admin.test'}.contains(event);
+
   /// Clés relevées dans `notifications/services.py` côté backend : `event`
   /// toujours, `order_id` sur un changement de statut, `offer_id` sur une
   /// offre chauffeur.

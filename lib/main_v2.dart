@@ -15,21 +15,38 @@
 /// flutter run -t lib/main_v2.dart --dart-define=API_BASE_URL=http://127.0.0.1:8000
 /// ```
 ///
-/// Cette V2 ne dépend **pas** de Firebase pour fonctionner : aucune
-/// initialisation Firebase ici. Firebase Messaging reviendra quand le push sera
-/// câblé (règle non négociable n°5 : le suivi se rafraîchit sur notification,
-/// par appel REST — jamais par une connexion ouverte).
+/// Firebase n'est initialisé que pour le **push** (règle non négociable n°5 :
+/// le suivi se rafraîchit sur notification, par appel REST — jamais par une
+/// connexion ouverte). Sans cette initialisation, `FirebaseMessaging.instance`
+/// lève une exception, aucun jeton n'est obtenu et l'appareil n'est jamais
+/// enregistré auprès du serveur : aucune notification n'arrive, sans que rien
+/// ne le signale.
 library;
 
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
 import 'config/env.dart';
 import 'features/app/camelia_v2_app.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // Règle non négociable n°2 : un build release sans --dart-define=API_BASE_URL
   // échoue ici plutôt que de partir silencieusement sur la boucle locale.
   Env.assertConfigured();
+  await _initFirebase();
   runApp(const CameliaV2App());
+}
+
+/// Lit `google-services.json` / `GoogleService-Info.plist`.
+///
+/// Un échec n'empêche jamais l'app de démarrer : il se traduit par « pas de
+/// jeton », cas déjà traité comme un refus de permission — rafraîchissement
+/// manuel partout.
+Future<void> _initFirebase() async {
+  try {
+    await Firebase.initializeApp();
+  } on Object {
+    // Firebase absent ou mal configuré sur cette plate-forme : pas de push.
+  }
 }

@@ -3252,4 +3252,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String trackingPaySameNumberIn(Object phone, Object time) {
     return 'A new request to $phone can be sent in $time. Another number goes through right away.';
   }
+
+  @override
+  String get pushChannelName => 'Order and delivery updates';
+
+  @override
+  String get pushChannelDescription =>
+      'Progress of your orders and new delivery offers.';
+
+  @override
+  String get accountMarketingOptIn => 'Offers and news';
+
+  @override
+  String get accountMarketingOptInHint =>
+      'Camelia promotions by notification. Order and delivery updates are not affected.';
 }

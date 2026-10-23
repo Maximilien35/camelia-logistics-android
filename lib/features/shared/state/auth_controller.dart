@@ -406,6 +406,12 @@ class AuthController extends ChangeNotifier {
     _user = updated;
   });
 
+  /// `PATCH /me/` — consentement aux campagnes push. L'interrupteur affiche la
+  /// valeur **renvoyée par le serveur**, jamais celle qu'on vient de taper.
+  Future<bool> changeMarketingOptIn(bool optIn) => _run(() async {
+    _user = await _service.updateMarketingOptIn(optIn);
+  });
+
   /// Remplace le profil par celui **renvoyé par le serveur** après une
   /// modification (prénom, nom, téléphone). Jamais par une valeur saisie : le
   /// rôle et les champs affichés restent ceux que le backend a confirmés.

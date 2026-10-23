@@ -28,6 +28,7 @@ class MockUser {
     required this.emailVerified,
     this.language = 'fr',
     this.socialProviders = const [],
+    this.marketingOptIn = false,
   });
 
   final String id;
@@ -52,6 +53,9 @@ class MockUser {
   bool emailVerified;
   String language;
 
+  /// Consentement aux campagnes (lot 10) : faux par défaut, posé par `PATCH /me/`.
+  bool marketingOptIn;
+
   /// Forme exacte de `MeSerializer`.
   Map<String, dynamic> toMeJson() => {
     'id': id,
@@ -61,6 +65,7 @@ class MockUser {
     'last_name': lastName,
     'role': role,
     'language': language,
+    'marketing_opt_in': marketingOptIn,
     'email_verified': emailVerified,
     'created_at': '2026-08-14T09:12:00+01:00',
     'has_password': password.isNotEmpty,

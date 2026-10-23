@@ -1,8 +1,8 @@
 /// Utilisateur authentifié, tel que renvoyé par `GET /v1/me/`.
 ///
-/// Contrat vérifié dans `accounts/serializers.py` (`MeSerializer`) : tous les
-/// champs sont en **lecture seule**, et seule la langue est modifiable, par
-/// `PATCH /v1/me/ {language}` (`MeUpdateSerializer`).
+/// Contrat vérifié dans `accounts/serializers.py` (`MeSerializer`). Les
+/// réglages se modifient par `PATCH /v1/me/` (`MeUpdateSerializer`) : langue,
+/// prénom, nom et consentement aux campagnes (`marketing_opt_in`, lot 10).
 library;
 
 /// Rôle du compte, renvoyé par le serveur.
@@ -64,6 +64,7 @@ class AppUser {
     required this.createdAt,
     this.hasPassword = true,
     this.socialProviders = const [],
+    this.marketingOptIn = false,
   });
 
   final String id;
@@ -95,6 +96,13 @@ class AppUser {
   /// suppression de compte (§ 6c.4).
   final List<String> socialProviders;
 
+  /// Accord pour recevoir les campagnes push (`marketing_opt_in`, § 6.7.5,
+  /// lot 10). Faux par défaut et posé par le seul titulaire, depuis l'app
+  /// (Guideline Apple 4.5.4). Absent d'un serveur antérieur au lot 10 : faux,
+  /// jamais un accord supposé. Les notifications de commande et de course n'en
+  /// dépendent pas.
+  final bool marketingOptIn;
+
   String get fullName => '$firstName $lastName'.trim();
 
   factory AppUser.fromJson(Map<String, dynamic> json) => AppUser(
@@ -112,12 +120,17 @@ class AppUser {
       for (final p in (json['social_providers'] as List?) ?? const [])
         if (p is String) p,
     ],
+    marketingOptIn: (json['marketing_opt_in'] as bool?) ?? false,
   );
 
-  /// Aucun `toJson` complet : `/me/` est en lecture seule. Seule la langue
-  /// s'écrit, et c'est le corps exact attendu par `PATCH /v1/me/`.
+  /// Aucun `toJson` complet : `PATCH /v1/me/` est partiel, et chaque réglage
+  /// envoie son seul champ — jamais une copie du profil.
   static Map<String, dynamic> languageUpdateBody(AppLanguage language) => {
     'language': language.wire,
+  };
+
+  static Map<String, dynamic> marketingOptInUpdateBody(bool optIn) => {
+    'marketing_opt_in': optIn,
   };
 
   @override

@@ -51,9 +51,26 @@ void main() {
       );
     });
 
-    test('n\'expose qu\'un corps de mise à jour de langue', () {
+    test('n\'envoie que le champ modifié dans PATCH /me/', () {
       expect(AppUser.languageUpdateBody(AppLanguage.en), {'language': 'en'});
+      expect(AppUser.marketingOptInUpdateBody(true), {
+        'marketing_opt_in': true,
+      });
     });
+
+    test(
+      'lit marketing_opt_in, faux en son absence (serveur avant lot 10)',
+      () {
+        expect(AppUser.fromJson(meResponse()).marketingOptIn, isFalse);
+        expect(
+          AppUser.fromJson({
+            ...meResponse(),
+            'marketing_opt_in': true,
+          }).marketingOptIn,
+          isTrue,
+        );
+      },
+    );
   });
 
   group('Aiguillage par rôle serveur', () {

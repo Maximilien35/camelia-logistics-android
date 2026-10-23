@@ -571,12 +571,17 @@ class MockBackend extends http.BaseClient {
     return _ok(_state.issueTokens(user, rotateFrom: refresh));
   }
 
-  /// `PATCH /me/` : langue (réel) plus prénom et nom (§ 7.3.8, T5.10).
+  /// `PATCH /me/` : langue, prénom, nom (§ 7.3.8, T5.10) et consentement aux
+  /// campagnes (lot 10).
   _MockResponse _patchMe(MockUser user, Map<String, dynamic> body) {
     final errors = <String, List<String>>{};
     final language = body['language'];
     if (language != null && language != 'fr' && language != 'en') {
       errors['language'] = ['« $language » n\'est pas un choix valide.'];
+    }
+    final optIn = body['marketing_opt_in'];
+    if (optIn != null && optIn is! bool) {
+      errors['marketing_opt_in'] = ['Doit être un booléen valide.'];
     }
     for (final field in const ['first_name', 'last_name']) {
       final value = body[field];
@@ -591,6 +596,7 @@ class MockBackend extends http.BaseClient {
     }
     if (errors.isNotEmpty) return _validation(errors);
     if (language is String) _state.setLanguage(user, language);
+    if (optIn is bool) user.marketingOptIn = optIn;
     if (body['first_name'] is String) {
       user.firstName = (body['first_name'] as String).trim();
     }
