@@ -22,11 +22,14 @@ class OrderTrackingController extends ChangeNotifier {
     required OrderService service,
     required this.orderId,
     Order? initial,
+    DateTime Function()? clock,
   }) : _service = service,
-       _order = initial;
+       _order = initial,
+       _clock = clock ?? DateTime.now;
 
   final OrderService _service;
   final String orderId;
+  final DateTime Function() _clock;
 
   Order? _order;
   bool _loading = false;
@@ -36,6 +39,7 @@ class OrderTrackingController extends ChangeNotifier {
   PaymentInvite? _pendingInvite;
   bool _awaitingValidation = false;
   String? _payerPhone;
+  DateTime? _sameNumberRetryAt;
   CancellationResult? _cancellation;
   bool _cancelFeePromptFailed = false;
   OrderRating? _rating;
@@ -63,6 +67,17 @@ class OrderTrackingController extends ChangeNotifier {
   /// Numéro auquel la dernière demande a été adressée, s'il est connu.
   String? get payerPhone => _payerPhone;
 
+  /// Heure à partir de laquelle une nouvelle demande vers **le même** numéro
+  /// ([payerPhone]) sera acceptée — lue sur `retry_after_seconds` d'un `409
+  /// payment_already_pending` (lot 9, § 6.5.1bis). `null` : rien n'empêche de
+  /// renvoyer. Un **autre** numéro part toujours immédiatement : c'est ainsi
+  /// qu'une faute de frappe se corrige. L'app ne déduit ce délai que de la
+  /// réponse du serveur, elle ne le calcule jamais d'avance.
+  DateTime? get sameNumberRetryAt {
+    final at = _sameNumberRetryAt;
+    return at != null && at.isAfter(_clock()) ? at : null;
+  }
+
   CancellationResult? get cancellation => _cancellation;
 
   /// L'annulation a réussi mais l'invite de paiement des frais n'a pas pu
@@ -89,9 +104,12 @@ class OrderTrackingController extends ChangeNotifier {
     try {
       final order = await _service.fetchOrder(orderId);
       _order = order;
-      if (order.status == OrderStatus.completed) {
+      if (order.status != OrderStatus.delivered) {
+        // Payée, ou passée en litige (relance par le support, § 6.5.8) : plus
+        // aucune demande à suivre depuis l'app.
         _pendingInvite = null;
         _awaitingValidation = false;
+        _sameNumberRetryAt = null;
       }
     } on ApiException catch (e) {
       _failure = e;
@@ -106,9 +124,10 @@ class OrderTrackingController extends ChangeNotifier {
   /// `confirm-delivery` — **uniquement sur appui explicite** (règle n°7).
   ///
   /// [payerPhone] : numéro Mobile Money choisi par le client (E.164), ou
-  /// `null` pour le téléphone du compte. Renvoyer la demande est un nouvel
-  /// appui, donc un nouvel appel : le serveur répond `payment_already_pending`
-  /// tant que la précédente n'a été ni validée ni refusée.
+  /// `null` pour le téléphone du compte. Chaque appui est une nouvelle
+  /// **tentative** côté serveur (lot 9) : vers un autre numéro elle part
+  /// immédiatement ; vers le même numéro, le serveur peut répondre `409
+  /// payment_already_pending` avec le délai à attendre.
   Future<PaymentInvite?> pay({String? payerPhone}) async {
     if (busy) return null;
     _paying = true;
@@ -122,11 +141,17 @@ class OrderTrackingController extends ChangeNotifier {
       _pendingInvite = invite;
       _awaitingValidation = true;
       _payerPhone = payerPhone;
+      _sameNumberRetryAt = null;
       return invite;
     } on ApiException catch (e) {
-      // Pas un échec : l'invite précédente attend toujours sur le téléphone.
+      // Pas un échec : une invite vers ce numéro attend toujours.
       if (e.code == ApiErrorCode.paymentAlreadyPending) {
         _awaitingValidation = true;
+        _payerPhone = payerPhone ?? _payerPhone;
+        final seconds = _retryAfterSeconds(e.details['retry_after_seconds']);
+        _sameNumberRetryAt = seconds > 0
+            ? _clock().add(Duration(seconds: seconds))
+            : null;
       }
       _failure = e;
       return null;
@@ -138,6 +163,15 @@ class OrderTrackingController extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  /// Entier attendu ; toléré en chaîne, au cas où un intermédiaire le
+  /// convertirait. `0` : une nouvelle demande peut partir tout de suite.
+  static int _retryAfterSeconds(Object? raw) => switch (raw) {
+    final int s => s,
+    final num s => s.ceil(),
+    final String s => int.tryParse(s) ?? 0,
+    _ => 0,
+  };
 
   /// `POST /v1/orders/{id}/rate/` — **sur appui explicite** d'un bouton.
   ///

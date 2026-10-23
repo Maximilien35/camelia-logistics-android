@@ -1971,7 +1971,7 @@
     "@apiErrorPayerPhoneRequired": {},
     "apiErrorPayerPhoneUnsupported": "This number isn't a supported Mobile Money account. Try an MTN or Orange number.",
     "@apiErrorPayerPhoneUnsupported": {},
-    "apiErrorPaymentAlreadyPending": "A payment request is already pending for this order. Approve it on the phone that received it; if the number was wrong, contact support.",
+    "apiErrorPaymentAlreadyPending": "A request to this number is already waiting for your approval. Approve it on the phone, or use another number.",
     "@apiErrorPaymentAlreadyPending": {},
     "apiErrorPaymentProviderUnavailable": "The payment service is temporarily unavailable. Please try again in a moment.",
     "@apiErrorPaymentProviderUnavailable": {},
@@ -2084,5 +2084,9 @@
     "payerConfirmSend": "Yes, send the request",
     "@payerConfirmSend": {},
     "payerConfirmEdit": "Change the number",
-    "@payerConfirmEdit": {}
+    "@payerConfirmEdit": {},
+    "trackingPayChangeNumber": "Didn't get it? Change number",
+    "@trackingPayChangeNumber": {},
+    "trackingPaySameNumberIn": "A new request to {phone} can be sent in {time}. Another number goes through right away.",
+    "@trackingPaySameNumberIn": {"placeholders": {"phone": {}, "time": {}}}
 }

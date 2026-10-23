@@ -77,7 +77,8 @@ Codes stables exposés par le backend (`*/exceptions.py`) :
   `promo_code_user_quota_exceeded`
 - **dispatch** — `offer_not_found`, `offer_no_longer_available`,
   `order_already_assigned`
-- **payments** — `order_not_delivered`, `order_managed_by_partner`,
+- **payments** — `order_managed_by_partner` (`order_not_delivered` a disparu
+  au lot 9 : `invalid_order_transition` sur `confirm-delivery/`),
   `cancellation_fee_configuration_missing`, `withdrawal_configuration_missing`,
   `withdrawal_amount_below_minimum`, `withdrawal_amount_exceeds_balance`,
   `withdrawal_transfer_failed`, `ambassador_code_required`
@@ -325,8 +326,22 @@ dus.
 |---|---|---|
 | 400 | `payer_phone_required` | message localisé ; le client saisit un numéro |
 | 400 | `payer_phone_unsupported` | message localisé : essayer un numéro MTN ou Orange |
-| 409 | `payment_already_pending` | **pas un échec** : la carte reste « en attente de validation » |
+| 409 | `payment_already_pending` | **pas un échec** : la carte reste « en attente de validation ». `details.retry_after_seconds` (entier, `0` = renvoi possible tout de suite) : compte à rebours avant un renvoi vers **le même** numéro |
+| 409 | `invalid_order_transition` | la commande n'est pas `delivered` : pas livrée, déjà payée ou **en litige** (remplace `order_not_delivered`, disparu au lot 9). Un litige se règle par le support |
+| 429 | `throttled` | quota `orders_pay` (10/min) |
 | 502 | `payment_provider_unavailable` | `confirm-delivery/` : réessayer plus tard. `cancel/` : **l'annulation est acquise**, seule l'invite des frais n'est pas partie — l'app relit la commande et le dit |
+
+**Tentatives de paiement (lot 9, commit backend `414b59e`, § 6.5.1bis).**
+Chaque `confirm-delivery/` est une tentative, sous sa propre référence KPay
+(`CL-…-P<n>` à partir de la deuxième). Un **autre** numéro part
+immédiatement : c'est ainsi qu'une faute de frappe se corrige, sans bloquer
+la commande. Le **même** numéro est refusé tant que la tentative précédente a
+moins de 2 minutes. L'écran d'attente propose donc **« Je n'ai rien reçu —
+changer de numéro »**, qui rouvre la saisie préremplie avec le dernier
+numéro, et affiche le compte à rebours reçu sur un `409`. L'app ne calcule
+jamais ce délai elle-même. Sans paiement, la commande reçoit une alerte à
+5 min et passe en litige à 30 min ; un paiement tardif la clôt
+(`disputed → completed`).
 
 Retraits (`withdraw/`) : KPay prélève sa commission **sur le montant
 décaissé** (§ 6.10ter révisé) — le titulaire reçoit moins que le montant

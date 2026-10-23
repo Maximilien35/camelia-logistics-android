@@ -121,7 +121,6 @@ String? _knownMessage(AppLocalizations l10n, String code) => switch (code) {
   ApiErrorCode.offerNotFound => l10n.apiErrorOfferNotFound,
   ApiErrorCode.offerNoLongerAvailable => l10n.apiErrorOfferNoLongerAvailable,
   ApiErrorCode.orderAlreadyAssigned => l10n.apiErrorOrderAlreadyAssigned,
-  ApiErrorCode.orderNotDelivered => l10n.apiErrorOrderNotDelivered,
   ApiErrorCode.orderManagedByPartner => l10n.apiErrorOrderManagedByPartner,
   ApiErrorCode.cancellationFeeConfigurationMissing =>
     l10n.apiErrorCancellationFeeConfigurationMissing,

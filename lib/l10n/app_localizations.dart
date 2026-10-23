@@ -5669,7 +5669,7 @@ abstract class AppLocalizations {
   /// No description provided for @apiErrorPaymentAlreadyPending.
   ///
   /// In fr, this message translates to:
-  /// **'Une demande de paiement est déjà en attente pour cette commande. Validez-la sur le téléphone qui l\'a reçue ; si le numéro était erroné, contactez le support.'**
+  /// **'Une demande vers ce numéro attend déjà votre validation. Validez-la sur le téléphone, ou utilisez un autre numéro.'**
   String get apiErrorPaymentAlreadyPending;
 
   /// No description provided for @apiErrorPaymentProviderUnavailable.
@@ -6007,6 +6007,18 @@ abstract class AppLocalizations {
   /// In fr, this message translates to:
   /// **'Modifier le numéro'**
   String get payerConfirmEdit;
+
+  /// No description provided for @trackingPayChangeNumber.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je n\'ai rien reçu — changer de numéro'**
+  String get trackingPayChangeNumber;
+
+  /// No description provided for @trackingPaySameNumberIn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouvelle demande vers le {phone} possible dans {time}. Un autre numéro part tout de suite.'**
+  String trackingPaySameNumberIn(Object phone, Object time);
 }
 
 class _AppLocalizationsDelegate

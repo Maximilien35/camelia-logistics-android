@@ -1174,11 +1174,13 @@ class MockBackend extends http.BaseClient {
 
     switch (action) {
       case 'confirm-delivery':
+        // Lot 9 (§ 10.8 point P6) : pas encore livrée, déjà payée ou en
+        // litige — un seul code, `invalid_order_transition`.
         if (order['status'] != 'delivered') {
           return _error(
             409,
-            'order_not_delivered',
-            'Le paiement n\'est possible qu\'après la livraison.',
+            'invalid_order_transition',
+            'Cette commande n\'est pas en attente de paiement.',
           );
         }
         final payer = body['payer_phone'];
@@ -1191,15 +1193,21 @@ class MockBackend extends http.BaseClient {
             ],
           });
         }
-        final invite = _state.initiatePayment(order);
-        return invite == null
-            ? _error(
-                409,
-                'payment_already_pending',
+        final outcome = _state.initiatePayment(
+          order,
+          payerPhone: payer is String && payer.isNotEmpty ? payer : user.phone,
+        );
+        return switch (outcome) {
+          PaymentRetry(:final seconds) => _MockResponse(409, {
+            'code': 'payment_already_pending',
+            'message':
                 'Un paiement est déjà en attente de validation sur votre '
-                    'téléphone.',
-              )
-            : _ok(invite);
+                'téléphone.',
+            'details': {'retry_after_seconds': seconds},
+          }),
+          final Map<String, dynamic> invite => _ok(invite),
+          _ => _error(500, 'error', 'Réponse inattendue.'),
+        };
       case 'rate':
         final rating = body['rating'];
         final comment = (body['comment'] as String? ?? '');

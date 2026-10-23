@@ -227,7 +227,6 @@ abstract final class ApiErrorCode {
   static const String orderAlreadyAssigned = 'order_already_assigned';
 
   // --- payments ---
-  static const String orderNotDelivered = 'order_not_delivered';
   static const String orderManagedByPartner = 'order_managed_by_partner';
   static const String cancellationFeeConfigurationMissing =
       'cancellation_fee_configuration_missing';
@@ -364,7 +363,6 @@ abstract final class ApiErrorCode {
     offerNotFound,
     offerNoLongerAvailable,
     orderAlreadyAssigned,
-    orderNotDelivered,
     orderManagedByPartner,
     cancellationFeeConfigurationMissing,
     withdrawalConfigurationMissing,

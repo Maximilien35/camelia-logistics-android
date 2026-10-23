@@ -68,6 +68,13 @@ class MockUser {
   };
 }
 
+/// Refus d'une nouvelle tentative vers le même numéro : secondes à attendre.
+class PaymentRetry {
+  const PaymentRetry(this.seconds);
+
+  final int seconds;
+}
+
 class MockState {
   MockState._();
 
@@ -829,21 +836,43 @@ class MockState {
   ///
   /// Forme de KPay, fournisseur par défaut depuis le 21 octobre 2026 (§ 6.5.7) :
   /// mode USSD, donc `authorization_url` nul — l'invite est censée arriver sur
-  /// le téléphone. Une seconde demande avant le « webhook » répond
-  /// `payment_already_pending`, comme le vrai serveur.
+  /// le téléphone.
+  ///
+  /// **Une tentative par demande** (lot 9, § 6.5.1bis) : un **autre** numéro
+  /// part immédiatement (la faute de frappe se corrige) ; le **même** numéro
+  /// moins de [retrySameNumber] après la tentative précédente est refusé, et
+  /// la méthode rend alors le nombre de secondes à attendre ([PaymentRetry]).
   ///
   /// Simulation du webhook : la commande passe à `completed` à la **relecture
   /// suivante** (voir [trackingJson]), jamais dans la réponse elle-même —
   /// l'app doit rester incapable de conclure seule au paiement.
-  Map<String, dynamic>? initiatePayment(Map<String, dynamic> order) {
-    if (order['_payment_initiated'] == true) return null;
+  Object initiatePayment(
+    Map<String, dynamic> order, {
+    required String payerPhone,
+    DateTime? now,
+  }) {
+    final at = now ?? DateTime.now();
+    final attempts = (order['_attempts'] as List<(String, DateTime)>?) ?? [];
+    if (attempts.isNotEmpty && attempts.last.$1 == payerPhone) {
+      final wait = retrySameNumber - at.difference(attempts.last.$2);
+      if (wait > Duration.zero) {
+        // Arrondi au-dessus : jamais « 0 s » tant que le refus dure.
+        return PaymentRetry((wait.inMilliseconds / 1000).ceil());
+      }
+    }
+    order['_attempts'] = [...attempts, (payerPhone, at)];
     order['_payment_initiated'] = true;
-    return {
+    final n = attempts.length + 1;
+    return <String, dynamic>{
       'provider': 'kpay',
-      'transaction_reference': 'trx-${order['reference']}',
+      'transaction_reference':
+          'trx-${order['reference']}${n > 1 ? '-P$n' : ''}',
       'authorization_url': null,
     };
   }
+
+  /// `PAYMENT_RETRY_SAME_NUMBER_SECONDS` côté serveur (120 s).
+  static const Duration retrySameNumber = Duration(minutes: 2);
 
   // --- Suivi --------------------------------------------------------------
 

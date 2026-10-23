@@ -1835,7 +1835,7 @@
     "@apiErrorPayerPhoneRequired": {},
     "apiErrorPayerPhoneUnsupported": "Ce numéro n'est pas un compte Mobile Money pris en charge. Essayez un numéro MTN ou Orange.",
     "@apiErrorPayerPhoneUnsupported": {},
-    "apiErrorPaymentAlreadyPending": "Une demande de paiement est déjà en attente pour cette commande. Validez-la sur le téléphone qui l'a reçue ; si le numéro était erroné, contactez le support.",
+    "apiErrorPaymentAlreadyPending": "Une demande vers ce numéro attend déjà votre validation. Validez-la sur le téléphone, ou utilisez un autre numéro.",
     "@apiErrorPaymentAlreadyPending": {},
     "apiErrorPaymentProviderUnavailable": "Le service de paiement est momentanément indisponible. Réessayez dans quelques instants.",
     "@apiErrorPaymentProviderUnavailable": {},
@@ -1948,5 +1948,9 @@
     "payerConfirmSend": "Oui, envoyer la demande",
     "@payerConfirmSend": {},
     "payerConfirmEdit": "Modifier le numéro",
-    "@payerConfirmEdit": {}
+    "@payerConfirmEdit": {},
+    "trackingPayChangeNumber": "Je n'ai rien reçu — changer de numéro",
+    "@trackingPayChangeNumber": {},
+    "trackingPaySameNumberIn": "Nouvelle demande vers le {phone} possible dans {time}. Un autre numéro part tout de suite.",
+    "@trackingPaySameNumberIn": {"placeholders": {"phone": {}, "time": {}}}
 }

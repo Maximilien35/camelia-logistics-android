@@ -96,7 +96,7 @@ void main() {
       // Garde-fou de la règle n°9 : un code ajouté sans être recensé
       // échapperait au mapping vers un message localisé.
       expect(ApiErrorCode.all, contains(ApiErrorCode.invalidOtp));
-      expect(ApiErrorCode.all, contains(ApiErrorCode.orderNotDelivered));
+      expect(ApiErrorCode.all, contains(ApiErrorCode.invalidOrderTransition));
       expect(ApiErrorCode.all, contains(ApiErrorCode.promoCodeExpired));
       expect(
         ApiErrorCode.all,
@@ -144,7 +144,9 @@ void main() {
       // Plus les deux codes du mot de passe (lot 8, § 6c.6).
       // Plus les six codes de la connexion Google / Apple (lot 8, § 6c.2).
       expect(ApiErrorCode.all, contains(ApiErrorCode.socialSignupIncomplete));
-      expect(ApiErrorCode.all, hasLength(70));
+      // Moins `order_not_delivered`, remplacé par `invalid_order_transition`
+      // sur `confirm-delivery/` au lot 9 (§ 10.8 point P6).
+      expect(ApiErrorCode.all, hasLength(69));
     });
 
     test('le code de repli ne fait pas partie des codes métier', () {

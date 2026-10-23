@@ -98,8 +98,8 @@ void main() {
         httpClient: MockClient((request) async {
           return http.Response(
             jsonEncode({
-              'code': 'order_not_delivered',
-              'message': 'La commande n\'est pas encore livrée.',
+              'code': 'invalid_order_transition',
+              'message': 'Cette commande n\'est pas en attente de paiement.',
               'details': <String, dynamic>{},
             }),
             409,
@@ -112,7 +112,11 @@ void main() {
         client.post('orders/1/confirm-delivery'),
         throwsA(
           isA<ApiException>()
-              .having((e) => e.code, 'code', ApiErrorCode.orderNotDelivered)
+              .having(
+                (e) => e.code,
+                'code',
+                ApiErrorCode.invalidOrderTransition,
+              )
               .having((e) => e.statusCode, 'statusCode', 409),
         ),
       );

@@ -183,14 +183,25 @@ void main() {
     expect(tracking.payerPhone, '+237670000001');
     expect(tracking.order?.status, OrderStatus.delivered);
 
-    // Renvoyer avant validation : le serveur dit qu'une invite attend déjà, et
-    // l'écran reste en attente au lieu de repasser au bouton « Payer ».
+    // Renvoyer vers le même numéro avant validation : refusé quelques
+    // instants (lot 9, § 6.5.1bis), le délai vient du serveur, et l'écran
+    // reste en attente au lieu de repasser au bouton « Payer ».
     expect(await tracking.pay(payerPhone: '+237670000001'), isNull);
     expect(
       (tracking.failure as ApiException?)?.code,
       ApiErrorCode.paymentAlreadyPending,
     );
     expect(tracking.awaitingValidation, isTrue);
+    expect(tracking.sameNumberRetryAt, isNotNull);
+
+    // Le cas du retour de test : le premier numéro était faux. Un autre
+    // numéro part tout de suite, sous une nouvelle tentative.
+    final corrected = await tracking.pay(payerPhone: '+237690000005');
+    expect(corrected, isNotNull);
+    expect(corrected?.transactionReference, endsWith('-P2'));
+    expect(tracking.payerPhone, '+237690000005');
+    expect(tracking.sameNumberRetryAt, isNull);
+    expect(tracking.failure, isNull);
 
     // 7. Relecture après le webhook : terminée, et hors de l'accueil.
     await tracking.refresh();

@@ -34,7 +34,7 @@ void main() {
       // Garde-fou contre un copier-coller du français dans app_en.arb.
       for (final code in [
         ApiErrorCode.invalidCredentials,
-        ApiErrorCode.orderNotDelivered,
+        ApiErrorCode.invalidOrderTransition,
         ApiErrorCode.promoCodeExpired,
       ]) {
         expect(
@@ -98,14 +98,14 @@ void main() {
   });
 
   group('Quelques messages clés', () {
-    test('le paiement avant livraison est expliqué, pas générique', () {
+    test('une invite déjà en attente est expliquée, pas générique', () {
       final message = messageForApiError(
         fr,
-        _error(ApiErrorCode.orderNotDelivered, status: 409),
+        _error(ApiErrorCode.paymentAlreadyPending, status: 409),
       );
 
       expect(message, isNot(fr.apiErrorGeneric));
-      expect(message, contains('livraison'));
+      expect(message, contains('numéro'));
     });
 
     test('un retrait au-dessus du solde est expliqué', () {

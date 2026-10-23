@@ -3047,7 +3047,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get apiErrorPaymentAlreadyPending =>
-      'A payment request is already pending for this order. Approve it on the phone that received it; if the number was wrong, contact support.';
+      'A request to this number is already waiting for your approval. Approve it on the phone, or use another number.';
 
   @override
   String get apiErrorPaymentProviderUnavailable =>
@@ -3244,4 +3244,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get payerConfirmEdit => 'Change the number';
+
+  @override
+  String get trackingPayChangeNumber => 'Didn\'t get it? Change number';
+
+  @override
+  String trackingPaySameNumberIn(Object phone, Object time) {
+    return 'A new request to $phone can be sent in $time. Another number goes through right away.';
+  }
 }

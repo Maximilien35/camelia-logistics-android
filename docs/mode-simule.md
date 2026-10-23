@@ -85,8 +85,8 @@ Les états « Erreur » de la maquette s'atteignent sans toucher au code :
 | `geocoding_unavailable` | rechercher `PANNE` sur l'écran de sélection d'adresses |
 | recherche sans résultat | rechercher un lieu inconnu du faux géocodeur (ex. `Tombouctou`) — lieux connus : Bonanjo, Akwa, Ndokoti, Marché Central, Deïdo, Aéroport, Bonamoussadi (Douala), Poste centrale, Bastos (Yaoundé) |
 | `invalid_otp` au changement de téléphone | code `000000` (tout autre code valide le numéro) |
-| `order_not_delivered` | appeler `confirm-delivery` sur une commande non livrée |
-| `payment_already_pending` | « Renvoyer la demande » sans avoir actualisé le suivi entre-temps |
+| `invalid_order_transition` (paiement) | appeler `confirm-delivery` sur une commande non livrée |
+| `payment_already_pending` + compte à rebours | « Je n'ai rien reçu — changer de numéro », puis **le même** numéro moins de 2 min après (un autre numéro passe tout de suite) |
 | `social_signup_incomplete` | « Continuer avec Google » : compte inconnu (`nadia.google@camelia.test`), l'écran de complétion s'ouvre |
 | rattachement Apple | « Continuer avec Apple » : l'email d'Aïcha, connexion directe |
 | `phone` déjà utilisé (complétion) | saisir `+237690000002` |
@@ -152,7 +152,7 @@ Le faux serveur respecte les contraintes qui comptent :
 - **aucun prix client côté chauffeur** — offres et course portent le gain, pas
   `price_total` ;
 - **le paiement n'est possible qu'après livraison** — `confirm-delivery` sur une
-  commande non livrée répond `order_not_delivered` ;
+  commande non livrée répond `invalid_order_transition` (lot 9) ;
 - **rotation des jetons** — chaque `refresh` renvoie une nouvelle paire et met
   l'ancien en liste noire, comme `ROTATE_REFRESH_TOKENS` ;
 - **cloisonnement** — la commande d'un autre client répond `404`, jamais `403` ;
@@ -177,8 +177,10 @@ Le faux serveur respecte les contraintes qui comptent :
 - **paiement asynchrone** — `confirm-delivery` ne renvoie qu'une invite, à la
   forme KPay (`provider: "kpay"`, `authorization_url: null`, mode USSD) ; la
   commande passe à `completed` à la **relecture suivante**, comme si le webhook
-  était arrivé entre-temps, et une seconde demande avant cette relecture
-  répond `payment_already_pending` ;
+  était arrivé entre-temps. Chaque demande est une tentative (lot 9) : un
+  autre numéro part tout de suite (référence `-P2`, `-P3`…), le même numéro
+  moins de 2 min après répond `payment_already_pending` avec
+  `retry_after_seconds` ;
 - **suivi public réduit** — `/track/{token}/` n'expose ni adresse, ni prix, ni
   donnée personnelle ;
 - **`eta_minutes` et `delivery_code` à `null` hors de leur fenêtre** — l'app

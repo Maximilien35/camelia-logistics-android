@@ -631,7 +631,7 @@ void main() {
           isA<ApiException>().having(
             (e) => e.code,
             'code',
-            ApiErrorCode.orderNotDelivered,
+            ApiErrorCode.invalidOrderTransition,
           ),
         ),
       );

@@ -3077,7 +3077,7 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get apiErrorPaymentAlreadyPending =>
-      'Une demande de paiement est déjà en attente pour cette commande. Validez-la sur le téléphone qui l\'a reçue ; si le numéro était erroné, contactez le support.';
+      'Une demande vers ce numéro attend déjà votre validation. Validez-la sur le téléphone, ou utilisez un autre numéro.';
 
   @override
   String get apiErrorPaymentProviderUnavailable =>
@@ -3274,4 +3274,13 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get payerConfirmEdit => 'Modifier le numéro';
+
+  @override
+  String get trackingPayChangeNumber =>
+      'Je n\'ai rien reçu — changer de numéro';
+
+  @override
+  String trackingPaySameNumberIn(Object phone, Object time) {
+    return 'Nouvelle demande vers le $phone possible dans $time. Un autre numéro part tout de suite.';
+  }
 }

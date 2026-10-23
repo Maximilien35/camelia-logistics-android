@@ -47,6 +47,8 @@
 ///   règle n°5 interdit le temps réel. Seul l'appel existe.
 library;
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
@@ -58,6 +60,7 @@ import '../../../../core/theme/app_tokens.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../shared/models/order.dart';
 import '../../../shared/models/order_proof.dart';
+import '../../../shared/models/phone_number.dart';
 import '../../../shared/models/tracked_driver.dart';
 import '../../../shared/services/emergency_service.dart';
 import '../../../shared/state/auth_controller.dart';
@@ -833,6 +836,7 @@ class _TrackingView extends StatelessWidget {
                 invite: invite,
                 awaiting: controller.awaitingValidation,
                 payerPhone: controller.payerPhone,
+                sameNumberRetryAt: controller.sameNumberRetryAt,
                 paying: controller.paying,
                 onPay: onPay,
                 onOpenInvitePage: onOpenInvitePage,
@@ -1261,15 +1265,22 @@ class _StateBanner extends StatelessWidget {
 ///
 /// Deux états : « payer » (bouton), puis « en attente de validation » dès
 /// qu'une invite est partie ou que le serveur signale qu'une invite attend
-/// déjà (`payment_already_pending`). En attente, le second bouton rouvre la
-/// page de paiement si le fournisseur en a rendu une, et sinon **renvoie la
-/// demande** (USSD) — un nouvel appui, donc un nouvel appel explicite.
-class _PayCard extends StatelessWidget {
+/// déjà (`payment_already_pending`).
+///
+/// En attente (lot 9, § 6.5.1bis — « Corriger un numéro ») : **« Je n'ai rien
+/// reçu — changer de numéro »** rouvre la saisie, préremplie avec le dernier
+/// numéro ; la nouvelle demande part tout de suite sous une nouvelle
+/// tentative. Vers le même numéro, le serveur peut imposer un délai
+/// (`retry_after_seconds`) : la carte en affiche le compte à rebours, le champ
+/// numéro reste modifiable. Si le fournisseur a rendu une page de paiement,
+/// le bouton la rouvre à la place.
+class _PayCard extends StatefulWidget {
   const _PayCard({
     required this.order,
     required this.invite,
     required this.awaiting,
     required this.payerPhone,
+    required this.sameNumberRetryAt,
     required this.paying,
     required this.onPay,
     required this.onOpenInvitePage,
@@ -1280,17 +1291,79 @@ class _PayCard extends StatelessWidget {
   final PaymentInvite? invite;
   final bool awaiting;
   final String? payerPhone;
+  final DateTime? sameNumberRetryAt;
   final bool paying;
   final VoidCallback onPay;
   final ValueChanged<PaymentInvite> onOpenInvitePage;
   final Future<void> Function() onRefresh;
 
   @override
+  State<_PayCard> createState() => _PayCardState();
+}
+
+class _PayCardState extends State<_PayCard> {
+  /// Rafraîchit l'affichage du compte à rebours, rien d'autre : aucun appel
+  /// réseau n'en dépend (règle n°5).
+  Timer? _tick;
+
+  @override
+  void initState() {
+    super.initState();
+    _syncTicker();
+  }
+
+  @override
+  void didUpdateWidget(covariant _PayCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _syncTicker();
+  }
+
+  @override
+  void dispose() {
+    _tick?.cancel();
+    super.dispose();
+  }
+
+  void _syncTicker() {
+    final active = widget.sameNumberRetryAt != null;
+    if (active && _tick == null) {
+      _tick = Timer.periodic(const Duration(seconds: 1), (_) {
+        if (!mounted) return;
+        final at = widget.sameNumberRetryAt;
+        if (at == null || !at.isAfter(DateTime.now())) {
+          _tick?.cancel();
+          _tick = null;
+        }
+        setState(() {});
+      });
+    } else if (!active) {
+      _tick?.cancel();
+      _tick = null;
+    }
+  }
+
+  String? _remaining() {
+    final at = widget.sameNumberRetryAt;
+    if (at == null) return null;
+    final left = at.difference(DateTime.now());
+    if (left <= Duration.zero) return null;
+    final seconds = (left.inMilliseconds / 1000).ceil();
+    return '${seconds ~/ 60}:${(seconds % 60).toString().padLeft(2, '0')}';
+  }
+
+  @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final locale = Localizations.localeOf(context).languageCode;
-    final page = invite != null && invite!.opensPage ? invite : null;
-    final phone = payerPhone;
+    final invite = widget.invite;
+    final page = invite != null && invite.opensPage ? invite : null;
+    final awaiting = widget.awaiting;
+    final remaining = _remaining();
+    final phone = widget.payerPhone;
+    final local = phone == null ? null : PhoneNumber.cameroonLocal(phone);
+    final displayPhone = local != null
+        ? PhoneNumber.displayCameroon(local)
+        : phone;
 
     return Container(
       padding: const EdgeInsets.all(20),
@@ -1325,8 +1398,8 @@ class _PayCard extends StatelessWidget {
           Text(
             !awaiting
                 ? l10n.trackingPayBody
-                : page == null && phone != null
-                ? l10n.trackingPayPromptSentBody(phone)
+                : page == null && displayPhone != null
+                ? l10n.trackingPayPromptSentBody(displayPhone)
                 : l10n.trackingPayPendingBody,
             style: const TextStyle(
               fontSize: AppFontSize.label,
@@ -1334,13 +1407,35 @@ class _PayCard extends StatelessWidget {
               color: Color(0xCCFFFFFF),
             ),
           ),
+          if (awaiting && remaining != null && displayPhone != null) ...[
+            const SizedBox(height: AppSpacing.md),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(AppIcons.clock, size: 16, color: AppColors.white),
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(
+                  child: Text(
+                    l10n.trackingPaySameNumberIn(displayPhone, remaining),
+                    style: const TextStyle(
+                      fontSize: AppFontSize.caption,
+                      height: 1.45,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.white,
+                      fontFeatures: [FontFeature.tabularFigures()],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
           const SizedBox(height: AppSpacing.lg),
           if (!awaiting)
             SizedBox(
               width: double.infinity,
               height: 52,
               child: FilledButton(
-                onPressed: paying ? null : onPay,
+                onPressed: widget.paying ? null : widget.onPay,
                 style: FilledButton.styleFrom(
                   backgroundColor: AppColors.white,
                   foregroundColor: AppColors.brand,
@@ -1352,7 +1447,7 @@ class _PayCard extends StatelessWidget {
                     fontSize: AppFontSize.bodyLarge,
                   ),
                 ),
-                child: paying
+                child: widget.paying
                     ? const SizedBox(
                         width: 20,
                         height: 20,
@@ -1360,34 +1455,33 @@ class _PayCard extends StatelessWidget {
                       )
                     : Text(
                         l10n.trackingPayButton(
-                          formatAmount(order.priceTotal, locale: locale),
+                          formatAmount(widget.order.priceTotal, locale: locale),
                         ),
                       ),
               ),
             )
-          else
-            Row(
-              children: [
-                Expanded(
-                  child: page != null
-                      ? _LightButton(
-                          label: l10n.trackingPayOpenAgain,
-                          onTap: () => onOpenInvitePage(page),
-                        )
-                      : _LightButton(
-                          label: l10n.trackingPaySendAgain,
-                          onTap: paying ? null : onPay,
-                        ),
-                ),
-                const SizedBox(width: AppSpacing.sm),
-                Expanded(
-                  child: _LightButton(
-                    label: l10n.commonRefresh,
-                    onTap: onRefresh,
-                  ),
-                ),
-              ],
+          else ...[
+            SizedBox(
+              width: double.infinity,
+              child: page != null
+                  ? _LightButton(
+                      label: l10n.trackingPayOpenAgain,
+                      onTap: () => widget.onOpenInvitePage(page),
+                    )
+                  : _LightButton(
+                      label: l10n.trackingPayChangeNumber,
+                      onTap: widget.paying ? null : widget.onPay,
+                    ),
             ),
+            const SizedBox(height: AppSpacing.sm),
+            SizedBox(
+              width: double.infinity,
+              child: _LightButton(
+                label: l10n.commonRefresh,
+                onTap: widget.onRefresh,
+              ),
+            ),
+          ],
         ],
       ),
     );
