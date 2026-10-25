@@ -217,18 +217,30 @@ workflows:
           # le profil ne porte pas la capacité, Xcode échoue plus loin avec un
           # message obscur, ou pire : un profil manuel sans elle donnerait une
           # app dont le bouton Apple échoue à chaque appui. On le dit ici.
+          #
+          # Depuis Xcode 16, les profils sont rangés dans UserData et non plus
+          # dans MobileDevice : on regarde les deux, sinon la vérification
+          # échoue sans avoir rien lu.
           found=0
-          for p in "$HOME/Library/MobileDevice/Provisioning Profiles/"*.mobileprovision; do
-            [ -e "$p" ] || continue
-            security cms -D -i "$p" > /tmp/profile.plist
-            bundle=$(/usr/libexec/PlistBuddy -c 'Print :Entitlements:application-identifier' /tmp/profile.plist 2>/dev/null || true)
-            case "$bundle" in
-              *.com.camelia.logistics) ;;
-              *) continue ;;
-            esac
-            if /usr/libexec/PlistBuddy -c 'Print :Entitlements:com.apple.developer.applesignin' /tmp/profile.plist >/dev/null 2>&1; then
-              found=1
-            fi
+          for dir in \
+            "$HOME/Library/MobileDevice/Provisioning Profiles" \
+            "$HOME/Library/Developer/Xcode/UserData/Provisioning Profiles"; do
+            for p in "$dir"/*.mobileprovision; do
+              [ -e "$p" ] || continue
+              security cms -D -i "$p" > /tmp/profile.plist
+              bundle=$(/usr/libexec/PlistBuddy -c 'Print :Entitlements:application-identifier' /tmp/profile.plist 2>/dev/null || true)
+              case "$bundle" in
+                *.com.camelia.logistics) ;;
+                *) continue ;;
+              esac
+              name=$(/usr/libexec/PlistBuddy -c 'Print :Name' /tmp/profile.plist 2>/dev/null || true)
+              if /usr/libexec/PlistBuddy -c 'Print :Entitlements:com.apple.developer.applesignin' /tmp/profile.plist >/dev/null 2>&1; then
+                echo "Profil « $name » ($p) : Sign in with Apple présent."
+                found=1
+              else
+                echo "Profil « $name » ($p) : Sign in with Apple ABSENT."
+              fi
+            done
           done
           if [ "$found" -ne 1 ]; then
             echo "ERREUR : aucun profil com.camelia.logistics ne porte Sign in with Apple." >&2
